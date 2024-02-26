@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoCollection;
 use App\Models\Producto;
 use Illuminate\Http\Request;
@@ -21,9 +22,23 @@ class ProductoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store( ProductoRequest $request)
     {
-        //
+        $datos = $request->validated();
+        
+        $imageName = time().'.'.$request->imagen->extension();  
+        $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME);
+   
+        $request->imagen->move(public_path('img'), $imageName);
+
+        $productoNuevo = new Producto;
+        $productoNuevo->nombre = $datos['nombre'];
+        $productoNuevo->precio = $datos['precio'];
+        $productoNuevo->imagen = $nombreLimpio;
+        $productoNuevo->categoria_id = $datos['categoria'];
+        $productoNuevo->save();
+
+        return response()->json(['success'=>'Producto guardado correctamente.']);
     }
 
     /**
