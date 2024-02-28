@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PedidoCollection;
-use App\Models\Pedido;
-use App\Models\PedidoProducto;
 use Carbon\Carbon;
+use App\Models\Pedido;
 use Illuminate\Http\Request;
+use App\Models\PedidoProducto;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\PedidoCollection;
 
 class PedidoController extends Controller
 {
@@ -16,7 +17,28 @@ class PedidoController extends Controller
      */
     public function index()
     {
-        return new PedidoCollection(Pedido::with('user')->with('productos')->where('estado', 0)->get());
+        $pedidos = Pedido::with('user')
+            ->with('productos')
+            ->where('estado', 0)
+            ->get();
+
+
+        $productos = DB::table('pedido_productos')
+            ->select('producto_id', DB::raw('SUM(cantidad) as total_vendido'))
+            ->groupBy('producto_id')
+            ->orderByDesc('total_vendido')
+            ->limit(3)
+            ->pluck('producto_id'); // Obtener solo los IDs de los productos más vendidos
+
+            $productosMasVendidos = DB::table('productos')
+                ->whereIn('id', $productos)
+                ->get();
+        return [
+            'pedidos' => new PedidoCollection($pedidos),
+            'productos_mas_vendidos' => $productosMasVendidos,
+        ];
+
+        /* return new PedidoCollection(Pedido::with('user')->with('productos')->where('estado', 0)->get()); */
     }
 
     /**
@@ -51,7 +73,7 @@ class PedidoController extends Controller
 
         // Almacenar en la BD
         PedidoProducto::insert($pediddo_producto);
-        
+
         return [
             'message' => 'Pedido realizado Correctamente, estara listo en usnos minutos'
         ];
