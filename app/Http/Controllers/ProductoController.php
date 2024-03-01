@@ -26,15 +26,17 @@ class ProductoController extends Controller
     {
         $datos = $request->validated();
         
+        //Agrega un nombre y con su extencion
         $imageName = time().'.'.$request->imagen->extension();  
-        $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME);
+      /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
    
+        //mueve la imagen a la carpeta public/img
         $request->imagen->move(public_path('img'), $imageName);
 
         $productoNuevo = new Producto;
         $productoNuevo->nombre = $datos['nombre'];
         $productoNuevo->precio = $datos['precio'];
-        $productoNuevo->imagen = $nombreLimpio;
+        $productoNuevo->imagen = $imageName;
         $productoNuevo->categoria_id = $datos['categoria'];
         $productoNuevo->save();
 

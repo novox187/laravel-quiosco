@@ -9,24 +9,26 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    public function index(){
-        
+    public function index()
+    {
+
         return new CategoriaCollection(Categoria::all());
     }
-    public function store(CategoriaRequest $request){
+    public function store(CategoriaRequest $request)
+    {
 
         $datos = $request->validated();
-
-        $iconoName = 'icono_'.time().'.'.$request->icono->extension();  
-        $nombreLimpio = pathinfo($iconoName, PATHINFO_FILENAME);
-   
+        //Agrega un nombre y con su extencion
+        $iconoName = 'icono_' . time() . '.' . $request->icono->extension();
+        /* $nombreLimpio = pathinfo($iconoName, PATHINFO_FILENAME); */
+        //mueve la imagen a la carpeta public/img
         $request->icono->move(public_path('img'), $iconoName);
 
         $categorias = new Categoria;
-        $categorias->nombre =$request->nombre;
-        $categorias->icono = $nombreLimpio;
+        $categorias->nombre = $request->nombre;
+        $categorias->icono = $iconoName;
         $categorias->save();
 
-        return response()->json(['success'=>'Categoria guardada correctamente.']);
+        return response()->json(['success' => 'Categoria guardada correctamente.']);
     }
 }

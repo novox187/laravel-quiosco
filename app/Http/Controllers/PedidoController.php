@@ -19,7 +19,6 @@ class PedidoController extends Controller
     {
         $pedidos = Pedido::with('user')
             ->with('productos')
-            ->where('estado', 0)
             ->get();
 
 
@@ -30,9 +29,9 @@ class PedidoController extends Controller
             ->limit(3)
             ->pluck('producto_id'); // Obtener solo los IDs de los productos más vendidos
 
-            $productosMasVendidos = DB::table('productos')
-                ->whereIn('id', $productos)
-                ->get();
+        $productosMasVendidos = DB::table('productos')
+            ->whereIn('id', $productos)
+            ->get();
         return [
             'pedidos' => new PedidoCollection($pedidos),
             'productos_mas_vendidos' => $productosMasVendidos,
@@ -46,10 +45,48 @@ class PedidoController extends Controller
      */
     public function store(Request $request)
     {
+        //Traemos el ultimo codigo de la base de datos
+        $ultimoCodigo = Pedido::latest()->first();
+
+        if ($ultimoCodigo) {
+            // Extraer la letra y los números del último código
+            $letra = substr($ultimoCodigo->numero_pedido, 0, 1);
+            $numeros = (int)substr($ultimoCodigo->numero_pedido, 1);
+    
+            if ($numeros < 999) {
+                // Incrementar los números
+                $numeros++;
+            } else {
+                // Reiniciar los números y cambiar la letra si es Z
+                $numeros = 0;
+                $letra = $letra === 'Z' ? 'A' : ++$letra;
+            }
+        } else {
+            // Establecer el primer código como A000 si no hay códigos en la base de datos
+            $letra = 'A';
+            $numeros = 0;
+        }
+    
+        // Formatear el nuevo código
+        $nuevoCodigo = $letra .'-'. str_pad($numeros, 3, '0', STR_PAD_LEFT);
+    
+        // Verificar que el nuevo código no exista en la base de datos
+        while (Pedido::where('numero_pedido', $nuevoCodigo)->exists()) {
+            // Incrementar los números y actualizar el nuevo código
+            $numeros = $numeros < 999 ? ++$numeros : 0;
+            $letra = $numeros === 0 ? ($letra === 'Z' ? 'A' : ++$letra) : $letra;
+            $nuevoCodigo = $letra .'-'. str_pad($numeros, 3, '0', STR_PAD_LEFT);
+        }
+
+
+
+
+
         // Almacenar orden
         $pedido = new Pedido;
         $pedido->user_id = Auth::user()->id;
         $pedido->total = $request->total;
+        $pedido->numero_pedido = $nuevoCodigo;
         $pedido->save();
 
         // Obtener el ID del pedido
@@ -78,6 +115,41 @@ class PedidoController extends Controller
             'message' => 'Pedido realizado Correctamente, estara listo en usnos minutos'
         ];
     }
+
+    private function incrementCode($code)
+    {
+        $letters = substr($code, 0, -3);
+        $number = intval(substr($code, -3));
+
+        if ($number < 999) {
+            $number++;
+        } else {
+            $number = 0;
+            $letters = $this->incrementLetters($letters);
+        }
+
+        return $letters . str_pad($number, 3, '0', STR_PAD_LEFT);
+    }
+
+    private function incrementLetters($letters)
+    {
+        $lastLetter = substr($letters, -1);
+        $remainingLetters = substr($letters, 0, -1);
+
+        if ($lastLetter < 'Z') {
+            $lastLetter++;
+        } else {
+            $lastLetter = 'A';
+            if ($remainingLetters === '') {
+                $remainingLetters = 'A';
+            } else {
+                $remainingLetters = $this->incrementLetters($remainingLetters);
+            }
+        }
+
+        return $remainingLetters . $lastLetter;
+    }
+
 
     /**
      * Display the specified resource.
