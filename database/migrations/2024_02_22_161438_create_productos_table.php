@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string("nombre");
             $table->double('precio');
             $table->string('imagen');
-            $table->string('descripcion');
+            $table->text('descripcion');
             $table->boolean('disponible')->default(1);
             $table->double('descuentopromo')->default(0);
             $table->double('rating')->default(0);
