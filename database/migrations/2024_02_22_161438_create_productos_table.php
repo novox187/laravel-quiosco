@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('imagen');
             $table->string('descripcion');
             $table->boolean('disponible')->default(1);
-            $table->integer('descuentopromo')->default(0);
+            $table->double('descuentopromo')->default(0);
             $table->double('rating')->default(0);
             $table->foreignId('categoria_id')->constrained()->onDelete('cascade');
             $table->timestamps();
