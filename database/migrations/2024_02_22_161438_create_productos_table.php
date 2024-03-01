@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string("nombre");
             $table->double('precio');
             $table->string('imagen');
+            $table->string('descripcion');
             $table->boolean('disponible')->default(1);
             $table->foreignId('categoria_id')->constrained()->onDelete('cascade');
             $table->timestamps();
