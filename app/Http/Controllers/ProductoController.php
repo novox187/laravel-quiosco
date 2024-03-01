@@ -37,6 +37,7 @@ class ProductoController extends Controller
         $productoNuevo->nombre = $datos['nombre'];
         $productoNuevo->precio = $datos['precio'];
         $productoNuevo->imagen = $imageName;
+        $productoNuevo->descripcion = $datos['descripcion'];
         $productoNuevo->categoria_id = $datos['categoria'];
         $productoNuevo->save();
 

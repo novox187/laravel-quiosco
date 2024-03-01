@@ -25,7 +25,8 @@ class ProductoRequest extends FormRequest
             'nombre' => ['required','min:10', 'string','unique:productos,nombre'],
             'precio' => ['required'],
             'categoria' => ['required'],
-            'imagen' => ['required', 'image','mimes:jpeg,png,jpg,gif,svg','max:2048', 'unique:productos,imagen']
+            'imagen' => ['required', 'image','mimes:jpeg,png,jpg,gif,svg,webp','max:2048', 'unique:productos,imagen'],
+            'descripcion' => ['required'],
         ];
     }
 
@@ -41,7 +42,8 @@ class ProductoRequest extends FormRequest
             'imagen.unique' =>  'La imagen de este producto ya existe en la base de datos',
             'imagen.image' =>  'El archivo tiene que ser una imagen' ,
             'imagen.mimes' => 'Solo son permitida las extenciones(jpeg,png,jpg,gif,svg)',
-            'imagen.max' => 'El tamaño de la imagen no debe ser mayor a 2048mb'
+            'imagen.max' => 'El tamaño de la imagen no debe ser mayor a 2048mb',
+            'descripcion' => 'La descripcion es Oblogatoria',
         ];
 
     }
