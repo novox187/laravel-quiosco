@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->double('total');
             $table->string('numero_pedido')->default('0');
-            $table->boolean('estado')->default(0);
             $table->boolean('preparado')->default(0);
             $table->boolean('entregado')->default(0);
             $table->timestamps();
