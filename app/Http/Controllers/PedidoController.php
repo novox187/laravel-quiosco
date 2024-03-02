@@ -52,7 +52,7 @@ class PedidoController extends Controller
             // Extraer la letra y los números del último código
             $letra = substr($ultimoCodigo->numero_pedido, 0, 1);
             $numeros = (int)substr($ultimoCodigo->numero_pedido, 1);
-    
+
             if ($numeros < 999) {
                 // Incrementar los números
                 $numeros++;
@@ -66,16 +66,16 @@ class PedidoController extends Controller
             $letra = 'A';
             $numeros = 0;
         }
-    
+
         // Formatear el nuevo código
-        $nuevoCodigo = $letra .'-'. str_pad($numeros, 3, '0', STR_PAD_LEFT);
-    
+        $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
+
         // Verificar que el nuevo código no exista en la base de datos
         while (Pedido::where('numero_pedido', $nuevoCodigo)->exists()) {
             // Incrementar los números y actualizar el nuevo código
             $numeros = $numeros < 999 ? ++$numeros : 0;
             $letra = $numeros === 0 ? ($letra === 'Z' ? 'A' : ++$letra) : $letra;
-            $nuevoCodigo = $letra .'-'. str_pad($numeros, 3, '0', STR_PAD_LEFT);
+            $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
         }
 
 
@@ -164,11 +164,19 @@ class PedidoController extends Controller
      */
     public function update(Request $request, Pedido $pedido)
     {
-        $pedido->estado = 1;
-        $pedido->save();
+        $verificaion = $request->identificador;
+
+        if ($verificaion == 1) {
+            $pedido->preparado = 1;
+            $pedido->save();
+
+        } else if($verificaion == 0) {
+            $pedido->entregado = 1;
+            $pedido->save();
+        }
 
         return [
-            'pedido' => $pedido
+            'message' =>  'Actualiazado correctamente'
         ];
     }
 
