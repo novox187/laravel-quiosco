@@ -116,39 +116,6 @@ class PedidoController extends Controller
         ];
     }
 
-    private function incrementCode($code)
-    {
-        $letters = substr($code, 0, -3);
-        $number = intval(substr($code, -3));
-
-        if ($number < 999) {
-            $number++;
-        } else {
-            $number = 0;
-            $letters = $this->incrementLetters($letters);
-        }
-
-        return $letters . str_pad($number, 3, '0', STR_PAD_LEFT);
-    }
-
-    private function incrementLetters($letters)
-    {
-        $lastLetter = substr($letters, -1);
-        $remainingLetters = substr($letters, 0, -1);
-
-        if ($lastLetter < 'Z') {
-            $lastLetter++;
-        } else {
-            $lastLetter = 'A';
-            if ($remainingLetters === '') {
-                $remainingLetters = 'A';
-            } else {
-                $remainingLetters = $this->incrementLetters($remainingLetters);
-            }
-        }
-
-        return $remainingLetters . $lastLetter;
-    }
 
 
     /**
@@ -169,8 +136,7 @@ class PedidoController extends Controller
         if ($verificaion == 1) {
             $pedido->preparado = 1;
             $pedido->save();
-
-        } else if($verificaion == 0) {
+        } else if ($verificaion == 0) {
             $pedido->entregado = 1;
             $pedido->save();
         }

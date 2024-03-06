@@ -4,7 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\UpdateDespachoController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,8 +27,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Almacenar Ordenes
     Route::apiResource('/pedidos', PedidoController::class);
+
     
-    Route::apiResource('/updatedespacho', UpdateDespachoController::class);
+    Route::apiResource('/usuarios', UserController::class);
 
     Route::apiResource('/categorias', CategoriaController::class);
     Route::apiResource('/productos', ProductoController::class);
