@@ -26,7 +26,7 @@ class PedidoController extends Controller
             ->select('producto_id', DB::raw('SUM(cantidad) as total_vendido'))
             ->groupBy('producto_id')
             ->orderByDesc('total_vendido')
-            ->limit(3)
+            ->limit(2)
             ->pluck('producto_id'); // Obtener solo los IDs de los productos más vendidos
 
         $productosMasVendidos = DB::table('productos')

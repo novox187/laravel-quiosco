@@ -22,7 +22,7 @@ class ProductoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre' => ['required','min:10', 'string','unique:productos,nombre'],
+            'nombre' => ['required','min:4', 'string','unique:productos,nombre'],
             'precio' => ['required'],
             'categoria' => ['required'],
             'imagen' => ['required', 'image','mimes:jpeg,png,jpg,gif,svg,webp','max:2048', 'unique:productos,imagen'],
