@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductoActualizarRequest;
 use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoCollection;
 use App\Models\Producto;
@@ -22,16 +23,14 @@ class ProductoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store( ProductoRequest $request)
+    public function store(ProductoRequest $request)
     {
         $datos = $request->validated();
-        
+
+
         //Agrega un nombre y con su extencion
-        $imageName = time().'.'.$request->imagen->extension();  
-      /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
-   
-        //mueve la imagen a la carpeta public/img
-        $request->imagen->move(public_path('img'), $imageName);
+        $imageName = time() . '.' . $request->imagen->extension();
+        /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
 
         $productoNuevo = new Producto;
         $productoNuevo->nombre = $datos['nombre'];
@@ -41,7 +40,11 @@ class ProductoController extends Controller
         $productoNuevo->categoria_id = $datos['categoria'];
         $productoNuevo->save();
 
-        return response()->json(['success'=>'Producto guardado correctamente.']);
+
+        //mueve la imagen a la carpeta public/img
+        $request->imagen->move(public_path('img'), $imageName);
+
+        return response()->json(['success' => 'Producto guardado correctamente.']);
     }
 
     /**
@@ -55,7 +58,34 @@ class ProductoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Producto $producto)
+    public function productoActualizar(ProductoActualizarRequest $request, Producto $producto)
+    {
+        $datos = $request->validated();
+
+        if (empty($request->imagen)) {
+            $producto->nombre = $datos['nombre'];
+            $producto->precio = $datos['precio'];
+            $producto->descripcion = $datos['descripcion'];
+            $producto->save();
+        } else{
+            //Agrega un nombre y con su extencion
+            $imageName = time() . '.' . $request->imagen->extension();
+            
+            $producto->nombre = $datos['nombre'];
+            $producto->precio = $datos['precio'];
+            $producto->imagen = $imageName;
+            $producto->descripcion = $datos['descripcion'];
+            $producto->save();
+
+            //mueve la imagen a la carpeta public/img
+            $request->imagen->move(public_path('img'), $imageName);
+        }
+
+        return [
+            'producto' => $request->nombre
+        ];
+    }
+    public function updateDisponible(Request $request, Producto $producto)
     {
         if ($producto->disponible === 1) {
             $producto->disponible = 0;

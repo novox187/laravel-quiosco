@@ -28,11 +28,14 @@ Route::middleware('auth:sanctum')->group(function () {
     //Almacenar Ordenes
     Route::apiResource('/pedidos', PedidoController::class);
 
-    
+
     Route::apiResource('/usuarios', UserController::class);
 
     Route::apiResource('/categorias', CategoriaController::class);
-    Route::apiResource('/productos', ProductoController::class);
+    /*     Route::apiResource('/productos', ProductoController::class); */
+    Route::get('/productos', [ProductoController::class, 'index']);
+    Route::put('/productos/disponible/{producto}', [ProductoController::class, 'updateDisponible']);
+    Route::put('/productos/actualizar/{producto}', [ProductoController::class, 'productoActualizar']);
 });
 
 
