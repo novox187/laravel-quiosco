@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductoActualizarRequest;
-use App\Http\Requests\ProductoRequest;
-use App\Http\Resources\ProductoCollection;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use App\Http\Requests\ProductoRequest;
+use App\Http\Resources\ProductoResource;
+use App\Http\Resources\ProductoCollection;
+use App\Http\Requests\ProductoActualizarRequest;
 
 class ProductoController extends Controller
 {
@@ -15,9 +16,11 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
-        /* where('disponible', 1)->orderBy('id', 'DESC')->paginate(10) */
-        /* return $request['search']; */
-        return new ProductoCollection(Producto::orderBy('disponible', 'DESC')->orderBy('id', 'DESC')->get());
+        $productos = Producto::with('promocion')
+            ->orderBy('disponible', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->get();
+    return ProductoResource::collection($productos);
     }
 
     /**
@@ -67,10 +70,10 @@ class ProductoController extends Controller
             $producto->precio = $datos['precio'];
             $producto->descripcion = $datos['descripcion'];
             $producto->save();
-        } else{
+        } else {
             //Agrega un nombre y con su extencion
             $imageName = time() . '.' . $request->imagen->extension();
-            
+
             $producto->nombre = $datos['nombre'];
             $producto->precio = $datos['precio'];
             $producto->imagen = $imageName;

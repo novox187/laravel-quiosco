@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\Promocione;
+use App\Models\Producto;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Producto extends Model
+class Promocione extends Model
 {
     use HasFactory;
 
-    public function promocion()
+    public function productos()
     {
-        return $this->belongsTo(Promocione::class, 'promo_id');
+        return $this->hasMany(Producto::class, 'id_promocion');
     }
 }
