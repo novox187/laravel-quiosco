@@ -21,7 +21,15 @@ class PedidoController extends Controller
             ->with('productos')
             ->get();
 
+        return [
+            'pedidos' => new PedidoCollection($pedidos),
+        ];
 
+        /* return new PedidoCollection(Pedido::with('user')->with('productos')->where('estado', 0)->get()); */
+    }
+
+    public function productostop()
+    {
         $productos = DB::table('pedido_productos')
             ->select('producto_id', DB::raw('SUM(cantidad) as total_vendido'))
             ->groupBy('producto_id')
@@ -32,12 +40,10 @@ class PedidoController extends Controller
         $productosMasVendidos = DB::table('productos')
             ->whereIn('id', $productos)
             ->get();
-        return [
-            'pedidos' => new PedidoCollection($pedidos),
-            'productos_mas_vendidos' => $productosMasVendidos,
-        ];
 
-        /* return new PedidoCollection(Pedido::with('user')->with('productos')->where('estado', 0)->get()); */
+        return [
+            'productos_mas_vendidos' => $productosMasVendidos
+        ];
     }
 
     /**

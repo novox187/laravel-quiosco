@@ -26,19 +26,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     //Almacenar Ordenes
-    Route::apiResource('/pedidos', PedidoController::class);
-
+    Route::get('/pedidos', [PedidoController::class, 'index']);
+    Route::post('/pedidos/nuevo', [PedidoController::class, 'store']);
 
     Route::apiResource('/usuarios', UserController::class);
 
-    Route::apiResource('/categorias', CategoriaController::class);
-    /*     Route::apiResource('/productos', ProductoController::class); */
-    Route::get('/productos', [ProductoController::class, 'index']);
+    /*  Route::apiResource('/categorias', CategoriaController::class); */
+    Route::post('/categorias/create', [CategoriaController::class, 'store']);
+
+    Route::post('/productos/create', [ProductoController::class, 'store']);
     Route::put('/productos/disponible/{producto}', [ProductoController::class, 'updateDisponible']);
     Route::put('/productos/actualizar/{producto}', [ProductoController::class, 'productoActualizar']);
 });
 
+Route::get('/productos/top', [PedidoController::class, 'productostop']);
 
+Route::get('/productos', [ProductoController::class, 'index']);
+Route::get('/categorias', [CategoriaController::class, 'index']);
 //Autenticacion
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
