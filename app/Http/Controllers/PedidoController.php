@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Pedido;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 use App\Models\PedidoProducto;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ class PedidoController extends Controller
             ->limit(2)
             ->pluck('producto_id'); // Obtener solo los IDs de los productos más vendidos
 
-        $productosMasVendidos = DB::table('productos')
+        $productosMasVendidos = Producto::with('promocion')
             ->whereIn('id', $productos)
             ->get();
 
