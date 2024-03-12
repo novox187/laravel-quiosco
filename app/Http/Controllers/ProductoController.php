@@ -69,6 +69,7 @@ class ProductoController extends Controller
             $producto->nombre = $datos['nombre'];
             $producto->precio = $datos['precio'];
             $producto->descripcion = $datos['descripcion'];
+            $producto->promo_id = $request->promo_id;
             $producto->save();
         } else {
             //Agrega un nombre y con su extencion
@@ -78,6 +79,7 @@ class ProductoController extends Controller
             $producto->precio = $datos['precio'];
             $producto->imagen = $imageName;
             $producto->descripcion = $datos['descripcion'];
+            $producto->promo_id = $request->promo_id;
             $producto->save();
 
             //mueve la imagen a la carpeta public/img

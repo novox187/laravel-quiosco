@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PromocionRequest;
+use App\Http\Resources\PromocionCollection;
+use App\Models\Promocione;
 use Illuminate\Http\Request;
 
 class PromocioneController extends Controller
@@ -11,15 +14,25 @@ class PromocioneController extends Controller
      */
     public function index()
     {
-        //
+        return new PromocionCollection(Promocione::all());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PromocionRequest $request)
     {
-        //
+        $datos = $request->validated();
+
+        $promocion = new Promocione;
+        $promocion->nombre = $datos['nombre_promo'];
+        $promocion->descuento = $datos['porciento_promo'];
+        $promocion->save();
+
+        return [
+            'nueva_promocion' => $promocion
+        ];
+
     }
 
     /**
