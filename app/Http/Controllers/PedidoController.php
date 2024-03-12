@@ -136,20 +136,25 @@ class PedidoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Pedido $pedido)
+    public function update(Request $request, $pedido)
     {
         $verificaion = $request->identificador;
 
+
         if ($verificaion == 1) {
-            $pedido->preparado = 1;
-            $pedido->save();
+
+            Pedido::where('id', $pedido)->update([
+                'preparado' => 1,
+            ]);
         } else if ($verificaion == 0) {
-            $pedido->entregado = 1;
-            $pedido->save();
+            Pedido::where('id', $pedido)->update([
+                'entregado' => 1,
+            ]);
         }
 
+
         return [
-            'message' =>  'Actualiazado correctamente'
+            'response' =>  'A sido actualizado correactamente'
         ];
     }
 

@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //Almacenar Ordenes
     Route::get('/pedidos', [PedidoController::class, 'index']);
     Route::post('/pedidos/nuevo', [PedidoController::class, 'store']);
+    Route::put('/pedidos/actualizar/{id}', [PedidoController::class, 'update']);
 
     Route::apiResource('/usuarios', UserController::class);
 
