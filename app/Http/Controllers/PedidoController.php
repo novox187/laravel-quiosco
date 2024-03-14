@@ -19,7 +19,7 @@ class PedidoController extends Controller
     public function index()
     {
         $pedidos = Pedido::with('user')
-            ->with('productos')
+            ->with('productos.promocion')
             ->get();
 
         return [
@@ -93,6 +93,7 @@ class PedidoController extends Controller
         $pedido = new Pedido;
         $pedido->user_id = Auth::user()->id;
         $pedido->total = $request->total;
+        $pedido->total_neto = $request->totalNeto;
         $pedido->numero_pedido = $nuevoCodigo;
         $pedido->save();
 
