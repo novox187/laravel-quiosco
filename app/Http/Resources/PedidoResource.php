@@ -27,7 +27,7 @@ class PedidoResource extends JsonResource
                     'id' => $this->user->id,
                     'name' => $this->user->name,
                     'email' => $this->user->email,
-                    'calificacion' => $this->calificacion,
+                    'calificacion' => $this->user->calificacion,
                 ];
             }),
             'productos' =>  $this->whenLoaded('productos', function () {

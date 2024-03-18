@@ -15,15 +15,70 @@ class CategoriaSeeder extends Seeder
     public function run(): void
     {
         DB::table('categorias')->insert([
-            'nombre' => 'Parrilladas',
-            'icono' => 'icono_1709560050.svg',
+            'nombre' => 'especial',
+            'icono' => 'icono_especial.svg',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
         
         DB::table('categorias')->insert([
-            'nombre' => 'Cortes de Carne',
-            'icono' => 'icono_1709561002.svg',
+            'nombre' => 'arroz',
+            'icono' => 'icono_arroz.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('categorias')->insert([
+            'nombre' => 'parrilladas',
+            'icono' => 'icono_parrilladas.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('categorias')->insert([
+            'nombre' => 'personal',
+            'icono' => 'icono_personal.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('categorias')->insert([
+            'nombre' => 'combo-amigos',
+            'icono' => 'icono_combo-amigos.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('categorias')->insert([
+            'nombre' => 'porciones',
+            'icono' => 'icono_porciones.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('categorias')->insert([
+            'nombre' => 'bebidas-naturales',
+            'icono' => 'icono_bebidas-naturales.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('categorias')->insert([
+            'nombre' => 'bebidas-frias',
+            'icono' => 'icono_bebidas-frias.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('categorias')->insert([
+            'nombre' => 'bebidas-con-alcohol',
+            'icono' => 'icono_bebidas-con-alcohol.svg',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+        DB::table('categorias')->insert([
+            'nombre' => 'cocteles',
+            'icono' => 'icono_cocteles.svg',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);

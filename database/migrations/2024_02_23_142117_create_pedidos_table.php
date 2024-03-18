@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->double('total');
+            $table->double('total_neto');
             $table->string('numero_pedido')->default('0');
             $table->boolean('preparado')->default(0);
             $table->boolean('entregado')->default(0);
