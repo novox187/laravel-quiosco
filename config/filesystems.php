@@ -38,10 +38,9 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => public_path('img'),
-            'url' => env('APP_URL').'/img',
+            'root' => public_path(),
+            'url' => env('APP_URL').'/public',
             'visibility' => 'public',
-            'throw' => false,
         ],
 
         's3' => [
