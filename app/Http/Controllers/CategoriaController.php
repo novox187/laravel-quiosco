@@ -19,7 +19,7 @@ class CategoriaController extends Controller
 
         $datos = $request->validated();
         //Agrega un nombre y con su extencion
-        $iconoName = 'icono_' . $request->nombre . '.' . $request->icono->extension();
+        $iconoName = 'icono_' . $datos['nombre']. '.' . $request->icono->extension();
 
         $categorias = new Categoria;
         $categorias->nombre = $datos['nombre'];
