@@ -26,7 +26,7 @@ class CategoriaController extends Controller
         $categorias->icono = $iconoName;
         $categorias->save();
         //mueve la imagen a la carpeta public/img
-        $request->icono->move(\public_path('img'), $iconoName);
+        $request->icono->move(public_path('img/'), $iconoName);
 
         return response()->json(['success' => $categorias]);
     }
