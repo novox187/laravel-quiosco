@@ -20,15 +20,14 @@ class CategoriaController extends Controller
         $datos = $request->validated();
         //Agrega un nombre y con su extencion
         $iconoName = 'icono_' . $request->nombre . '.' . $request->icono->extension();
-        /* $nombreLimpio = pathinfo($iconoName, PATHINFO_FILENAME); */
 
         $categorias = new Categoria;
-        $categorias->nombre = $request->nombre;
+        $categorias->nombre = $datos['nombre'];
         $categorias->icono = $iconoName;
         $categorias->save();
         //mueve la imagen a la carpeta public/img
         $request->icono->move(public_path('img'), $iconoName);
 
-        return response()->json(['success' => 'Categoria guardada correctamente.']);
+        return response()->json(['success' => $categorias]);
     }
 }
