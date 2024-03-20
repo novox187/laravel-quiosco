@@ -19,7 +19,7 @@ class CategoriaController extends Controller
 
         $datos = $request->validated();
         //Agrega un nombre y con su extencion
-        $iconoName = 'icono_' . time() . '.' . $request->icono->extension();
+        $iconoName = 'icono_' . $request->nombre . '.' . $request->icono->extension();
         /* $nombreLimpio = pathinfo($iconoName, PATHINFO_FILENAME); */
         //mueve la imagen a la carpeta public/img
         $request->icono->move(public_path('img'), $iconoName);
