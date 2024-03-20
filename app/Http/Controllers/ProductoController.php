@@ -32,7 +32,7 @@ class ProductoController extends Controller
 
 
         //Agrega un nombre y con su extencion
-        $imageName = time() . '.' . $request->imagen->extension();
+        $imageName = $datos['nombre'] . '.' . $request->imagen->extension();
         /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
 
         $productoNuevo = new Producto;
