@@ -23,13 +23,14 @@ class CategoriaRequest extends FormRequest
     {
         return [
             'nombre' => ['required', 'unique:categorias,nombre'],
-            'icono' => ['required', 'unique:categorias,icono']
+            'icono' => ['required']
         ];
     }
 
     public function messages(){
         return[
-            'nombre' => 'El Nombre de la categoria es requerido',
+            'nombre.required' => 'El Nombre de la categoria es requerido',
+            'nombre.unique' => 'Esta categoria ya existe',
             'icono' => 'El Icono de la categoria es requerido'
         ];
     }
