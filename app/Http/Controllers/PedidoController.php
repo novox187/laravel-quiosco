@@ -95,6 +95,8 @@ class PedidoController extends Controller
         $pedido->total = $request->total;
         $pedido->total_neto = $request->totalNeto;
         $pedido->numero_pedido = $nuevoCodigo;
+        $pedido->lugar = $request->lugar;
+        $pedido->mesa = $request->mesa;
         $pedido->save();
 
         // Obtener el ID del pedido

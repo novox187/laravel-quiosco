@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('preparado')->default(0);
             $table->boolean('entregado')->default(0);
             $table->string('lugar');
+            $table->integer('mesa')->nullable();
             $table->timestamps();
         });
     }

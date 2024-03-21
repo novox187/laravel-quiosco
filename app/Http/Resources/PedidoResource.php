@@ -21,6 +21,8 @@ class PedidoResource extends JsonResource
             'total_neto' => $this->total_neto,
             'preparado'=> $this->preparado,
             'entregado' => $this->entregado,
+            'lugar' => $this->lugar,
+            'mesa' => $this->mesa,
             'created_at' => $this->created_at,
             'user' =>  $this->whenLoaded('user', function () {
                 return [
