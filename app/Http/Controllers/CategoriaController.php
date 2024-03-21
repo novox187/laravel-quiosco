@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CategoriaRequest;
-use App\Http\Resources\CategoriaCollection;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use App\Http\Requests\CategoriaRequest;
+use App\Http\Resources\CategoriaCollection;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class CategoriaController extends Controller
 {
@@ -18,16 +19,18 @@ class CategoriaController extends Controller
     {
 
         $datos = $request->validated();
-        //Agrega un nombre y con su extencion
-        $iconoName = 'icono_' . $datos['nombre']. '.' . $request->icono->extension();
+
+        $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(),['folder'=>'categorias']);
+        $url = $uploadedFileUrl->getSecurePath();
 
         $categorias = new Categoria;
         $categorias->nombre = $datos['nombre'];
-        $categorias->icono = $iconoName;
+        $categorias->icono = $url;
         $categorias->save();
-        //mueve la imagen a la carpeta public/img
-        $request->icono->move(public_path('img/'), $iconoName);
 
-        return response()->json(['success' => $categorias]);
+        return response()->json([
+            'data' => $categorias,
+            'success' => 'Categoria guardada correctamente',
+        ]);
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoResource;
 use App\Http\Resources\ProductoCollection;
 use App\Http\Requests\ProductoActualizarRequest;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ProductoController extends Controller
 {
@@ -32,22 +33,24 @@ class ProductoController extends Controller
 
 
         //Agrega un nombre y con su extencion
-        $imageName = $datos['nombre'] . '.' . $request->imagen->extension();
+       /*  $imageName = $datos['nombre'] . '.' . $request->imagen->extension(); */
         /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
+        $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(),['folder'=>'productos']);
+        $url = $uploadedFileUrl->getSecurePath();
+
 
         $productoNuevo = new Producto;
         $productoNuevo->nombre = $datos['nombre'];
         $productoNuevo->precio = $datos['precio'];
-        $productoNuevo->imagen = $imageName;
+        $productoNuevo->imagen = $url;
         $productoNuevo->descripcion = $datos['descripcion'];
         $productoNuevo->categoria_id = $datos['categoria'];
         $productoNuevo->save();
 
-
-        //mueve la imagen a la carpeta public/img
-        $request->imagen->move(public_path('img'), $imageName);
-
-        return response()->json(['success' => 'Producto guardado correctamente.']);
+        return response()->json([
+            'data' => $productoNuevo,
+            'success' => 'Producto guardado correctamente.'
+        ]);
     }
 
     /**
