@@ -37,11 +37,13 @@ class ProductoController extends Controller
         /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
         $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(),['folder'=>'productos']);
         $url = $uploadedFileUrl->getSecurePath();
+        $public_id = $uploadedFileUrl->getPublicId();
 
 
         $productoNuevo = new Producto;
         $productoNuevo->nombre = $datos['nombre'];
         $productoNuevo->precio = $datos['precio'];
+        $productoNuevo->public_id = $public_id;
         $productoNuevo->imagen = $url;
         $productoNuevo->descripcion = $datos['descripcion'];
         $productoNuevo->categoria_id = $datos['categoria'];

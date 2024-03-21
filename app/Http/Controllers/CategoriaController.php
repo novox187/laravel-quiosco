@@ -22,10 +22,12 @@ class CategoriaController extends Controller
 
         $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(),['folder'=>'categorias']);
         $url = $uploadedFileUrl->getSecurePath();
+        $public_id = $uploadedFileUrl->getPublicId();
 
         $categorias = new Categoria;
         $categorias->nombre = $datos['nombre'];
         $categorias->icono = $url;
+        $categorias->public_id = $public_id;
         $categorias->save();
 
         return response()->json([
