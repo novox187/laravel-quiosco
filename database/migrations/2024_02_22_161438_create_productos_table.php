@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("nombre");
             $table->double('precio');
+            $table->string('public_id');
             $table->string('imagen');
             $table->text('descripcion');
             $table->boolean('disponible')->default(1);
