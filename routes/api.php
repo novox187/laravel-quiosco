@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/productos/disponible/{producto}', [ProductoController::class, 'updateDisponible']);
     Route::put('/productos/actualizar/{producto}', [ProductoController::class, 'productoActualizar']);
     Route::put('/productos/eliminar/{producto}', [ProductoController::class, 'productoEliminar']);
+    Route::put('/productos/mover/{producto}', [ProductoController::class, 'cambiarCategoria']);
 
     Route::post('/promocion/create', [PromocioneController::class, 'store']);
     Route::get('/promociones', [PromocioneController::class, 'index']);

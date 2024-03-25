@@ -122,7 +122,18 @@ class ProductoController extends Controller
 
         return [
             'id' => $producto,
-            'message' => 'resivido'
+            'message' => 'producto'.' '. $producto->nombre.' '.'eliminado'
+        ];
+    }
+
+    public function cambiarCategoria(Request $request, Producto $producto)
+    {
+        $producto->categoria_id = $request->id_categoria;
+        $producto->save();
+
+        return [
+            'data' => $producto,
+            'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'movido satisfactoriamente a categoria' . ' ' . $request->nombre_categoria,
         ];
     }
 }
