@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoriaProductoCollection;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use App\Http\Requests\CategoriaRequest;
@@ -12,9 +13,14 @@ class CategoriaController extends Controller
 {
     public function index()
     {
-
         return new CategoriaCollection(Categoria::all());
     }
+
+    //Optiene las categorias con sus productos relacionados
+    public function categoriasProductos(){
+        return new CategoriaProductoCollection(Categoria::with('productos')->get());
+    }
+
     public function store(CategoriaRequest $request)
     {
 

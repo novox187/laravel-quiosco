@@ -47,7 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/productos/top', [PedidoController::class, 'productostop']);
 
 Route::get('/productos', [ProductoController::class, 'index']);
+//Categorias
 Route::get('/categorias', [CategoriaController::class, 'index']);
+Route::get('/categorias/productos', [CategoriaController::class, 'categoriasProductos']);
 //Autenticacion
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
