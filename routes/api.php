@@ -35,10 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /*  Route::apiResource('/categorias', CategoriaController::class); */
     Route::post('/categorias/create', [CategoriaController::class, 'store']);
+    Route::get('/categorias/productos', [CategoriaController::class, 'categoriasProductos']);
 
     Route::post('/productos/create', [ProductoController::class, 'store']);
     Route::put('/productos/disponible/{producto}', [ProductoController::class, 'updateDisponible']);
     Route::put('/productos/actualizar/{producto}', [ProductoController::class, 'productoActualizar']);
+    Route::put('/productos/eliminar/{producto}', [ProductoController::class, 'productoEliminar']);
 
     Route::post('/promocion/create', [PromocioneController::class, 'store']);
     Route::get('/promociones', [PromocioneController::class, 'index']);
@@ -49,7 +51,6 @@ Route::get('/productos/top', [PedidoController::class, 'productostop']);
 Route::get('/productos', [ProductoController::class, 'index']);
 //Categorias
 Route::get('/categorias', [CategoriaController::class, 'index']);
-Route::get('/categorias/productos', [CategoriaController::class, 'categoriasProductos']);
 //Autenticacion
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

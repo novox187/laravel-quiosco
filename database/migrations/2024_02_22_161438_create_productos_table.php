@@ -19,10 +19,11 @@ return new class extends Migration
             $table->string('imagen');
             $table->text('descripcion');
             $table->boolean('disponible')->default(1);
+            $table->boolean('eliminado')->default(0);
             $table->unsignedBigInteger('promo_id')->nullable();
             $table->foreign('promo_id')->references('id')->on('promociones');
             $table->double('rating')->default(0);
-            $table->foreignId('categoria_id')->constrained()->onDelete('cascade');
+            $table->foreignId('categoria_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

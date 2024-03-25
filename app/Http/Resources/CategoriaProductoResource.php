@@ -23,7 +23,8 @@ class CategoriaProductoResource extends JsonResource
                     return [
                         'id' => $producto->id,
                         'nombre' => $producto->nombre,
-                        'imagen' => $producto->imagen
+                        'imagen' => $producto->imagen,
+                        'eliminado' => $producto->eliminado
                     ];
                 });
             }),

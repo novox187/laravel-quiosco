@@ -18,10 +18,11 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         $productos = Producto::with('promocion')
+            ->where('eliminado', 0)
             ->orderBy('disponible', 'DESC')
             ->orderBy('id', 'DESC')
             ->get();
-    return ProductoResource::collection($productos);
+        return ProductoResource::collection($productos);
     }
 
     /**
@@ -33,9 +34,9 @@ class ProductoController extends Controller
 
 
         //Agrega un nombre y con su extencion
-       /*  $imageName = $datos['nombre'] . '.' . $request->imagen->extension(); */
+        /*  $imageName = $datos['nombre'] . '.' . $request->imagen->extension(); */
         /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
-        $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(),['folder'=>'productos']);
+        $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos']);
         $url = $uploadedFileUrl->getSecurePath();
         $public_id = $uploadedFileUrl->getPublicId();
 
@@ -113,8 +114,15 @@ class ProductoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Producto $producto)
+    public function productoEliminar(Producto $producto)
     {
-        //
+        $producto->eliminado = 1;
+        $producto->categoria_id = null;
+        $producto->save();
+
+        return [
+            'id' => $producto,
+            'message' => 'resivido'
+        ];
     }
 }

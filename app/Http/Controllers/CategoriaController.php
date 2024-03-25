@@ -18,7 +18,10 @@ class CategoriaController extends Controller
 
     //Optiene las categorias con sus productos relacionados
     public function categoriasProductos(){
-        return new CategoriaProductoCollection(Categoria::with('productos')->get());
+                
+        return new CategoriaProductoCollection(Categoria::with(['productos' => function ($query) {
+            $query->where('eliminado', 0);
+        }])->get());
     }
 
     public function store(CategoriaRequest $request)
@@ -26,7 +29,7 @@ class CategoriaController extends Controller
 
         $datos = $request->validated();
 
-        $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(),['folder'=>'categorias']);
+        $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => 'categorias']);
         $url = $uploadedFileUrl->getSecurePath();
         $public_id = $uploadedFileUrl->getPublicId();
 
