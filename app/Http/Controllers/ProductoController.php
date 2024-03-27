@@ -32,14 +32,9 @@ class ProductoController extends Controller
     {
         $datos = $request->validated();
 
-
-        //Agrega un nombre y con su extencion
-        /*  $imageName = $datos['nombre'] . '.' . $request->imagen->extension(); */
-        /*   $nombreLimpio = pathinfo($imageName, PATHINFO_FILENAME); */
-        $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos']);
+        $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos','format'=>'avif']);
         $url = $uploadedFileUrl->getSecurePath();
         $public_id = $uploadedFileUrl->getPublicId();
-
 
         $productoNuevo = new Producto;
         $productoNuevo->nombre = $datos['nombre'];
