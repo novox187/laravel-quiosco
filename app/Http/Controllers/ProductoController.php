@@ -32,23 +32,59 @@ class ProductoController extends Controller
     {
         $datos = $request->validated();
 
-        $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos','format'=>'avif']);
-        $url = $uploadedFileUrl->getSecurePath();
-        $public_id = $uploadedFileUrl->getPublicId();
+        //obtenemos el producto eliminado
+        $producto = Producto::where('nombre', $request->nombre)->first();
 
-        $productoNuevo = new Producto;
-        $productoNuevo->nombre = $datos['nombre'];
-        $productoNuevo->precio = $datos['precio'];
-        $productoNuevo->public_id = $public_id;
-        $productoNuevo->imagen = $url;
-        $productoNuevo->descripcion = $datos['descripcion'];
-        $productoNuevo->categoria_id = $datos['categoria'];
-        $productoNuevo->save();
+        // Validamos si el producto ya existe o esta eliminado
+        if ($producto) {
+            if($producto->eliminado === 1){
 
-        return response()->json([
-            'data' => $productoNuevo,
-            'success' => 'Producto guardado correctamente.'
-        ]);
+                //Eliminamos la imagen anterior de la base de datos
+                Cloudinary::destroy($producto->public_id);
+
+                //Subimos la nueva imagen
+                $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
+                $url = $uploadedFileUrl->getSecurePath();
+                $public_id = $uploadedFileUrl->getPublicId();
+                
+                $producto->eliminado = 0;
+                $producto->precio = $datos['precio'];
+                $producto->public_id = $public_id;
+                $producto->imagen = $url;
+                $producto->descripcion = $datos['descripcion'];
+                $producto->categoria_id = $datos['categoria'];
+                $producto->save();
+                return [
+                    'data' => $producto,
+                    'success' => 'Producto agregado correctamente.',
+                ];
+            }else{
+                $errors = [
+                    'campo1' => ['El producto ya existe.'],
+                ];
+                return response()->json(['errors' => $errors], 422);
+
+            }
+            
+        } else {
+            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
+            $url = $uploadedFileUrl->getSecurePath();
+            $public_id = $uploadedFileUrl->getPublicId();
+
+            $productoNuevo = new Producto;
+            $productoNuevo->nombre = $datos['nombre'];
+            $productoNuevo->precio = $datos['precio'];
+            $productoNuevo->public_id = $public_id;
+            $productoNuevo->imagen = $url;
+            $productoNuevo->descripcion = $datos['descripcion'];
+            $productoNuevo->categoria_id = $datos['categoria'];
+            $productoNuevo->save();
+
+            return response()->json([
+                'data' => $productoNuevo,
+                'success' => 'Producto agregado correctamente.'
+            ]);
+        }
     }
 
     /**
@@ -117,7 +153,7 @@ class ProductoController extends Controller
 
         return [
             'id' => $producto,
-            'message' => 'producto'.' '. $producto->nombre.' '.'eliminado'
+            'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'eliminado'
         ];
     }
 

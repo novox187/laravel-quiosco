@@ -22,7 +22,7 @@ class ProductoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre' => ['required','min:4', 'string','unique:productos,nombre'],
+            'nombre' => ['required','min:4', 'string'],
             'precio' => ['required'],
             'categoria' => ['required'],
             'imagen' => ['required', 'image','mimes:jpeg,png,jpg,gif,svg,webp','max:2048', 'unique:productos,imagen'],
@@ -35,7 +35,6 @@ class ProductoRequest extends FormRequest
             'nombre' => 'El nombre es requerido',
             'nombre.min' => 'El nombre debe tener minimo 10 caracteres',
             'nombre.string' => 'El nombre tienen que ser Letras',
-            'nombre.unique' => 'El producto ya existe en la base de datos',
             'precio' => 'El precio es requerido',
             'categoria' => 'La categoria es Requerida',
             'imagen' => 'Debes seleccionar una imagen',
