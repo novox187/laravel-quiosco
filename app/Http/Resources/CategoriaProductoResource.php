@@ -24,7 +24,8 @@ class CategoriaProductoResource extends JsonResource
                         'id' => $producto->id,
                         'nombre' => $producto->nombre,
                         'imagen' => $producto->imagen,
-                        'eliminado' => $producto->eliminado
+                        'eliminado' => $producto->eliminado,
+                        'categoria_id'=> $producto->categoria_id
                     ];
                 });
             }),

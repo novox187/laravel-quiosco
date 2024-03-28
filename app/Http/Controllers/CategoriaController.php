@@ -55,4 +55,12 @@ class CategoriaController extends Controller
             'menssage' => 'categoria Actualizada correctamente', 
         ];
     }
+    public function destroy(Categoria $categoria)
+    {
+        $categoria->delete();
+
+        return [
+            'menssage' => 'categoria'.' '. $categoria->nombre.' '.'eliminada', 
+        ];
+    }
 }
