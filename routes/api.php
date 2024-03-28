@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /*  Route::apiResource('/categorias', CategoriaController::class); */
     Route::post('/categorias/create', [CategoriaController::class, 'store']);
+    Route::put('/categorias/update/{categoria}', [CategoriaController::class, 'update']);
     Route::get('/categorias/productos', [CategoriaController::class, 'categoriasProductos']);
 
     Route::post('/productos/create', [ProductoController::class, 'store']);
