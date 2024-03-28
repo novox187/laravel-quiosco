@@ -57,6 +57,7 @@ class CategoriaController extends Controller
     }
     public function destroy(Categoria $categoria)
     {
+        Cloudinary::destroy($categoria->public_id);
         $categoria->delete();
 
         return [
