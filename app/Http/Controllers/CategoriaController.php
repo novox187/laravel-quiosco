@@ -47,12 +47,26 @@ class CategoriaController extends Controller
 
     public function update(Request $request, Categoria $categoria)
     {
-        $categoria->nombre = $request->nombre;
-        $categoria->save();
+        if (empty($request->icono)) {
+            $categoria->nombre = $request->nombre;
+            $categoria->save();
+        } else {
+            //Eliminamos la imagen anterior de la base de datos
+            Cloudinary::destroy($categoria->public_id);
 
+            //Subimos la nueva imagen
+            $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => 'categorias']);
+            $url = $uploadedFileUrl->getSecurePath();
+            $public_id = $uploadedFileUrl->getPublicId();
+
+            $categoria->nombre = $request->nombre;
+            $categoria->public_id = $public_id;
+            $categoria->icono = $url;
+            $categoria->save();
+        }
         return [
             'data' => $categoria,
-            'menssage' => 'categoria Actualizada correctamente', 
+            'menssage' => 'categoria Actualizada correctamente',
         ];
     }
     public function destroy(Categoria $categoria)
@@ -61,7 +75,7 @@ class CategoriaController extends Controller
         $categoria->delete();
 
         return [
-            'menssage' => 'categoria'.' '. $categoria->nombre.' '.'eliminada', 
+            'menssage' => 'categoria' . ' ' . $categoria->nombre . ' ' . 'eliminada',
         ];
     }
 }

@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /*  Route::apiResource('/categorias', CategoriaController::class); */
     Route::post('/categorias/create', [CategoriaController::class, 'store']);
-    Route::put('/categorias/update/{categoria}', [CategoriaController::class, 'update']);
+    Route::post('/categorias/update/{categoria}', [CategoriaController::class, 'update']);
     Route::get('/categorias/productos', [CategoriaController::class, 'categoriasProductos']);
     Route::delete('/categorias/eliminar/{categoria}', [CategoriaController::class, 'destroy']);
 
