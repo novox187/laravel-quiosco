@@ -37,7 +37,7 @@ class ProductoController extends Controller
 
         // Validamos si el producto ya existe o esta eliminado
         if ($producto) {
-            if($producto->eliminado === 1){
+            if ($producto->eliminado === 1) {
 
                 //Eliminamos la imagen anterior de la base de datos
                 Cloudinary::destroy($producto->public_id);
@@ -46,7 +46,7 @@ class ProductoController extends Controller
                 $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
                 $url = $uploadedFileUrl->getSecurePath();
                 $public_id = $uploadedFileUrl->getPublicId();
-                
+
                 $producto->eliminado = 0;
                 $producto->precio = $datos['precio'];
                 $producto->public_id = $public_id;
@@ -58,14 +58,12 @@ class ProductoController extends Controller
                     'data' => $producto,
                     'success' => 'Producto agregado correctamente.',
                 ];
-            }else{
+            } else {
                 $errors = [
                     'campo1' => ['El producto ya existe.'],
                 ];
                 return response()->json(['errors' => $errors], 422);
-
             }
-            
         } else {
             $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
             $url = $uploadedFileUrl->getSecurePath();
@@ -109,18 +107,21 @@ class ProductoController extends Controller
             $producto->promo_id = $request->promo_id;
             $producto->save();
         } else {
-            //Agrega un nombre y con su extencion
-            $imageName = time() . '.' . $request->imagen->extension();
+            //Eliminamos la imagen anterior de la base de datos
+            Cloudinary::destroy($producto->public_id);
+
+            //Subimos la nueva imagen
+            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
+            $url = $uploadedFileUrl->getSecurePath();
+            $public_id = $uploadedFileUrl->getPublicId();
 
             $producto->nombre = $datos['nombre'];
             $producto->precio = $datos['precio'];
-            $producto->imagen = $imageName;
+            $producto->public_id = $public_id;
+            $producto->imagen = $url;
             $producto->descripcion = $datos['descripcion'];
             $producto->promo_id = $request->promo_id;
             $producto->save();
-
-            //mueve la imagen a la carpeta public/img
-            $request->imagen->move(public_path('img'), $imageName);
         }
 
         return [
