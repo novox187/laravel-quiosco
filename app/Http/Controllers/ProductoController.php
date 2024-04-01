@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContenedorOpcione;
+use App\Models\Opcione;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProductoRequest;
@@ -17,11 +19,11 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
-        $productos = Producto::with('promocion')
-            ->where('eliminado', 0)
-            ->orderBy('disponible', 'DESC')
-            ->orderBy('id', 'DESC')
-            ->get();
+        $productos = Producto::with('promocion', 'contenedorOpciones.opciones')
+        ->where('eliminado', 0)
+        ->orderBy('disponible', 'DESC')
+        ->orderBy('id', 'DESC')
+        ->get();
         return ProductoResource::collection($productos);
     }
 
@@ -54,6 +56,46 @@ class ProductoController extends Controller
                 $producto->descripcion = $datos['descripcion'];
                 $producto->categoria_id = $datos['categoria'];
                 $producto->save();
+
+                $opcionesProducto = $request->opciones_producto;
+                $contenedoresIds = [];
+
+                if ($opcionesProducto) {
+                    foreach ($opcionesProducto as $opcion) {
+                        $uploadedFileUrlContenedor = Cloudinary::upload($opcion['image']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+                        $urlContenedor = $uploadedFileUrlContenedor->getSecurePath();
+                        $public_idContenedor = $uploadedFileUrlContenedor->getPublicId();
+
+                        $contenedor = new ContenedorOpcione;
+                        $contenedor->nombre = $opcion['name'];
+                        $contenedor->image = $urlContenedor;
+                        $contenedor->public_id =  $public_idContenedor;
+                        $contenedor->tipo = $opcion['tipo'];
+                        $contenedor->save();
+
+
+                        // Almacenar los IDs de los contenedores creados
+                        $contenedoresIds[] = $contenedor->id;
+
+                        // Agregar las opciones para el contenedor
+                        foreach ($opcion['opciones'] as $opcionContenedor) {
+                            $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+                            $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
+                            $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
+
+                            $opcionNueva = new Opcione;
+                            $opcionNueva->nombre = $opcionContenedor['nombre'];
+                            $opcionNueva->icono = $urlOpcion;
+                            $opcionNueva->public_id = $public_idOpcion;
+                            $opcionNueva->precio = $opcionContenedor['precio'];
+                            $opcionNueva->contenedor_id = $contenedor->id;
+                            $opcionNueva->save();
+                        }
+                    }
+                    // Relacionar los contenedores con el producto utilizando el método sync()
+                    $producto->contenedorOpciones()->sync($contenedoresIds);
+                }
+
                 return [
                     'data' => $producto,
                     'success' => 'Producto agregado correctamente.',
@@ -78,19 +120,49 @@ class ProductoController extends Controller
             $productoNuevo->categoria_id = $datos['categoria'];
             $productoNuevo->save();
 
+            $opcionesProducto = $request->opciones_producto;
+            $contenedoresIds = [];
+            if ($opcionesProducto) {
+                foreach ($opcionesProducto as $opcion) {
+                    $uploadedFileUrlContenedor = Cloudinary::upload($opcion['image']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+                    $urlContenedor = $uploadedFileUrlContenedor->getSecurePath();
+                    $public_idContenedor = $uploadedFileUrlContenedor->getPublicId();
+
+                    $contenedor = new ContenedorOpcione;
+                    $contenedor->nombre = $opcion['name'];
+                    $contenedor->image = $urlContenedor;
+                    $contenedor->public_id =  $public_idContenedor;
+                    $contenedor->tipo = $opcion['tipo'];
+                    $contenedor->save();
+
+
+                    // Almacenar los IDs de los contenedores creados
+                    $contenedoresIds[] = $contenedor->id;
+
+                    // Agregar las opciones para el contenedor
+                    foreach ($opcion['opciones'] as $opcionContenedor) {
+                        $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+                        $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
+                        $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
+
+                        $opcionNueva = new Opcione;
+                        $opcionNueva->nombre = $opcionContenedor['nombre'];
+                        $opcionNueva->icono = $urlOpcion;
+                        $opcionNueva->public_id = $public_idOpcion;
+                        $opcionNueva->precio = $opcionContenedor['precio'];
+                        $opcionNueva->contenedor_id = $contenedor->id;
+                        $opcionNueva->save();
+                    }
+                }
+                // Relacionar los contenedores con el producto
+                $productoNuevo->contenedorOpciones()->sync($contenedoresIds);
+            }
+
             return response()->json([
                 'data' => $productoNuevo,
                 'success' => 'Producto agregado correctamente.'
             ]);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Producto $producto)
-    {
-        //
     }
 
     /**

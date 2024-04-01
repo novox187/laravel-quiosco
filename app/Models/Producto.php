@@ -14,4 +14,8 @@ class Producto extends Model
     {
         return $this->belongsTo(Promocione::class, 'promo_id');
     }
+
+    public function contenedorOpciones() {
+        return $this->belongsToMany(ContenedorOpcione::class)->withTimestamps();;
+    }
 }

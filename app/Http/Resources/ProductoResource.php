@@ -23,15 +23,31 @@ class ProductoResource extends JsonResource
             'disponible' => $this->disponible,
             'eliminado' => $this->eliminado,
             'promo_id' => $this->promo_id,
+            'rating' => $this->rating,
+            'categoria_id' => $this->categoria_id,
             'promocion' => $this->whenLoaded('promocion', function () {
                 return [
                     'id' => $this->promocion->id,
                     'nombre' => $this->promocion->nombre,
-                    'descuento'=> $this->promocion->descuento
+                    'descuento' => $this->promocion->descuento,
                 ];
             }),
-            'rating' => $this->rating,
-            'categoria_id' => $this->categoria_id,
+            'contenedor_opciones' => $this->whenLoaded('contenedorOpciones', function () {
+                return $this->contenedorOpciones->map(function ($contenedorOpcion) {
+                    return [
+                        'id' => $contenedorOpcion->id,
+                        'nombre' => $contenedorOpcion->nombre,
+                        'tipo' => $contenedorOpcion->tipo,
+                        'opciones' => $contenedorOpcion->opciones->map(function ($opcion) {
+                            return [
+                                'id' => $opcion->id,
+                                'nombre' => $opcion->nombre,
+                                'precio' => $opcion->precio,
+                            ];
+                        }),
+                    ];
+                });
+            }),
         ];
     }
 }
