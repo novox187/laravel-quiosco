@@ -21,9 +21,6 @@ return new class extends Migration
             $table->foreign('contenedor_opcione_id')->references('id')->on('contenedor_opciones')->onDelete('cascade');
             $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade');
 
-            // Restricción de clave única para producto_id
-            $table->unique('producto_id');
-
             $table->timestamps();
         });
     }
