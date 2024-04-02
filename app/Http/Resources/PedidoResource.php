@@ -37,7 +37,6 @@ class PedidoResource extends JsonResource
                     return [
                         'id' => $producto->id,
                         'nombre' => $producto->nombre,
-                        'cantidad' => $producto->pivot->cantidad,
                         'precio' => $producto->precio,
                         'descripcion' => $producto->descripcion,
                         'promocion' => $producto->promocion ? [

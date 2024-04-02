@@ -31,7 +31,7 @@ class PedidoController extends Controller
 
     public function productostop()
     {
-        $productos = DB::table('pedido_productos')
+/*         $productos = DB::table('pedido_productos')
             ->select('producto_id', DB::raw('SUM(cantidad) as total_vendido'))
             ->groupBy('producto_id')
             ->orderByDesc('total_vendido')
@@ -44,7 +44,7 @@ class PedidoController extends Controller
 
         return [
             'productos_mas_vendidos' => $productosMasVendidos
-        ];
+        ]; */
     }
 
     /**
