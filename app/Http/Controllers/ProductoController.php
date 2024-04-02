@@ -62,14 +62,8 @@ class ProductoController extends Controller
 
                 if ($opcionesProducto) {
                     foreach ($opcionesProducto as $opcion) {
-                        $uploadedFileUrlContenedor = Cloudinary::upload($opcion['image']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
-                        $urlContenedor = $uploadedFileUrlContenedor->getSecurePath();
-                        $public_idContenedor = $uploadedFileUrlContenedor->getPublicId();
-
                         $contenedor = new ContenedorOpcione;
                         $contenedor->nombre = $opcion['name'];
-                        $contenedor->image = $urlContenedor;
-                        $contenedor->public_id =  $public_idContenedor;
                         $contenedor->tipo = $opcion['tipo'];
                         $contenedor->save();
 
@@ -124,14 +118,9 @@ class ProductoController extends Controller
             $contenedoresIds = [];
             if ($opcionesProducto) {
                 foreach ($opcionesProducto as $opcion) {
-                    $uploadedFileUrlContenedor = Cloudinary::upload($opcion['image']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
-                    $urlContenedor = $uploadedFileUrlContenedor->getSecurePath();
-                    $public_idContenedor = $uploadedFileUrlContenedor->getPublicId();
 
                     $contenedor = new ContenedorOpcione;
                     $contenedor->nombre = $opcion['name'];
-                    $contenedor->image = $urlContenedor;
-                    $contenedor->public_id =  $public_idContenedor;
                     $contenedor->tipo = $opcion['tipo'];
                     $contenedor->save();
 

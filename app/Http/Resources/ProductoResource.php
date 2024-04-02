@@ -38,7 +38,6 @@ class ProductoResource extends JsonResource
                         'id' => $contenedorOpcion->id,
                         'nombre' => $contenedorOpcion->nombre,
                         'tipo' => $contenedorOpcion->tipo,
-                        'image' => $contenedorOpcion->image,
                         'opciones' => $contenedorOpcion->opciones->map(function ($opcion) {
                             return [
                                 'id' => $opcion->id,

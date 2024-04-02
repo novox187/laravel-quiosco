@@ -112,7 +112,6 @@ class PedidoController extends Controller
             $pediddo_producto[] = [
                 'pedido_id' => $id,
                 'producto_id' => $producto['id'],
-                'cantidad' => $producto['cantidad'],
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ];
