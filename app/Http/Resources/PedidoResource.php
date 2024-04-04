@@ -12,14 +12,14 @@ class PedidoResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
+    public function toArray($request): array
     {
         return [
             'id' => $this->id,
             'numero_pedido' => $this->numero_pedido,
             'total' => $this->total,
             'total_neto' => $this->total_neto,
-            'preparado'=> $this->preparado,
+            'preparado' => $this->preparado,
             'entregado' => $this->entregado,
             'lugar' => $this->lugar,
             'mesa' => $this->mesa,
@@ -32,8 +32,9 @@ class PedidoResource extends JsonResource
                     'calificacion' => $this->user->calificacion,
                 ];
             }),
-            'productos' =>  $this->whenLoaded('productos', function () {
-                return $this->productos->map(function ($producto) {
+            'productos' =>  $this->whenLoaded('pedidoProductos', function () {
+                return $this->pedidoProductos->map(function ($pedidoProducto) {
+                    $producto = $pedidoProducto->producto;
                     return [
                         'id' => $producto->id,
                         'nombre' => $producto->nombre,
@@ -44,6 +45,16 @@ class PedidoResource extends JsonResource
                             'nombre' => $producto->promocion->nombre,
                             'descuento' => $producto->promocion->descuento
                         ] : null,
+                        'detalles_producto' => $pedidoProducto->detallesProductoPedido->map(function ($detalle) {
+                            return [
+                                'id' => $detalle->id,
+                                'nombre_contenedor' => $detalle->nombre_contenedor,
+                                'tipo_contenedor' => $detalle->tipo_contenedor,
+                                'opcion' => $detalle->opcion,
+                                'precio_opcion' => $detalle->precio_opcion,
+                                'cantidad' => $detalle->cantidad,
+                            ];
+                        }),
                     ];
                 });
             }),

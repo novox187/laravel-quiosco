@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pedido_productos', function (Blueprint $table) {
+        Schema::create('detalles_producto_pedidos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pedido_id')->constrained()->onDelete('set null');
-            $table->foreignId('producto_id')->constrained()->onDelete('set null');
-            $table->integer('descuento')->default(0);
+            $table->foreignId('pedido_producto_id')->constrained()->onDelete('cascade');
+            $table->string('nombre_contenedor');
+            $table->string('tipo_contenedor');
+            $table->string('opcion');
+            $table->double('precio_opcion');
             $table->integer('cantidad');
             $table->timestamps();
         });
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pedido_productos');
+        Schema::dropIfExists('detalles_producto_pedidos');
     }
 };

@@ -18,4 +18,9 @@ class Producto extends Model
     public function contenedorOpciones() {
         return $this->belongsToMany(ContenedorOpcione::class)->withTimestamps();;
     }
+
+    public function detallesProductoPedido()
+    {
+        return $this->hasMany(DetallesProductoPedido::class, 'pedido_producto_id');
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\detallesProductoPedido;
 use Carbon\Carbon;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -20,18 +21,17 @@ class PedidoController extends Controller
     {
         $pedidos = Pedido::with('user')
             ->with('productos.promocion')
+            ->with('pedidoProductos.detallesProductoPedido')
             ->get();
 
         return [
             'pedidos' => new PedidoCollection($pedidos),
         ];
-
-        /* return new PedidoCollection(Pedido::with('user')->with('productos')->where('estado', 0)->get()); */
     }
 
     public function productostop()
     {
-/*         $productos = DB::table('pedido_productos')
+        /*         $productos = DB::table('pedido_productos')
             ->select('producto_id', DB::raw('SUM(cantidad) as total_vendido'))
             ->groupBy('producto_id')
             ->orderByDesc('total_vendido')
@@ -100,25 +100,29 @@ class PedidoController extends Controller
         $pedido->save();
 
         // Obtener el ID del pedido
-        $id = $pedido->id;
+        $id_pedido = $pedido->id;
 
         // Obtener los productos
         $productos = $request->productos;
 
-        // Formatear un arreglo
-        $pediddo_producto = [];
-
+        // Almacenar los PedidoProducto asociados al pedido
         foreach ($productos as $producto) {
-            $pediddo_producto[] = [
-                'pedido_id' => $id,
-                'producto_id' => $producto['id'],
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ];
-        }
+            $pedidoProducto = new PedidoProducto;
+            $pedidoProducto->pedido_id = $id_pedido;
+            $pedidoProducto->producto_id = $producto['id'];
+            $pedidoProducto->save();
 
-        // Almacenar en la BD
-        PedidoProducto::insert($pediddo_producto);
+            foreach ($producto['detalle_Producto'] as $detalle) {
+                $NuevoDetalle = new detallesProductoPedido;
+                $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
+                $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
+                $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
+                $NuevoDetalle->opcion = $detalle['opcion'];
+                $NuevoDetalle->precio_opcion = $detalle['precio'];
+                $NuevoDetalle->cantidad = $detalle['cantidad'];
+                $NuevoDetalle->save();
+            }
+        }
 
         return [
             'data' => $pedido,
