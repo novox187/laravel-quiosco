@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\detallesProductoPedido;
+use App\Models\DetallesProductoPedido;
 use Carbon\Carbon;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -113,7 +113,7 @@ class PedidoController extends Controller
             $pedidoProducto->save();
 
             foreach ($producto['detalle_Producto'] as $detalle) {
-                $NuevoDetalle = new detallesProductoPedido;
+                $NuevoDetalle = new DetallesProductoPedido;
                 $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
                 $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
                 $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
