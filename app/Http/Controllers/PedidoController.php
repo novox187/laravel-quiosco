@@ -110,6 +110,7 @@ class PedidoController extends Controller
             $pedidoProducto = new PedidoProducto;
             $pedidoProducto->pedido_id = $id_pedido;
             $pedidoProducto->producto_id = $producto['id'];
+            $pedidoProducto->total_opciones = $producto['total_opciones'];
             $pedidoProducto->save();
 
             foreach ($producto['detalle_Producto'] as $detalle) {

@@ -40,6 +40,7 @@ class PedidoResource extends JsonResource
                         'nombre' => $producto->nombre,
                         'precio' => $producto->precio,
                         'descripcion' => $producto->descripcion,
+                        'total_opciones' => $pedidoProducto->total_opciones,
                         'promocion' => $producto->promocion ? [
                             'id' => $producto->promocion->id,
                             'nombre' => $producto->promocion->nombre,
