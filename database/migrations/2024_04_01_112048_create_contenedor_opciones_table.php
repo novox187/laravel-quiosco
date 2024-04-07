@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('contenedor_opciones', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
+            $table->string('nombre')->unique();
             $table->string('image');
             $table->string('public_id');
             $table->string('tipo');

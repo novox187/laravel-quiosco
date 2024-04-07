@@ -20,10 +20,10 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         $productos = Producto::with('promocion', 'contenedorOpciones.opciones')
-        ->where('eliminado', 0)
-        ->orderBy('disponible', 'DESC')
-        ->orderBy('id', 'DESC')
-        ->get();
+            ->where('eliminado', 0)
+            ->orderBy('disponible', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->get();
         return ProductoResource::collection($productos);
     }
 
@@ -36,6 +36,7 @@ class ProductoController extends Controller
 
         //obtenemos el producto eliminado
         $producto = Producto::where('nombre', $request->nombre)->first();
+
 
         // Validamos si el producto ya existe o esta eliminado
         if ($producto) {
@@ -62,28 +63,34 @@ class ProductoController extends Controller
 
                 if ($opcionesProducto) {
                     foreach ($opcionesProducto as $opcion) {
-                        $contenedor = new ContenedorOpcione;
-                        $contenedor->nombre = $opcion['name'];
-                        $contenedor->tipo = $opcion['tipo'];
-                        $contenedor->save();
+                        
+                        $Confirmarcontenedor = ContenedorOpcione::where('nombre', $opcion['name'])->first();
 
+                        if ($Confirmarcontenedor) {
+                            $contenedoresIds[] = $Confirmarcontenedor->id;
+                        } else {
+                            $contenedor = new ContenedorOpcione;
+                            $contenedor->nombre = $opcion['name'];
+                            $contenedor->tipo = $opcion['tipo'];
+                            $contenedor->save();
 
-                        // Almacenar los IDs de los contenedores creados
-                        $contenedoresIds[] = $contenedor->id;
+                            // Almacenar los IDs de los contenedores creados
+                            $contenedoresIds[] = $contenedor->id;
 
-                        // Agregar las opciones para el contenedor
-                        foreach ($opcion['opciones'] as $opcionContenedor) {
-                            $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
-                            $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
-                            $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
+                            // Agregar las opciones para el contenedor
+                            foreach ($opcion['opciones'] as $opcionContenedor) {
+                                $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+                                $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
+                                $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
 
-                            $opcionNueva = new Opcione;
-                            $opcionNueva->nombre = $opcionContenedor['nombre'];
-                            $opcionNueva->icono = $urlOpcion;
-                            $opcionNueva->public_id = $public_idOpcion;
-                            $opcionNueva->precio = $opcionContenedor['precio'];
-                            $opcionNueva->contenedor_id = $contenedor->id;
-                            $opcionNueva->save();
+                                $opcionNueva = new Opcione;
+                                $opcionNueva->nombre = $opcionContenedor['nombre'];
+                                $opcionNueva->icono = $urlOpcion;
+                                $opcionNueva->public_id = $public_idOpcion;
+                                $opcionNueva->precio = $opcionContenedor['precio'];
+                                $opcionNueva->contenedor_id = $contenedor->id;
+                                $opcionNueva->save();
+                            }
                         }
                     }
                     // Relacionar los contenedores con el producto utilizando el método sync()
@@ -119,28 +126,33 @@ class ProductoController extends Controller
             if ($opcionesProducto) {
                 foreach ($opcionesProducto as $opcion) {
 
-                    $contenedor = new ContenedorOpcione;
-                    $contenedor->nombre = $opcion['name'];
-                    $contenedor->tipo = $opcion['tipo'];
-                    $contenedor->save();
+                    $Confirmarcontenedor = ContenedorOpcione::where('nombre', $opcion['name'])->first();
 
+                    if ($Confirmarcontenedor) {
+                        $contenedoresIds[] = $Confirmarcontenedor->id;
+                    } else {
+                        $contenedor = new ContenedorOpcione;
+                        $contenedor->nombre = $opcion['name'];
+                        $contenedor->tipo = $opcion['tipo'];
+                        $contenedor->save();
 
-                    // Almacenar los IDs de los contenedores creados
-                    $contenedoresIds[] = $contenedor->id;
+                        // Almacenar los IDs de los contenedores creados
+                        $contenedoresIds[] = $contenedor->id;
 
-                    // Agregar las opciones para el contenedor
-                    foreach ($opcion['opciones'] as $opcionContenedor) {
-                        $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
-                        $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
-                        $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
+                        // Agregar las opciones para el contenedor
+                        foreach ($opcion['opciones'] as $opcionContenedor) {
+                            $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+                            $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
+                            $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
 
-                        $opcionNueva = new Opcione;
-                        $opcionNueva->nombre = $opcionContenedor['nombre'];
-                        $opcionNueva->icono = $urlOpcion;
-                        $opcionNueva->public_id = $public_idOpcion;
-                        $opcionNueva->precio = $opcionContenedor['precio'];
-                        $opcionNueva->contenedor_id = $contenedor->id;
-                        $opcionNueva->save();
+                            $opcionNueva = new Opcione;
+                            $opcionNueva->nombre = $opcionContenedor['nombre'];
+                            $opcionNueva->icono = $urlOpcion;
+                            $opcionNueva->public_id = $public_idOpcion;
+                            $opcionNueva->precio = $opcionContenedor['precio'];
+                            $opcionNueva->contenedor_id = $contenedor->id;
+                            $opcionNueva->save();
+                        }
                     }
                 }
                 // Relacionar los contenedores con el producto
