@@ -32,7 +32,6 @@ class ProductoRequest extends FormRequest
             'opciones_producto.*.tipo' => ['required'],
             'opciones_producto.*.opciones' => ['required'],
             'opciones_producto.*.opciones.*.nombre' => ['required'],
-            'opciones_producto.*.opciones.*.icono' => ['required'],
             'opciones_producto.*.opciones.*.precio' => ['required'],
 
         ];
@@ -58,7 +57,6 @@ class ProductoRequest extends FormRequest
             'opciones_producto.*.tipo.required' => 'El tipo de contenedor opciones es requerido',
             'opciones_producto.*.opciones.required' => 'Las opciones son obligatorias',
             'opciones_producto.*.opciones.*.nombre' => 'El nombre de la opcion es obligatorio',
-            'opciones_producto.*.opciones.*.icono.required' => 'la imagen de la opcion es requerida',
             'opciones_producto.*.opciones.*.precio.required' => 'el precio de la opcion es requerida',
         ];
     }

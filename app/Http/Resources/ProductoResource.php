@@ -43,7 +43,6 @@ class ProductoResource extends JsonResource
                                 'id' => $opcion->id,
                                 'nombre' => $opcion->nombre,
                                 'precio' => $opcion->precio,
-                                'icono' => $opcion->icono,
                             ];
                         }),
                     ];

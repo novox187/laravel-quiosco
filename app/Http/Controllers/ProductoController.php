@@ -46,7 +46,7 @@ class ProductoController extends Controller
                 Cloudinary::destroy($producto->public_id);
 
                 //Subimos la nueva imagen
-                $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_PRODUCTOS'), 'format' => 'avif']);
+                $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'desarrollo/productos', 'format' => 'avif']);
                 $url = $uploadedFileUrl->getSecurePath();
                 $public_id = $uploadedFileUrl->getPublicId();
 
@@ -79,14 +79,14 @@ class ProductoController extends Controller
 
                             // Agregar las opciones para el contenedor
                             foreach ($opcion['opciones'] as $opcionContenedor) {
-                                $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+/*                                 $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
                                 $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
-                                $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
+                                $public_idOpcion = $uploadedFileUrlOpcion->getPublicId(); */
 
                                 $opcionNueva = new Opcione;
                                 $opcionNueva->nombre = $opcionContenedor['nombre'];
-                                $opcionNueva->icono = $urlOpcion;
-                                $opcionNueva->public_id = $public_idOpcion;
+/*                                 $opcionNueva->icono = $urlOpcion;
+                                $opcionNueva->public_id = $public_idOpcion; */
                                 $opcionNueva->precio = $opcionContenedor['precio'];
                                 $opcionNueva->contenedor_id = $contenedor->id;
                                 $opcionNueva->save();
@@ -108,7 +108,7 @@ class ProductoController extends Controller
                 return response()->json(['errors' => $errors], 422);
             }
         } else {
-            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_PRODUCTOS'), 'format' => 'avif']);
+            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'desarrollo/productos', 'format' => 'avif']);
             $url = $uploadedFileUrl->getSecurePath();
             $public_id = $uploadedFileUrl->getPublicId();
 
@@ -141,14 +141,14 @@ class ProductoController extends Controller
 
                         // Agregar las opciones para el contenedor
                         foreach ($opcion['opciones'] as $opcionContenedor) {
-                            $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
+/*                             $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
                             $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
-                            $public_idOpcion = $uploadedFileUrlOpcion->getPublicId();
+                            $public_idOpcion = $uploadedFileUrlOpcion->getPublicId(); */
 
                             $opcionNueva = new Opcione;
                             $opcionNueva->nombre = $opcionContenedor['nombre'];
-                            $opcionNueva->icono = $urlOpcion;
-                            $opcionNueva->public_id = $public_idOpcion;
+/*                             $opcionNueva->icono = $urlOpcion;
+                            $opcionNueva->public_id = $public_idOpcion; */
                             $opcionNueva->precio = $opcionContenedor['precio'];
                             $opcionNueva->contenedor_id = $contenedor->id;
                             $opcionNueva->save();
@@ -184,7 +184,7 @@ class ProductoController extends Controller
             Cloudinary::destroy($producto->public_id);
 
             //Subimos la nueva imagen
-            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_PRODUCTOS'), 'format' => 'avif']);
+            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'desarrollo/productos', 'format' => 'avif']);
             $url = $uploadedFileUrl->getSecurePath();
             $public_id = $uploadedFileUrl->getPublicId();
 

@@ -29,7 +29,7 @@ class CategoriaController extends Controller
     {
         $datos = $request->validated();
 
-        $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_CATEGORIAS')]);
+        $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => 'desarrollo/categorias']);
         $url = $uploadedFileUrl->getSecurePath();
         $public_id = $uploadedFileUrl->getPublicId();
 
@@ -55,7 +55,7 @@ class CategoriaController extends Controller
             Cloudinary::destroy($categoria->public_id);
 
             //Subimos la nueva imagen
-            $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_CATEGORIAS')]);
+            $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => 'desarrollo/categorias']);
             $url = $uploadedFileUrl->getSecurePath();
             $public_id = $uploadedFileUrl->getPublicId();
 

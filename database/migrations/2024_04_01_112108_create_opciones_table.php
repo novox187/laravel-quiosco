@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('opciones', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('icono');
-            $table->string('public_id');
             $table->double('precio');
             $table->unsignedBigInteger('contenedor_id');
             $table->foreign('contenedor_id')->references('id')->on('contenedor_opciones');
