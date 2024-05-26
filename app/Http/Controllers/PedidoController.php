@@ -146,25 +146,28 @@ class PedidoController extends Controller
      */
     public function update(Request $request, $pedido)
     {
-        $verificaion = $request->identificador;
-
-
-        if ($verificaion == 1) {
-
+        $verificacion = $request->identificador;
+    
+        if ($verificacion == 1) {
             Pedido::where('id', $pedido)->update([
                 'preparado' => 1,
             ]);
-        } else if ($verificaion == 0) {
+        } else if ($verificacion == 0) {
             Pedido::where('id', $pedido)->update([
                 'entregado' => 1,
             ]);
         }
-
-
+    
+        $pedido = Pedido::find($pedido);
+    
         return [
-            'response' =>  'A sido actualizado correactamente'
+            'id' => $pedido->id,
+            'preparado' => $pedido->preparado,
+            'entregado' => $pedido->entregado,
+            'response' =>  'Ha sido actualizado correctamente'
         ];
     }
+    
 
     /**
      * Remove the specified resource from storage.

@@ -195,7 +195,7 @@ class ProductoController extends Controller
 
         return new ProductoResource($productoActualizado);
     }
-    public function updateDisponible(Request $request, Producto $producto)
+    public function updateDisponible(Producto $producto)
     {
         if ($producto->disponible === 1) {
             $producto->disponible = 0;
