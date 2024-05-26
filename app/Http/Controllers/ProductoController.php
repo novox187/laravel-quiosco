@@ -188,9 +188,12 @@ class ProductoController extends Controller
             $producto->save();
         }
 
-        return [
-            'producto' => $request->nombre
-        ];
+        $productoActualizado = Producto::with('promocion', 'contenedorOpciones.opciones')
+        ->where('id', $producto->id) 
+        ->first();
+
+
+        return new ProductoResource($productoActualizado);
     }
     public function updateDisponible(Request $request, Producto $producto)
     {
