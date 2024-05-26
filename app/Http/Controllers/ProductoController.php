@@ -8,7 +8,6 @@ use App\Models\Producto;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoResource;
-use App\Http\Resources\ProductoCollection;
 use App\Http\Requests\ProductoActualizarRequest;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
@@ -63,7 +62,7 @@ class ProductoController extends Controller
 
                 if ($opcionesProducto) {
                     foreach ($opcionesProducto as $opcion) {
-                        
+
                         $Confirmarcontenedor = ContenedorOpcione::where('nombre', $opcion['name'])->first();
 
                         if ($Confirmarcontenedor) {
@@ -79,14 +78,8 @@ class ProductoController extends Controller
 
                             // Agregar las opciones para el contenedor
                             foreach ($opcion['opciones'] as $opcionContenedor) {
-/*                                 $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
-                                $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
-                                $public_idOpcion = $uploadedFileUrlOpcion->getPublicId(); */
-
                                 $opcionNueva = new Opcione;
                                 $opcionNueva->nombre = $opcionContenedor['nombre'];
-/*                                 $opcionNueva->icono = $urlOpcion;
-                                $opcionNueva->public_id = $public_idOpcion; */
                                 $opcionNueva->precio = $opcionContenedor['precio'];
                                 $opcionNueva->contenedor_id = $contenedor->id;
                                 $opcionNueva->save();
@@ -141,14 +134,8 @@ class ProductoController extends Controller
 
                         // Agregar las opciones para el contenedor
                         foreach ($opcion['opciones'] as $opcionContenedor) {
-/*                             $uploadedFileUrlOpcion = Cloudinary::upload($opcionContenedor['icono']->getRealPath(), ['folder' => env('CLOUDINARY_FOLDER_ICONOS'), 'format' => 'png']);
-                            $urlOpcion = $uploadedFileUrlOpcion->getSecurePath();
-                            $public_idOpcion = $uploadedFileUrlOpcion->getPublicId(); */
-
                             $opcionNueva = new Opcione;
                             $opcionNueva->nombre = $opcionContenedor['nombre'];
-/*                             $opcionNueva->icono = $urlOpcion;
-                            $opcionNueva->public_id = $public_idOpcion; */
                             $opcionNueva->precio = $opcionContenedor['precio'];
                             $opcionNueva->contenedor_id = $contenedor->id;
                             $opcionNueva->save();
@@ -159,8 +146,12 @@ class ProductoController extends Controller
                 $productoNuevo->contenedorOpciones()->sync($contenedoresIds);
             }
 
+            $productoCreado = Producto::with('promocion', 'contenedorOpciones.opciones')
+            ->where('id', $productoNuevo->id) 
+            ->first();
+
             return response()->json([
-                'data' => $productoNuevo,
+                'data' => $productoCreado,
                 'success' => 'Producto agregado correctamente.'
             ]);
         }
@@ -212,7 +203,8 @@ class ProductoController extends Controller
         }
 
         return [
-            'producto' => $producto
+            'producto' => $producto->id,
+            'estado' => $producto->disponible
         ];
     }
 
