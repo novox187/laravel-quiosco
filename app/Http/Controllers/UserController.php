@@ -47,10 +47,13 @@ class UserController extends Controller
 
         //Agregamos la observacion al pedido
         $pedido = Pedido::findOrFail($request->id_pedido);
-        $pedido->preparado = 1;
-        $pedido->entregado = 1;
+        $pedido->eliminado = 1;
         $pedido->observacion = $data['observacion'];
         $pedido->save();
+
+        return [
+            'data' => $pedido->id
+        ];
     }
 
     /**

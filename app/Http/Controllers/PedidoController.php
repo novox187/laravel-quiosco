@@ -22,6 +22,7 @@ class PedidoController extends Controller
         $pedidos = Pedido::with('user')
             ->with('productos.promocion')
             ->with('pedidoProductos.detallesProductoPedido')
+            ->where('eliminado', 0)
             ->get();
 
         return [
@@ -147,27 +148,28 @@ class PedidoController extends Controller
     public function update(Request $request, $pedido)
     {
         $verificacion = $request->identificador;
-    
+        /* 0 es por preparar */
+        /* 1 por entregar */
+        /* 2 entregado */
         if ($verificacion == 1) {
             Pedido::where('id', $pedido)->update([
-                'preparado' => 1,
+                'estado' => 1,
             ]);
         } else if ($verificacion == 0) {
             Pedido::where('id', $pedido)->update([
-                'entregado' => 1,
+                'estado' => 2,
             ]);
         }
-    
+
         $pedido = Pedido::find($pedido);
-    
+
         return [
             'id' => $pedido->id,
-            'preparado' => $pedido->preparado,
-            'entregado' => $pedido->entregado,
-            'response' =>  'Ha sido actualizado correctamente'
+            'estado' => $pedido->estado,
+            'response' =>  'Ha sido actualizado'
         ];
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
