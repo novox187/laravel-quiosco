@@ -64,9 +64,14 @@ class CategoriaController extends Controller
             $categoria->icono = $url;
             $categoria->save();
         }
+        $categoriaEditada = Categoria::where('id', $categoria->id) 
+        ->first();
+
         return [
-            'data' => $categoria,
-            'menssage' => 'categoria Actualizada correctamente',
+            'id' => $categoriaEditada->id,
+            'nombre' => $categoriaEditada->nombre,
+            'icono'=> $categoriaEditada->icono,
+            'menssage' => 'categoria Actualizada',
         ];
     }
     public function destroy(Categoria $categoria)
