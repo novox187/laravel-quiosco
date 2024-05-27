@@ -41,7 +41,7 @@ class CategoriaController extends Controller
 
         return response()->json([
             'data' => $categorias,
-            'success' => 'Categoria guardada correctamente',
+            'success' => 'Categoria creada correctamente',
         ]);
     }
 
@@ -80,6 +80,7 @@ class CategoriaController extends Controller
         $categoria->delete();
 
         return [
+            'id' => $categoria->id,
             'menssage' => 'categoria' . ' ' . $categoria->nombre . ' ' . 'eliminada',
         ];
     }

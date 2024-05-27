@@ -219,11 +219,11 @@ class ProductoController extends Controller
         Cloudinary::destroy($producto->public_id);
 
         $producto->eliminado = 1;
-        $producto->categoria_id = null;
         $producto->save();
 
         return [
-            'id' => $producto,
+            'productoId' => $producto->id,
+            'categoriaId' => $producto->categoria_id,
             'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'eliminado'
         ];
     }
