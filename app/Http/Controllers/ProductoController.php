@@ -234,8 +234,10 @@ class ProductoController extends Controller
         $producto->save();
 
         return [
-            'data' => $producto,
-            'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'movido satisfactoriamente a categoria' . ' ' . $request->nombre_categoria,
+            'productoId' => $producto->id,
+            'categoriaAnterior' => $request->categoria_anterior,
+            'categoriaActual' => $producto->categoria_id,
+            'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'movido a categoria' . ' ' . $request->nombre_categoria,
         ];
     }
 }
