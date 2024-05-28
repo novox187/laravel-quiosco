@@ -24,28 +24,47 @@ class CategoriaController extends Controller
         return new CategoriaProductoCollection(Categoria::with(['productos' => function ($query) {
             $query->where('eliminado', 0);
         }])
-        ->where('eliminado',0)
-        ->get());
+            ->where('eliminado', 0)
+            ->get());
     }
 
     public function store(CategoriaRequest $request)
     {
+
         $datos = $request->validated();
+        $categoriaDB = Categoria::where('nombre', $datos['nombre'])->first();
+        if ($categoriaDB) {
+            $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => 'desarrollo/categorias']);
+            $url = $uploadedFileUrl->getSecurePath();
+            $public_id = $uploadedFileUrl->getPublicId();
 
-        $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => 'desarrollo/categorias']);
-        $url = $uploadedFileUrl->getSecurePath();
-        $public_id = $uploadedFileUrl->getPublicId();
+            $categoriaDB->icono = $url;
+            $categoriaDB->public_id = $public_id;
+            $categoriaDB->eliminado = 0;
+            $categoriaDB->save();
 
-        $categorias = new Categoria;
-        $categorias->nombre = $datos['nombre'];
-        $categorias->icono = $url;
-        $categorias->public_id = $public_id;
-        $categorias->save();
+            return response()->json([
+                'data' => $categoriaDB,
+                'success' => 'Categoria creada correctamente',
+            ]);
+        } else {
 
-        return response()->json([
-            'data' => $categorias,
-            'success' => 'Categoria creada correctamente',
-        ]);
+            $uploadedFileUrl = Cloudinary::upload($request->icono->getRealPath(), ['folder' => 'desarrollo/categorias']);
+            $url = $uploadedFileUrl->getSecurePath();
+            $public_id = $uploadedFileUrl->getPublicId();
+
+            $categorias = new Categoria;
+            $categorias->nombre = $datos['nombre'];
+            $categorias->icono = $url;
+            $categorias->public_id = $public_id;
+            $categorias->save();
+
+
+            return response()->json([
+                'data' => $categorias,
+                'success' => 'Categoria creada correctamente',
+            ]);
+        }
     }
 
     public function update(Request $request, Categoria $categoria)
@@ -67,13 +86,13 @@ class CategoriaController extends Controller
             $categoria->icono = $url;
             $categoria->save();
         }
-        $categoriaEditada = Categoria::where('id', $categoria->id) 
-        ->first();
+        $categoriaEditada = Categoria::where('id', $categoria->id)
+            ->first();
 
         return [
             'id' => $categoriaEditada->id,
             'nombre' => $categoriaEditada->nombre,
-            'icono'=> $categoriaEditada->icono,
+            'icono' => $categoriaEditada->icono,
             'menssage' => 'categoria Actualizada',
         ];
     }
