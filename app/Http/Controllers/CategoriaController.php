@@ -13,7 +13,8 @@ class CategoriaController extends Controller
 {
     public function index()
     {
-        return new CategoriaCollection(Categoria::all());
+        $categorias = Categoria::where('eliminado', 0)->get();
+        return new CategoriaCollection($categorias);
     }
 
     //Optiene las categorias con sus productos relacionados
@@ -22,7 +23,9 @@ class CategoriaController extends Controller
 
         return new CategoriaProductoCollection(Categoria::with(['productos' => function ($query) {
             $query->where('eliminado', 0);
-        }])->get());
+        }])
+        ->where('eliminado',0)
+        ->get());
     }
 
     public function store(CategoriaRequest $request)
@@ -76,8 +79,10 @@ class CategoriaController extends Controller
     }
     public function destroy(Categoria $categoria)
     {
+        $categoria->eliminado = 1;
+        $categoria->save();
+
         Cloudinary::destroy($categoria->public_id);
-        $categoria->delete();
 
         return [
             'id' => $categoria->id,
