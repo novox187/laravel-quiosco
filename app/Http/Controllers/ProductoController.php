@@ -29,7 +29,7 @@ class ProductoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductoRequest $request)
+    public function crear(ProductoRequest $request)
     {
         $datos = $request->validated();
 
@@ -91,14 +91,13 @@ class ProductoController extends Controller
                 }
 
                 $productoCreado = Producto::with('promocion', 'contenedorOpciones.opciones')
-                ->where('id', $producto->id) 
-                ->first();
-    
+                    ->where('id', $producto->id)
+                    ->first();
+
                 return response()->json([
                     'data' => $productoCreado,
                     'success' => 'Producto agregado correctamente.'
                 ]);
-                
             } else {
                 $errors = [
                     'campo1' => ['El producto ya existe.'],
@@ -152,8 +151,8 @@ class ProductoController extends Controller
             }
 
             $productoCreado = Producto::with('promocion', 'contenedorOpciones.opciones')
-            ->where('id', $productoNuevo->id) 
-            ->first();
+                ->where('id', $productoNuevo->id)
+                ->first();
 
             return response()->json([
                 'data' => $productoCreado,
@@ -194,8 +193,8 @@ class ProductoController extends Controller
         }
 
         $productoActualizado = Producto::with('promocion', 'contenedorOpciones.opciones')
-        ->where('id', $producto->id) 
-        ->first();
+            ->where('id', $producto->id)
+            ->first();
 
 
         return new ProductoResource($productoActualizado);
