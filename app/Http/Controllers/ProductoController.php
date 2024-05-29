@@ -90,10 +90,15 @@ class ProductoController extends Controller
                     $producto->contenedorOpciones()->sync($contenedoresIds);
                 }
 
-                return [
-                    'data' => $producto,
-                    'success' => 'Producto agregado correctamente.',
-                ];
+                $productoCreado = Producto::with('promocion', 'contenedorOpciones.opciones')
+                ->where('id', $producto->id) 
+                ->first();
+    
+                return response()->json([
+                    'data' => $productoCreado,
+                    'success' => 'Producto agregado correctamente.'
+                ]);
+                
             } else {
                 $errors = [
                     'campo1' => ['El producto ya existe.'],

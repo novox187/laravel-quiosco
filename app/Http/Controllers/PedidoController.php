@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DetallesProductoPedido;
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Pedido;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use App\Models\PedidoProducto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\PedidoResource;
+use App\Models\DetallesProductoPedido;
 use App\Http\Resources\PedidoCollection;
 
 class PedidoController extends Controller
@@ -17,19 +19,42 @@ class PedidoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($correo)
     {
-        $pedidos = Pedido::with('user')
-            ->with('productos.promocion')
-            ->with('pedidoProductos.detallesProductoPedido')
-            ->where('eliminado', 0)
-            ->get();
 
-        return [
-            'pedidos' => new PedidoCollection($pedidos),
-        ];
+        $usuario = User::Where('email', $correo)->first();
+
+        if ($usuario->admin == 0) {
+
+            $pedidos = Pedido::with('user')
+                ->with('productos.promocion')
+                ->with('pedidoProductos.detallesProductoPedido')
+                ->where('eliminado', 0)
+                ->where('estado', '<=', 1)
+                ->where('user_id', $usuario->id)
+                ->get();
+
+            return [
+                'pedidos' => new PedidoCollection($pedidos),
+            ];
+
+        } else {
+
+            $pedidos = Pedido::with('user')
+                ->with('productos.promocion')
+                ->with('pedidoProductos.detallesProductoPedido')
+                ->where('eliminado', 0)
+                ->where('estado', '<=', 1)
+                ->get();
+
+            return [
+                'pedidos' => new PedidoCollection($pedidos),
+            ];
+        }
     }
-
+    /*         ->whereHas('user', function ($query) use ($correo) {
+            $query->where('email', $correo);
+        }) */
     public function productostop()
     {
         /*         $productos = DB::table('pedido_productos')
@@ -126,8 +151,14 @@ class PedidoController extends Controller
             }
         }
 
+        $pedidos = Pedido::with('user')
+            ->with('productos.promocion')
+            ->with('pedidoProductos.detallesProductoPedido')
+            ->where('id', $pedido->id)
+            ->first();
+
         return [
-            'data' => $pedido,
+            'data' => new PedidoResource($pedidos),
             'message' => 'Pedido realizado Correctamente, estara listo en unos minutos'
         ];
     }
