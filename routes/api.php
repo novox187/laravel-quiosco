@@ -48,9 +48,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/promocion/create', [PromocioneController::class, 'store']);
     Route::get('/promociones', [PromocioneController::class, 'index']);
+
+    /* Panel */
 });
+Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
 
 Route::get('/productos/top', [PedidoController::class, 'productostop']);
+
 
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
 

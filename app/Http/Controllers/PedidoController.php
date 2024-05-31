@@ -37,7 +37,6 @@ class PedidoController extends Controller
             return [
                 'pedidos' => new PedidoCollection($pedidos),
             ];
-
         } else {
 
             $pedidos = Pedido::with('user')
@@ -168,9 +167,90 @@ class PedidoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Pedido $pedido)
+    public function datosPanel(Pedido $pedido)
     {
-        //
+        $usuariosMes = DB::table('users')
+            ->whereMonth('created_at', '=', date('m'))
+            ->where('admin', 0)
+            ->count();
+        $usuariosMesPasado = DB::table('users')
+            ->whereRaw('MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))')
+            ->where('admin', 0)
+            ->count();
+
+
+        $pedidosHoy = DB::table('pedidos')
+            ->whereDate('created_at', '=', now()->format('Y-m-d'))
+            ->where('estado', 2)
+            ->select('total')
+            ->get();
+
+        $totalHoy = $pedidosHoy->sum('total');
+
+        $pedidosDiaAnterior = DB::table('pedidos')
+            ->whereDate('created_at', '=', now()->subDay()->format('Y-m-d'))
+            ->where('estado', 2)
+            ->select('total')
+            ->get();
+
+        $totalDiaAnterior = $pedidosDiaAnterior->sum('total');
+
+        $pedidosMesActual = DB::table('pedidos')
+            ->whereMonth('created_at', '=', date('m'))
+            ->where('estado', 2)
+            ->select('total')
+            ->get();
+        $total = $pedidosMesActual->sum('total');
+
+        $pedidosMesPasado = DB::table('pedidos')
+            ->whereRaw('MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))')
+            ->where('estado', 2)
+            ->select('total')
+            ->get();
+
+        $totalMesPasado = $pedidosMesPasado->sum('total');
+
+
+        return [
+            'ingresoMes' => [
+                'nombre' => 'Dinero',
+                'fecha' => 'Mes',
+                'tipo' => 'dinero',
+                'cantidad' => $total,
+                'comparacion' => $this->sacarPorcentaje($total, $totalMesPasado),
+                'fechaComparacion' => 'Mes pasado'
+            ],
+            'ingresoHoy' => [
+                'nombre' => 'Dinero',
+                'fecha' => 'Hoy',
+                'tipo' => 'dinero',
+                'cantidad' => $totalHoy,
+                'comparacion' => $this->sacarPorcentaje($totalHoy, $totalDiaAnterior),
+                'fechaComparacion' => 'Dia de ayer'
+            ],
+            'usuariosMes' => [
+                'nombre' => 'Usuarios Nuevos',
+                'fecha' => 'Mes',
+                'tipo' => 'usuarios',
+                'cantidad' => $usuariosMes,
+                'comparacion' => $this->sacarPorcentaje($usuariosMes, $usuariosMesPasado),
+                'fechaComparacion' => 'Mes pasado'
+            ]
+        ];
+    }
+
+    private function sacarPorcentaje($total, $total2)
+    {
+        if ($total2) {
+            $diferencia = $total - $total2;
+            $porcentaje = ($diferencia / $total2) * 100;
+
+            return round($porcentaje);
+        } else if ($total && $total2 == 0) {
+            return round(0);
+        } else if ($total2 == 0) {
+            return round(100);
+        }
     }
 
     /**
