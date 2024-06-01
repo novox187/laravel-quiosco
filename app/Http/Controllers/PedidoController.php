@@ -169,6 +169,20 @@ class PedidoController extends Controller
      */
     public function datosPanel(Pedido $pedido)
     {
+        $topProductos = DB::table('pedido_productos')
+        ->select('pedido_productos.producto_id', 'productos.nombre', DB::raw('COUNT(*) as repeticiones'))
+        ->join('productos', 'pedido_productos.producto_id', '=', 'productos.id')
+        ->groupBy('pedido_productos.producto_id', 'productos.nombre')
+        ->orderBy('repeticiones', 'desc')
+        ->limit(5)
+        ->get();
+
+        $topProductosArray = $topProductos->toArray();
+
+        $productoIds = array_column($topProductosArray, 'producto_id');
+        $nombres = array_column($topProductosArray, 'nombre');
+        $repeticiones = array_column($topProductosArray, 'repeticiones');
+
         $usuariosMes = DB::table('users')
             ->whereMonth('created_at', '=', date('m'))
             ->where('admin', 0)
@@ -235,6 +249,14 @@ class PedidoController extends Controller
                 'cantidad' => $usuariosMes,
                 'comparacion' => $this->sacarPorcentaje($usuariosMes, $usuariosMesPasado),
                 'fechaComparacion' => 'Mes pasado'
+            ],
+            'topProductos' => [
+                'productoIds' => $productoIds,
+                'nombres' => $nombres,
+                'repeticiones' => $repeticiones,
+            ],
+            'topProductosTabla' => [
+                'productos' => $topProductos,
             ]
         ];
     }
@@ -246,7 +268,7 @@ class PedidoController extends Controller
             $porcentaje = ($diferencia / $total2) * 100;
 
             return round($porcentaje);
-        } else if ($total && $total2 == 0) {
+        } else if ($total && $total2 === 0) {
             return round(0);
         } else if ($total2 == 0) {
             return round(100);
