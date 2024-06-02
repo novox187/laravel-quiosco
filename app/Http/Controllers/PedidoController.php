@@ -170,12 +170,12 @@ class PedidoController extends Controller
     public function datosPanel(Pedido $pedido)
     {
         $topProductos = DB::table('pedido_productos')
-        ->select('pedido_productos.producto_id', 'productos.nombre', DB::raw('COUNT(*) as repeticiones'))
-        ->join('productos', 'pedido_productos.producto_id', '=', 'productos.id')
-        ->groupBy('pedido_productos.producto_id', 'productos.nombre')
-        ->orderBy('repeticiones', 'desc')
-        ->limit(5)
-        ->get();
+            ->select('pedido_productos.producto_id', 'productos.nombre', DB::raw('COUNT(*) as repeticiones'))
+            ->join('productos', 'pedido_productos.producto_id', '=', 'productos.id')
+            ->groupBy('pedido_productos.producto_id', 'productos.nombre')
+            ->orderBy('repeticiones', 'desc')
+            ->limit(5)
+            ->get();
 
         $topProductosArray = $topProductos->toArray();
 
@@ -185,11 +185,9 @@ class PedidoController extends Controller
 
         $usuariosMes = DB::table('users')
             ->whereMonth('created_at', '=', date('m'))
-            ->where('admin', 0)
             ->count();
         $usuariosMesPasado = DB::table('users')
             ->whereRaw('MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))')
-            ->where('admin', 0)
             ->count();
 
 
@@ -257,7 +255,7 @@ class PedidoController extends Controller
             ],
             'topProductosTabla' => [
                 'productos' => $topProductos,
-            ]
+            ],
         ];
     }
 

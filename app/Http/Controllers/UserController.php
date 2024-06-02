@@ -2,19 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
-use App\Models\Pedido;
 use App\Models\User;
+use App\Models\Pedido;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
+    public  function index(Request $request) {
+        $usuario = $request->user();
+        $rol = $usuario->roles()->first();
+
+        if (!$rol) {
+            $usuarioConRol = [
+                'name' => $usuario->name,
+                'email' => $usuario->email
+            ];
+    
+            return $usuarioConRol;
+        }
+        
+        $usuarioConRol = [
+            'name' => $usuario->name,
+            'rol' => $rol->rol,
+            'email' => $usuario->email
+        ];
+
+        return $usuarioConRol;
     }
 
     /**
