@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [UserController::class, 'index']);
+    Route::get('/user', [UserController::class, 'usuarioEnSession']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -51,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Panel */
 });
 Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
+Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
+Route::get('/users', [UserController::class, 'index']);
 
 Route::get('/productos/top', [PedidoController::class, 'productostop']);
 

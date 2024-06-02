@@ -13,7 +13,27 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public  function index(Request $request) {
+    public  function index(Request $request)
+    {
+        $usuariosSinRol = User::whereDoesntHave('roles')->get(['id', 'name', 'email','estado', 'calificacion']);
+
+        $usuarios = [];
+        foreach ($usuariosSinRol as $usuario) {
+            $usuarioFormateado = [
+                'id' => $usuario->id,
+                'name' => $usuario->name,
+                'email' => $usuario->email,
+                'calificacion' => $usuario->calificacion,
+                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                'status' => $usuario->estado
+            ];
+            $usuarios[] = $usuarioFormateado;
+        }
+    
+        return $usuarios;
+    }
+    public  function usuarioEnSession(Request $request)
+    {
         $usuario = $request->user();
         $rol = $usuario->roles()->first();
 
@@ -22,17 +42,40 @@ class UserController extends Controller
                 'name' => $usuario->name,
                 'email' => $usuario->email
             ];
-    
+
             return $usuarioConRol;
         }
-        
+
         $usuarioConRol = [
+            'id' => $usuario->id,
             'name' => $usuario->name,
             'rol' => $rol->rol,
-            'email' => $usuario->email
+            'email' => $usuario->email,
+            'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+            'status' => 'activo'
         ];
 
         return $usuarioConRol;
+    }
+    public  function equipoTrabajo()
+    {
+        $usuarios = User::whereHas('roles')->get();
+
+        $usuariosConRol = [];
+        foreach ($usuarios as $usuario) {
+            $rol = $usuario->roles()->first();
+            $usuarioConRol = [
+                'id' => $usuario->id,
+                'name' => $usuario->name,
+                'role' => $rol->rol,
+                'email' => $usuario->email,
+                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                'status' => $usuario->estado
+            ];
+            $usuariosConRol[] = $usuarioConRol;
+        }
+
+        return $usuariosConRol;
     }
 
     /**
