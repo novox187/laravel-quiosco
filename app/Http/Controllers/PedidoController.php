@@ -183,11 +183,12 @@ class PedidoController extends Controller
         $nombres = array_column($topProductosArray, 'nombre');
         $repeticiones = array_column($topProductosArray, 'repeticiones');
 
-        $usuariosMes = DB::table('users')
+        $usuariosMes = User::whereDoesntHave('roles')
             ->whereMonth('created_at', '=', date('m'))
             ->count();
-        $usuariosMesPasado = DB::table('users')
-            ->whereRaw('MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))')
+
+        $usuariosMesPasado = User::whereDoesntHave('roles')
+            ->whereRaw('MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)')
             ->count();
 
 
@@ -261,14 +262,18 @@ class PedidoController extends Controller
 
     private function sacarPorcentaje($total, $total2)
     {
-        if ($total2) {
+        if ($total2 && $total) {
             $diferencia = $total - $total2;
             $porcentaje = ($diferencia / $total2) * 100;
 
             return round($porcentaje);
-        } else if ($total && $total2 === 0) {
+        }
+
+        if (!$total2 && !$total) {
             return round(0);
-        } else if ($total2 == 0) {
+        }
+
+        if (!$total2 && $total > 0) {
             return round(100);
         }
     }
