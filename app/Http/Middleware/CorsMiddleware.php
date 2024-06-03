@@ -11,10 +11,11 @@ class CorsMiddleware
         $response = $next($request);
     
         $response->headers->set('Access-Control-Allow-Origin', 'https://www.famasteak.com');
+        $response->headers->set('Access-Control-Allow-Origin', 'https://famasteak.com');
+        $response->headers->set('Access-Control-Allow-Origin', 'https://react-quiosco-desarrollo.up.railway.app');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
         return $response;
     }
-    
 }
