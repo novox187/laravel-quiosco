@@ -24,6 +24,7 @@ class ProductoActualizarRequest extends FormRequest
         return [
             'nombre' => ['required'],
             'precio' => ['required'],
+            'peso' => ['required'],
             'descripcion' => ['required']
         ];
     }
@@ -32,6 +33,7 @@ class ProductoActualizarRequest extends FormRequest
         return[
             'nombre' => 'El nombre es requerido',
             'precio' => 'El precio es requerido',
+            'peso' => 'El peso es requerido',
             'descripcion' => 'La descripcion es Oblogatoria',
         ];
 

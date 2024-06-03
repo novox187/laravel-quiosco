@@ -45,6 +45,7 @@ class ProductoRequest extends FormRequest
             'nombre.min' => 'El nombre debe tener minimo 10 caracteres',
             'nombre.string' => 'El nombre tienen que ser Letras',
             'precio' => 'El precio es requerido',
+            'peso' => 'El peso del producto es requerido',
             'categoria' => 'La categoria es Requerida',
             'imagen' => 'Debes seleccionar una imagen',
             'imagen.unique' =>  'La imagen de este producto ya existe en la base de datos',
