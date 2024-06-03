@@ -30,7 +30,7 @@ class PedidoController extends Controller
                 ->with('productos.promocion')
                 ->with('pedidoProductos.detallesProductoPedido')
                 ->where('eliminado', 0)
-                ->where('estado', '<=', 1)
+                ->where('estado', '<=', 2)
                 ->where('user_id', $usuario->id)
                 ->get();
 
@@ -43,7 +43,7 @@ class PedidoController extends Controller
                 ->with('productos.promocion')
                 ->with('pedidoProductos.detallesProductoPedido')
                 ->where('eliminado', 0)
-                ->where('estado', '<=', 1)
+                ->where('estado', '<=', 2)
                 ->get();
 
             return [
@@ -194,7 +194,7 @@ class PedidoController extends Controller
 
         $pedidosHoy = DB::table('pedidos')
             ->whereDate('created_at', '=', now()->format('Y-m-d'))
-            ->where('estado', 2)
+            ->where('estado', 3)
             ->select('total')
             ->get();
 
@@ -202,7 +202,7 @@ class PedidoController extends Controller
 
         $pedidosDiaAnterior = DB::table('pedidos')
             ->whereDate('created_at', '=', now()->subDay()->format('Y-m-d'))
-            ->where('estado', 2)
+            ->where('estado', 3)
             ->select('total')
             ->get();
 
@@ -210,14 +210,14 @@ class PedidoController extends Controller
 
         $pedidosMesActual = DB::table('pedidos')
             ->whereMonth('created_at', '=', date('m'))
-            ->where('estado', 2)
+            ->where('estado', 3)
             ->select('total')
             ->get();
         $total = $pedidosMesActual->sum('total');
 
         $pedidosMesPasado = DB::table('pedidos')
             ->whereRaw('MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))')
-            ->where('estado', 2)
+            ->where('estado', 3)
             ->select('total')
             ->get();
 
@@ -287,13 +287,19 @@ class PedidoController extends Controller
         /* 0 es por preparar */
         /* 1 por entregar */
         /* 2 entregado */
-        if ($verificacion == 1) {
+        if ($verificacion == 0) {
             Pedido::where('id', $pedido)->update([
                 'estado' => 1,
             ]);
-        } else if ($verificacion == 0) {
+        }
+        if ($verificacion == 1) {
             Pedido::where('id', $pedido)->update([
                 'estado' => 2,
+            ]);
+        }
+        if ($verificacion == 2) {
+            Pedido::where('id', $pedido)->update([
+                'estado' => 3,
             ]);
         }
 
