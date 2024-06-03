@@ -55,6 +55,7 @@ class ProductoController extends Controller
                 $producto->imagen = $url;
                 $producto->descripcion = $datos['descripcion'];
                 $producto->categoria_id = $datos['categoria'];
+                $producto->peso = $datos['peso'];
                 $producto->save();
 
                 $opcionesProducto = $request->opciones_producto;
@@ -116,6 +117,7 @@ class ProductoController extends Controller
             $productoNuevo->imagen = $url;
             $productoNuevo->descripcion = $datos['descripcion'];
             $productoNuevo->categoria_id = $datos['categoria'];
+            $productoNuevo->peso = $datos['peso'];
             $productoNuevo->save();
 
             $opcionesProducto = $request->opciones_producto;
@@ -172,6 +174,7 @@ class ProductoController extends Controller
             $producto->nombre = $datos['nombre'];
             $producto->precio = $datos['precio'];
             $producto->descripcion = $datos['descripcion'];
+            $producto->peso = $datos['peso'];
             $producto->promo_id = $request->promo_id;
             $producto->save();
         } else {
@@ -188,6 +191,7 @@ class ProductoController extends Controller
             $producto->public_id = $public_id;
             $producto->imagen = $url;
             $producto->descripcion = $datos['descripcion'];
+            $producto->peso = $datos['peso'];
             $producto->promo_id = $request->promo_id;
             $producto->save();
         }

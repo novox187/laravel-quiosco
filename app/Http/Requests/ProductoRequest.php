@@ -27,6 +27,7 @@ class ProductoRequest extends FormRequest
             'categoria' => ['required'],
             'imagen' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'unique:productos,imagen'],
             'descripcion' => ['required'],
+            'peso' => ['required'],
             'opciones_producto.*' => ['required', 'distinct'],
             'opciones_producto.*.name' => ['required'],
             'opciones_producto.*.tipo' => ['required'],
