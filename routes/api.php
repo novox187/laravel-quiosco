@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['corsMiddleware', 'auth:sanctum'])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'usuarioEnSession']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
