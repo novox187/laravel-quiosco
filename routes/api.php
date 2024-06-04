@@ -49,10 +49,10 @@ Route::middleware(['corsMiddleware', 'auth:sanctum'])->group(function () {
     Route::get('/promociones', [PromocioneController::class, 'index']);
 
     /* Panel */
+    Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
+    Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
+    Route::get('/users', [UserController::class, 'index']);
 });
-Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
-Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
-Route::get('/users', [UserController::class, 'index']);
 
 Route::get('/productos/top', [PedidoController::class, 'productostop']);
 
