@@ -51,26 +51,6 @@ class PedidoController extends Controller
             ];
         }
     }
-    /*         ->whereHas('user', function ($query) use ($correo) {
-            $query->where('email', $correo);
-        }) */
-    public function productostop()
-    {
-        /*         $productos = DB::table('pedido_productos')
-            ->select('producto_id', DB::raw('SUM(cantidad) as total_vendido'))
-            ->groupBy('producto_id')
-            ->orderByDesc('total_vendido')
-            ->limit(2)
-            ->pluck('producto_id'); // Obtener solo los IDs de los productos más vendidos
-
-        $productosMasVendidos = Producto::with('promocion')
-            ->whereIn('id', $productos)
-            ->get();
-
-        return [
-            'productos_mas_vendidos' => $productosMasVendidos
-        ]; */
-    }
 
     /**
      * Store a newly created resource in storage.

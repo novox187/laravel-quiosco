@@ -49,7 +49,7 @@ class ProductoController extends Controller
                 Cloudinary::destroy($producto->public_id);
 
                 //Subimos la nueva imagen
-                $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'desarrollo/productos', 'format' => 'avif']);
+                $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
                 $url = $uploadedFileUrl->getSecurePath();
                 $public_id = $uploadedFileUrl->getPublicId();
 
@@ -110,7 +110,7 @@ class ProductoController extends Controller
                 return response()->json(['errors' => $errors], 422);
             }
         } else {
-            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'desarrollo/productos', 'format' => 'avif']);
+            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
             $url = $uploadedFileUrl->getSecurePath();
             $public_id = $uploadedFileUrl->getPublicId();
 
@@ -186,7 +186,7 @@ class ProductoController extends Controller
             Cloudinary::destroy($producto->public_id);
 
             //Subimos la nueva imagen
-            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'desarrollo/productos', 'format' => 'avif']);
+            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
             $url = $uploadedFileUrl->getSecurePath();
             $public_id = $uploadedFileUrl->getPublicId();
 
