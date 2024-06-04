@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'https://famasteak.com',
+        'https://react-quiosco-desarrollo.up.railway.app',
+    ],
 
     'allowed_origins_patterns' => [],
 
