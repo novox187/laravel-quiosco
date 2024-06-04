@@ -39,7 +39,7 @@ Route::middleware(['corsMiddleware', 'auth:sanctum'])->group(function () {
     Route::get('/categorias/productos', [CategoriaController::class, 'categoriasProductos']);
     Route::delete('/categorias/eliminar/{categoria}', [CategoriaController::class, 'destroy']);
 
-    Route::post('/productos/create', [ProductoController::class, 'store'])->middleware('corsMiddleware');
+    Route::post('/productos/create', [CategoriaController::class, 'crearProducto']);
     Route::put('/productos/disponible/{producto}', [ProductoController::class, 'updateDisponible']);
     Route::post('/productos/actualizar/{producto}', [ProductoController::class, 'productoActualizar']);
     Route::put('/productos/eliminar/{producto}', [ProductoController::class, 'productoEliminar']);
