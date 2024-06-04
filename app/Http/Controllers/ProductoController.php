@@ -19,10 +19,14 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         $productos = Producto::with('promocion', 'contenedorOpciones.opciones')
+            ->whereHas('categoria', function ($query) {
+                $query->where('eliminado', 0);
+            })
             ->where('eliminado', 0)
             ->orderBy('disponible', 'DESC')
             ->orderBy('id', 'DESC')
             ->get();
+
         return ProductoResource::collection($productos);
     }
 
