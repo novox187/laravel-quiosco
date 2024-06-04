@@ -21,7 +21,6 @@ return [
 
     'allowed_origins' => [
         'https://www.famasteak.com',
-        'https://react-quiosco-desarrollo.up.railway.app',
     ],
 
     'allowed_origins_patterns' => [],
