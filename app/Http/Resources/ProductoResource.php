@@ -25,6 +25,7 @@ class ProductoResource extends JsonResource
             'promo_id' => $this->promo_id,
             'rating' => $this->rating,
             'peso' => $this->peso,
+            'tipo_peso' => $this->tipo_peso,
             'categoria_id' => $this->categoria_id,
             'created_at' => $this->created_at,
             'promocion' => $this->whenLoaded('promocion', function () {

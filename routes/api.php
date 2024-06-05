@@ -39,7 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/categorias/productos', [CategoriaController::class, 'categoriasProductos']);
     Route::delete('/categorias/eliminar/{categoria}', [CategoriaController::class, 'destroy']);
 
-    Route::post('/productos/create', [CategoriaController::class, 'crearProducto']);
+    Route::post('/productos/create', [ProductoController::class, 'store']);
     Route::put('/productos/disponible/{producto}', [ProductoController::class, 'updateDisponible']);
     Route::post('/productos/actualizar/{producto}', [ProductoController::class, 'productoActualizar']);
     Route::put('/productos/eliminar/{producto}', [ProductoController::class, 'productoEliminar']);
@@ -53,9 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
     Route::get('/users', [UserController::class, 'index']);
 });
-
-Route::get('/productos/top', [PedidoController::class, 'productostop']);
-
 
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
 
