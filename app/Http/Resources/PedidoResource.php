@@ -30,6 +30,7 @@ class PedidoResource extends JsonResource
                     'name' => $this->user->name,
                     'email' => $this->user->email,
                     'calificacion' => $this->user->calificacion,
+                    'rol' => $this->user->roles->pluck('rol'),
                 ];
             }),
             'productos' =>  $this->whenLoaded('pedidoProductos', function () {

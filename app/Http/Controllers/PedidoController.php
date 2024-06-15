@@ -23,9 +23,9 @@ class PedidoController extends Controller
     {
 
         $usuario = User::Where('email', $correo)->first();
+        $rol = $usuario->roles;
 
-        if ($usuario->admin == 0) {
-
+        if ($rol->isEmpty()) {
             $pedidos = Pedido::with('user')
                 ->with('productos.promocion')
                 ->with('pedidoProductos.detallesProductoPedido')
@@ -33,12 +33,10 @@ class PedidoController extends Controller
                 ->where('estado', '<=', 2)
                 ->where('user_id', $usuario->id)
                 ->get();
-
             return [
                 'pedidos' => new PedidoCollection($pedidos),
             ];
         } else {
-
             $pedidos = Pedido::with('user')
                 ->with('productos.promocion')
                 ->with('pedidoProductos.detallesProductoPedido')
