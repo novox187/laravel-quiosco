@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
+use App\Models\Registro;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
@@ -109,8 +110,14 @@ class UserController extends Controller
         //Agregamos la observacion al pedido
         $pedido = Pedido::findOrFail($request->id_pedido);
         $pedido->eliminado = 1;
-        $pedido->observacion = $data['observacion'];
         $pedido->save();
+
+        $registro = new Registro;
+        $registro->accion = 'eliminar';
+        $registro->user_id = $request->id_user;
+        $registro->pedido_id = $request->id_pedido;
+        $registro->detalle = $data['observacion'];
+        $registro->save();
 
         return [
             'data' => $pedido->id

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Caja;
+use App\Models\Registro;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Pedido;
@@ -262,23 +264,92 @@ class PedidoController extends Controller
     public function update(Request $request, $pedido)
     {
         $verificacion = $request->identificador;
-        /* 0 es por preparar */
-        /* 1 por entregar */
-        /* 2 entregado */
+        /* 0 por confirmar y cobrar */
+        /* 1 en proceso de preparacion */
+        /* 2 listo para entregar */
+        /* 3 entregado */
+
+        $datosPedido = Pedido::where('id', $pedido)->first();//Obtener los datos del pedido 
+        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $user = User::find($userId); // Obtener el usuario
+        $rol = $user->roles->first(); // Obtener los roles del usuario
+        $ultimoCaja = Caja::latest()->first(); //Se trae el ultimo registro de la tabla cajas
+
+
+        /* CONFIRMAR PEDIDO MESERO */
         if ($verificacion == 0) {
-            Pedido::where('id', $pedido)->update([
-                'estado' => 1,
-            ]);
+            if ($rol->rol === 'mesero' || $rol->rol === 'admin') {
+
+                Pedido::where('id', $pedido)->update([
+                    'estado' => 1,
+                    'pago' => $request->pago,
+                    'efectivo' => $request->dineroCliente,
+                ]);
+
+                $registro = new Registro;
+                $registro->accion = 'cobro';
+                $registro->user_id = $userId;
+                $registro->pedido_id = $datosPedido->id;
+                $registro->save();
+
+                $caja = new Caja;
+                if (!$ultimoCaja) {
+                    $caja->dinero = $datosPedido->total;
+                } else {
+                    $caja->dinero = $ultimoCaja->dinero + $datosPedido->total;
+                }
+                $caja->registro_id = $registro->id;
+                $caja->save();
+            } else {
+                $errors = [
+                    'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                ];
+                return response()->json(['errors' => $errors], 422);
+            }
         }
+
+        /* COMPLETAR PEDIDO MESERO */
         if ($verificacion == 1) {
-            Pedido::where('id', $pedido)->update([
-                'estado' => 2,
-            ]);
+            if ($rol->rol === 'cocinero' || $rol->rol === 'admin') {
+
+                Pedido::where('id', $pedido)->update([
+                    'estado' => 2,
+                ]);
+
+                $registro = new Registro;
+                $registro->accion = 'preparacion';
+                $registro->user_id = $userId;
+                $registro->pedido_id = $datosPedido->id;
+                $registro->save();
+
+            } else {
+                $errors = [
+                    'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                ];
+                return response()->json(['errors' => $errors], 422);
+            }
         }
+
+        /* ENTREGAR PEDIDO MESERO */
         if ($verificacion == 2) {
-            Pedido::where('id', $pedido)->update([
-                'estado' => 3,
-            ]);
+            if ($rol->rol === 'cocinero' || $rol->rol === 'admin') {
+
+                Pedido::where('id', $pedido)->update([
+                    'estado' => 3,
+                ]);
+
+                $registro = new Registro;
+                $registro->accion = 'entrega';
+                $registro->user_id = $userId;
+                $registro->pedido_id = $datosPedido->id;
+                $registro->save();
+
+            } else {
+                $errors = [
+                    'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                ];
+                return response()->json(['errors' => $errors], 422);
+            }
         }
 
         $pedido = Pedido::find($pedido);

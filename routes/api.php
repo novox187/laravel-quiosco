@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CajaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContenedorOpcionesController;
 use App\Http\Controllers\PedidoController;
@@ -52,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
     Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
     Route::get('/users', [UserController::class, 'index']);
+    Route::get('/caja', [CajaController::class,'index']);
 });
 
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
