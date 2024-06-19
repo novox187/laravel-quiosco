@@ -45,7 +45,9 @@ class ProductoController extends Controller
             if ($producto->eliminado === 1) {
 
                 //Eliminamos la imagen anterior de la base de datos
-                Cloudinary::destroy($producto->public_id);
+                if ($producto->public_id !== 'sldngq1rzkctsqpyz3tx') {
+                    Cloudinary::destroy($producto->public_id);
+                }
 
                 //Subimos la nueva imagen
                 $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
@@ -110,9 +112,17 @@ class ProductoController extends Controller
                 return response()->json(['errors' => $errors], 422);
             }
         } else {
-            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
-            $url = $uploadedFileUrl->getSecurePath();
-            $public_id = $uploadedFileUrl->getPublicId();
+            $url = '';
+            $public_id = '';
+
+            if ($request->imagen) {
+                $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
+                $url = $uploadedFileUrl->getSecurePath();
+                $public_id = $uploadedFileUrl->getPublicId();
+            } else {
+                $url = 'https://res.cloudinary.com/dfrsffngq/image/upload/v1718787004/sldngq1rzkctsqpyz3tx.png';
+                $public_id = 'sldngq1rzkctsqpyz3tx';
+            }
 
             $productoNuevo = new Producto;
             $productoNuevo->nombre = $datos['nombre'];
@@ -185,7 +195,9 @@ class ProductoController extends Controller
             $producto->save();
         } else {
             //Eliminamos la imagen anterior de la base de datos
-            Cloudinary::destroy($producto->public_id);
+            if ($producto->public_id !== 'sldngq1rzkctsqpyz3tx') {
+                Cloudinary::destroy($producto->public_id);
+            }
 
             //Subimos la nueva imagen
             $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
