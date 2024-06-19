@@ -13,12 +13,6 @@ return new class extends Migration
     {
         Schema::create('registros', function (Blueprint $table) {
             $table->id();
-            $table->string('accion');
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('pedido_id')->nullable()->constrained('pedidos');
-            $table->foreignId('categoria_id')->nullable()->constrained('categorias');
-            $table->foreignId('producto_id')->nullable()->constrained('productos');
-            $table->text('detalle')->nullable();
             $table->timestamps();
         });
     }
