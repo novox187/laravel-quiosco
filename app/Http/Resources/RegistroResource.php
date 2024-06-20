@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class RegistroResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'accion' => $this->accion,
+            'user' =>  $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'rol' => $this->user->roles->pluck('rol'),
+                ];
+            }),
+            'pedido' =>  $this->whenLoaded('pedido', function () {
+                return [
+                    'id' => $this->pedido->id,
+                    'numero_pedido' => $this->pedido->numero_pedido,
+                ];
+            }),
+            'categoria' =>  $this->whenLoaded('categoria', function () {
+                return [
+                    'id' => $this->categoria->id,
+                    'nombre' => $this->categoria->nombre,
+                ];
+            }),
+            'producto' =>  $this->whenLoaded('producto', function () {
+                return [
+                    'id' =>  $this->producto->id,
+                    'nombre' =>  $this->producto->nombre,
+                ];
+            }),
+            'detalle' => json_decode($this->detalle, true),
+        ];
+    }
+}

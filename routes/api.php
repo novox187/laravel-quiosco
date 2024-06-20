@@ -7,6 +7,7 @@ use App\Http\Controllers\ContenedorOpcionesController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PromocioneController;
+use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -53,7 +54,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
     Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
     Route::get('/users', [UserController::class, 'index']);
-    Route::get('/caja', [CajaController::class,'index']);
+    Route::get('/caja', [CajaController::class, 'index']);
+    /* Registro */
+    Route::get('/registros', [RegistroController::class, 'index']);
 });
 
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
