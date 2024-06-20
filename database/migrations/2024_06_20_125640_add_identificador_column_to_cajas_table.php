@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('auditorias', function (Blueprint $table) {
-            $table->id();
-            $table->string('accion');
-            $table->foreignId('user_id')->constrained();
-            $table->timestamps();
+        Schema::table('cajas', function (Blueprint $table) {
+            $table->integer('identificador');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('auditorias');
+        Schema::table('cajas', function (Blueprint $table) {
+            $table->dropColumn('identificador');
+        });
     }
 };

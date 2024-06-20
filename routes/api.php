@@ -54,9 +54,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
     Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
     Route::get('/users', [UserController::class, 'index']);
-    Route::get('/caja', [CajaController::class, 'index']);
+    
     /* Registro */
     Route::get('/registros', [RegistroController::class, 'index']);
+    
+    /* caja */
+    Route::get('/caja', [CajaController::class, 'index']);
+    Route::post('/caja/abrir', [CajaController::class, 'store']);
+    Route::post('/caja/cerrar', [CajaController::class, 'destroy']);
 });
 
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
