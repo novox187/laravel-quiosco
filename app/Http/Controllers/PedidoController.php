@@ -57,89 +57,96 @@ class PedidoController extends Controller
      */
     public function store(Request $request)
     {
-        //Traemos el ultimo codigo de la base de datos
-        $ultimoCodigo = Pedido::latest()->first();
+        $ultimoCaja = Caja::latest()->first(); //Se trae el ultimo registro de la tabla cajas
 
-        if ($ultimoCodigo) {
-            // Extraer la letra y los números del último código
-            $letra = substr($ultimoCodigo->numero_pedido, 0, 1);
-            $numeros = (int)substr($ultimoCodigo->numero_pedido, 1);
 
-            if ($numeros < 999) {
-                // Incrementar los números
-                $numeros++;
+        if ($ultimoCaja->estado == 1) {
+            //Traemos el ultimo codigo de la base de datos
+            $ultimoCodigo = Pedido::latest()->first();
+
+            if ($ultimoCodigo) {
+                // Extraer la letra y los números del último código
+                $letra = substr($ultimoCodigo->numero_pedido, 0, 1);
+                $numeros = (int)substr($ultimoCodigo->numero_pedido, 1);
+
+                if ($numeros < 999) {
+                    // Incrementar los números
+                    $numeros++;
+                } else {
+                    // Reiniciar los números y cambiar la letra si es Z
+                    $numeros = 0;
+                    $letra = $letra === 'Z' ? 'A' : ++$letra;
+                }
             } else {
-                // Reiniciar los números y cambiar la letra si es Z
+                // Establecer el primer código como A000 si no hay códigos en la base de datos
+                $letra = 'A';
                 $numeros = 0;
-                $letra = $letra === 'Z' ? 'A' : ++$letra;
             }
-        } else {
-            // Establecer el primer código como A000 si no hay códigos en la base de datos
-            $letra = 'A';
-            $numeros = 0;
-        }
 
-        // Formatear el nuevo código
-        $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
-
-        // Verificar que el nuevo código no exista en la base de datos
-        while (Pedido::where('numero_pedido', $nuevoCodigo)->exists()) {
-            // Incrementar los números y actualizar el nuevo código
-            $numeros = $numeros < 999 ? ++$numeros : 0;
-            $letra = $numeros === 0 ? ($letra === 'Z' ? 'A' : ++$letra) : $letra;
+            // Formatear el nuevo código
             $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
-        }
 
-
-
-
-
-        // Almacenar orden
-        $pedido = new Pedido;
-        $pedido->user_id = Auth::user()->id;
-        $pedido->total = $request->total;
-        $pedido->total_neto = $request->totalNeto;
-        $pedido->numero_pedido = $nuevoCodigo;
-        $pedido->lugar = $request->lugar;
-        $pedido->mesa = $request->mesa;
-        $pedido->save();
-
-        // Obtener el ID del pedido
-        $id_pedido = $pedido->id;
-
-        // Obtener los productos
-        $productos = $request->productos;
-
-        // Almacenar los PedidoProducto asociados al pedido
-        foreach ($productos as $producto) {
-            $pedidoProducto = new PedidoProducto;
-            $pedidoProducto->pedido_id = $id_pedido;
-            $pedidoProducto->producto_id = $producto['id'];
-            $pedidoProducto->total_opciones = $producto['total_opciones'];
-            $pedidoProducto->save();
-
-            foreach ($producto['detalle_Producto'] as $detalle) {
-                $NuevoDetalle = new DetallesProductoPedido;
-                $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
-                $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
-                $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
-                $NuevoDetalle->opcion = $detalle['opcion'];
-                $NuevoDetalle->precio_opcion = $detalle['precio'];
-                $NuevoDetalle->cantidad = $detalle['cantidad'];
-                $NuevoDetalle->save();
+            // Verificar que el nuevo código no exista en la base de datos
+            while (Pedido::where('numero_pedido', $nuevoCodigo)->exists()) {
+                // Incrementar los números y actualizar el nuevo código
+                $numeros = $numeros < 999 ? ++$numeros : 0;
+                $letra = $numeros === 0 ? ($letra === 'Z' ? 'A' : ++$letra) : $letra;
+                $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
             }
+
+
+            // Almacenar orden
+            $pedido = new Pedido;
+            $pedido->user_id = Auth::user()->id;
+            $pedido->total = $request->total;
+            $pedido->total_neto = $request->totalNeto;
+            $pedido->numero_pedido = $nuevoCodigo;
+            $pedido->lugar = $request->lugar;
+            $pedido->mesa = $request->mesa;
+            $pedido->save();
+
+            // Obtener el ID del pedido
+            $id_pedido = $pedido->id;
+
+            // Obtener los productos
+            $productos = $request->productos;
+
+            // Almacenar los PedidoProducto asociados al pedido
+            foreach ($productos as $producto) {
+                $pedidoProducto = new PedidoProducto;
+                $pedidoProducto->pedido_id = $id_pedido;
+                $pedidoProducto->producto_id = $producto['id'];
+                $pedidoProducto->total_opciones = $producto['total_opciones'];
+                $pedidoProducto->save();
+
+                foreach ($producto['detalle_Producto'] as $detalle) {
+                    $NuevoDetalle = new DetallesProductoPedido;
+                    $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
+                    $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
+                    $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
+                    $NuevoDetalle->opcion = $detalle['opcion'];
+                    $NuevoDetalle->precio_opcion = $detalle['precio'];
+                    $NuevoDetalle->cantidad = $detalle['cantidad'];
+                    $NuevoDetalle->save();
+                }
+            }
+
+            $pedidos = Pedido::with('user')
+                ->with('productos.promocion')
+                ->with('pedidoProductos.detallesProductoPedido')
+                ->where('id', $pedido->id)
+                ->first();
+
+            return [
+                'data' => new PedidoResource($pedidos),
+                'message' => 'Pedido realizado Correctamente, estara listo en unos minutos'
+            ];
+        } else {
+            $errors = [
+                'caja' => ['Lo sentimos, el establecimiento está cerrado, vuelve en horario de atención'],
+            ];
+            return response()->json(['errors' => $errors], 422);
         }
-
-        $pedidos = Pedido::with('user')
-            ->with('productos.promocion')
-            ->with('pedidoProductos.detallesProductoPedido')
-            ->where('id', $pedido->id)
-            ->first();
-
-        return [
-            'data' => new PedidoResource($pedidos),
-            'message' => 'Pedido realizado Correctamente, estara listo en unos minutos'
-        ];
     }
 
 
@@ -269,96 +276,103 @@ class PedidoController extends Controller
         /* 2 listo para entregar */
         /* 3 entregado */
 
-        $datosPedido = Pedido::where('id', $pedido)->first();//Obtener los datos del pedido 
+        $datosPedido = Pedido::where('id', $pedido)->first(); //Obtener los datos del pedido 
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
         $user = User::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
-        $ultimoCaja = Caja::latest()->first(); //Se trae el ultimo registro de la tabla cajas
+        $ultimoCaja = Caja::latest()
+            ->first(); //Se trae el ultimo registro de la tabla cajas
 
 
-        /* CONFIRMAR PEDIDO MESERO */
-        if ($verificacion == 0) {
-            if ($rol->rol === 'mesero' || $rol->rol === 'admin') {
+        if ($ultimoCaja->estado == 1) {
+            /* CONFIRMAR PEDIDO MESERO */
+            if ($verificacion == 0) {
+                if ($rol->rol === 'mesero' || $rol->rol === 'admin') {
 
-                Pedido::where('id', $pedido)->update([
-                    'estado' => 1,
-                    'pago' => $request->pago,
-                    'efectivo' => $request->dineroCliente,
-                ]);
+                    Pedido::where('id', $pedido)->update([
+                        'estado' => 1,
+                        'pago' => $request->pago,
+                        'efectivo' => $request->dineroCliente,
+                    ]);
 
-                $registro = new Registro;
-                $registro->accion = 'cobro';
-                $registro->user_id = $userId;
-                $registro->pedido_id = $datosPedido->id;
-                $registro->save();
+                    $registro = new Registro;
+                    $registro->accion = 'cobro';
+                    $registro->user_id = $userId;
+                    $registro->pedido_id = $datosPedido->id;
+                    $registro->save();
 
-                $caja = new Caja;
-                if (!$ultimoCaja) {
-                    $caja->dinero = $datosPedido->total;
+                    $caja = new Caja;
+                    if (!$ultimoCaja) {
+                        $caja->dinero = $datosPedido->total;
+                    } else {
+                        $caja->dinero = $ultimoCaja->dinero + $datosPedido->total;
+                    }
+                    $caja->identificador = $ultimoCaja->identificador;
+                    $caja->registro_id = $registro->id;
+                    $caja->save();
                 } else {
-                    $caja->dinero = $ultimoCaja->dinero + $datosPedido->total;
+                    $errors = [
+                        'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                    ];
+                    return response()->json(['errors' => $errors], 422);
                 }
-                $caja->registro_id = $registro->id;
-                $caja->save();
-            } else {
-                $errors = [
-                    'permisos' => ['No tienes el rol necesario para realizar esta accion'],
-                ];
-                return response()->json(['errors' => $errors], 422);
             }
-        }
 
-        /* COMPLETAR PEDIDO MESERO */
-        if ($verificacion == 1) {
-            if ($rol->rol === 'cocinero' || $rol->rol === 'admin') {
+            /* COMPLETAR PEDIDO MESERO */
+            if ($verificacion == 1) {
+                if ($rol->rol === 'cocinero' || $rol->rol === 'admin') {
 
-                Pedido::where('id', $pedido)->update([
-                    'estado' => 2,
-                ]);
+                    Pedido::where('id', $pedido)->update([
+                        'estado' => 2,
+                    ]);
 
-                $registro = new Registro;
-                $registro->accion = 'preparacion';
-                $registro->user_id = $userId;
-                $registro->pedido_id = $datosPedido->id;
-                $registro->save();
-
-            } else {
-                $errors = [
-                    'permisos' => ['No tienes el rol necesario para realizar esta accion'],
-                ];
-                return response()->json(['errors' => $errors], 422);
+                    $registro = new Registro;
+                    $registro->accion = 'preparacion';
+                    $registro->user_id = $userId;
+                    $registro->pedido_id = $datosPedido->id;
+                    $registro->save();
+                } else {
+                    $errors = [
+                        'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                    ];
+                    return response()->json(['errors' => $errors], 422);
+                }
             }
-        }
 
-        /* ENTREGAR PEDIDO MESERO */
-        if ($verificacion == 2) {
-            if ($rol->rol === 'cocinero' || $rol->rol === 'admin') {
+            /* ENTREGAR PEDIDO MESERO */
+            if ($verificacion == 2) {
+                if ($rol->rol === 'mesero' || $rol->rol === 'admin') {
 
-                Pedido::where('id', $pedido)->update([
-                    'estado' => 3,
-                ]);
+                    Pedido::where('id', $pedido)->update([
+                        'estado' => 3,
+                    ]);
 
-                $registro = new Registro;
-                $registro->accion = 'entrega';
-                $registro->user_id = $userId;
-                $registro->pedido_id = $datosPedido->id;
-                $registro->save();
-
-            } else {
-                $errors = [
-                    'permisos' => ['No tienes el rol necesario para realizar esta accion'],
-                ];
-                return response()->json(['errors' => $errors], 422);
+                    $registro = new Registro;
+                    $registro->accion = 'entrega';
+                    $registro->user_id = $userId;
+                    $registro->pedido_id = $datosPedido->id;
+                    $registro->save();
+                } else {
+                    $errors = [
+                        'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                    ];
+                    return response()->json(['errors' => $errors], 422);
+                }
             }
+
+            $pedido = Pedido::find($pedido);
+
+            return [
+                'id' => $pedido->id,
+                'estado' => $pedido->estado,
+                'response' =>  'Ha sido actualizado'
+            ];
+        } else {
+            $errors = [
+                'caja' => ['Caja esta cerrada, no puedes realizar ninguna accion'],
+            ];
+            return response()->json(['errors' => $errors], 422);
         }
-
-        $pedido = Pedido::find($pedido);
-
-        return [
-            'id' => $pedido->id,
-            'estado' => $pedido->estado,
-            'response' =>  'Ha sido actualizado'
-        ];
     }
 
 

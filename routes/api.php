@@ -1,16 +1,18 @@
 <?php
 
+use Illuminate\Http\Request;
+use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CajaController;
-use App\Http\Controllers\CategoriaController;
-use App\Http\Controllers\ContenedorOpcionesController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\PromocioneController;
 use App\Http\Controllers\RegistroController;
-use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\PromocioneController;
+use App\Http\Controllers\ContenedorOpcionesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +65,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/caja/abrir', [CajaController::class, 'store']);
     Route::post('/caja/cerrar', [CajaController::class, 'destroy']);
 });
+
+Route::put('/validate-token', function (Request $request) {
+    if (Auth::guard('sanctum')->check()) {
+        $user = $request->user();
+        return response()->json(['user' => $user], 200);
+    } else {
+        return response()->json(['error' => 'Invalid token'], 401);
+    }
+})->middleware('auth:sanctum');
 
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
 
