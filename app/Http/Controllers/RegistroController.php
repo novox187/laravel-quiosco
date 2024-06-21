@@ -14,6 +14,7 @@ class RegistroController extends Controller
         $registros = Registro::orderBy('id','desc')
         ->whereDate('created_at', Carbon::today())
         ->with('user', 'pedido', 'categoria', 'producto')
+        ->limit(50)
         ->get();
         return RegistroResource::collection($registros);
     }

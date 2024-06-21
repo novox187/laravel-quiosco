@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Registro;
 use App\Models\User;
 use App\Models\Opcione;
 use App\Models\Producto;
+use App\Models\Registro;
 use Illuminate\Http\Request;
 use App\Models\ContenedorOpcione;
 use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoResource;
+use App\Http\Resources\RegistroResource;
 use App\Http\Requests\ProductoActualizarRequest;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
@@ -339,9 +340,29 @@ class ProductoController extends Controller
                 $registro->save();
             }
 
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto')
+                ->first();
+
             return [
                 'producto' => $producto->id,
-                'estado' => $producto->disponible
+                'estado' => $producto->disponible,
+                'registro' => [
+                    'id' => $registros->id,
+                    'accion' => $registros->accion,
+                    'user' =>  [
+                        'id' => $registros->user->id ?? null,
+                        'name' => $registros->user->name ?? null,
+                        'rol' => $rol,
+                    ] ?? null ,
+                    'pedido' =>  null,
+                    'categoria' => null,
+                    'producto' =>  [
+                        'id' =>  $registros->producto->id ?? null,
+                        'nombre' =>  $registros->producto->nombre ?? null,
+                    ] ?? null,
+                    'detalle' => json_decode($registros->detalle, true),
+                ],
             ];
         } else {
             $errors = [
