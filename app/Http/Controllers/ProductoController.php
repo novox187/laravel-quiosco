@@ -200,9 +200,14 @@ class ProductoController extends Controller
                     ->where('id', $productoNuevo->id)
                     ->first();
 
+                $registros = Registro::where('id', $registro->id)
+                    ->with('user', 'pedido', 'categoria', 'producto')
+                    ->first();
+
                 return response()->json([
                     'data' => $productoCreado,
-                    'success' => 'Producto agregado correctamente.'
+                    'success' => 'Producto agregado correctamente.',
+                    'registro' => new RegistroResource($registros)
                 ]);
             }
         } else {
@@ -288,13 +293,21 @@ class ProductoController extends Controller
             $registro->producto_id = $producto->id;
             $registro->save();
 
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto')
+                ->first();
+
+
             //traemos los datos completos del producto creado
             $productoActualizado = Producto::with('promocion', 'contenedorOpciones.opciones')
                 ->where('id', $producto->id)
                 ->first();
 
             //devolvemos el producto formateado con los datos necesarios
-            return new ProductoResource($productoActualizado);
+            return [
+                'producto' => new ProductoResource($productoActualizado),
+                'registro' => new RegistroResource($registros)
+            ];
         } else {
             $errors = [
                 'permisos' => ['No tienes el rol necesario para realizar esta accion'],
@@ -347,22 +360,7 @@ class ProductoController extends Controller
             return [
                 'producto' => $producto->id,
                 'estado' => $producto->disponible,
-                'registro' => [
-                    'id' => $registros->id,
-                    'accion' => $registros->accion,
-                    'user' =>  [
-                        'id' => $registros->user->id ?? null,
-                        'name' => $registros->user->name ?? null,
-                        'rol' => $rol,
-                    ] ?? null ,
-                    'pedido' =>  null,
-                    'categoria' => null,
-                    'producto' =>  [
-                        'id' =>  $registros->producto->id ?? null,
-                        'nombre' =>  $registros->producto->nombre ?? null,
-                    ] ?? null,
-                    'detalle' => json_decode($registros->detalle, true),
-                ],
+                'registro' => new RegistroResource($registros)
             ];
         } else {
             $errors = [
@@ -399,10 +397,15 @@ class ProductoController extends Controller
             $registro->detalle = json_encode($productoEliminado);
             $registro->save();
 
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto')
+                ->first();
+
             return [
                 'productoId' => $producto->id,
                 'categoriaId' => $producto->categoria_id,
-                'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'eliminado'
+                'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'eliminado',
+                'registro' => new RegistroResource($registros)
             ];
         } else {
             $errors = [
@@ -429,11 +432,17 @@ class ProductoController extends Controller
             $registro->detalle = json_encode(['categoria_id' => $request->id_categoria]);
             $registro->save();
 
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto')
+                ->first();
+
+
             return [
                 'productoId' => $producto->id,
                 'categoriaAnterior' => $request->categoria_anterior,
                 'categoriaActual' => $producto->categoria_id,
                 'message' => 'producto' . ' ' . $producto->nombre . ' ' . 'movido a categoria' . ' ' . $request->nombre_categoria,
+                'registro' => new RegistroResource($registros)
             ];
         } else {
             $errors = [

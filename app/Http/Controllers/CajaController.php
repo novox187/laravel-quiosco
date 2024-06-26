@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
-use App\Models\Registro;
 use App\Models\User;
+use App\Models\Pedido;
+use App\Models\Registro;
 use Illuminate\Http\Request;
 use PhpParser\Node\Expr\Empty_;
+use App\Http\Resources\RegistroResource;
 
 class CajaController extends Controller
 {
@@ -105,15 +107,25 @@ class CajaController extends Controller
                 $newCaja->identificador = $caja->identificador + 1;
                 $newCaja->save();
 
+
+                $registros = Registro::where('id', $registro->id)
+                    ->with('user', 'pedido', 'categoria', 'producto')
+                    ->first();
+
                 return [
-                    'registro' => $registro,
                     'nuevaCaja' => [
                         'caja' => $newCaja->dinero,
                         'estado' => $newCaja->estado,
                         'historia' => $datosCajas,
-                    ]
+                    ],
+                    'registro' => new RegistroResource($registros)
                 ];
             }
+        } else {
+            $errors = [
+                'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+            ];
+            return response()->json(['errors' => $errors], 422);
         }
     }
 
@@ -130,31 +142,48 @@ class CajaController extends Controller
             ->where('estado', 0)
             ->pluck('dinero');
 
+        $pedidosPendientes = Pedido::where('estado', '<', 3)->get();
+
         if ($rol->rol == 'admin') {
 
+            if ($pedidosPendientes->count() == 0) {
+                $caja->estado = 0;
+                $caja->save();
 
-            $caja->estado = 0;
-            $caja->save();
+                $registro = new Registro;
+                $registro->accion = 'cerrar_caja';
+                $registro->user_id = $userId;
+                $registro->detalle = json_encode([
+                    [
+                        'id_caja' => $caja->id,
+                        'dinero_cerrar' => $caja->dinero,
+                    ]
+                ]);
+                $registro->save();
 
-            $registro = new Registro;
-            $registro->accion = 'cerrar_caja';
-            $registro->user_id = $userId;
-            $registro->detalle = json_encode([
-                [
-                    'id_caja' => $caja->id,
-                    'dinero_cerrar' => $caja->dinero,
-                ]
-            ]);
-            $registro->save();
+                $registros = Registro::where('id', $registro->id)
+                    ->with('user', 'pedido', 'categoria', 'producto')
+                    ->first();
 
-            return [
-                'registro' => $registro,
-                'nuevaCaja' => [
-                    'caja' => 0,
-                    'estado' => $caja->estado,
-                    'historia' => $datosCajas,
-                ]
+                return [
+                    'nuevaCaja' => [
+                        'caja' => 0,
+                        'estado' => $caja->estado,
+                        'historia' => $datosCajas,
+                    ],
+                    'registro' => new RegistroResource($registros)
+                ];
+            } else {
+                $errors = [
+                    'pedidos' => ['Tienes pedidos pendientes, completalos antes de cerrar caja'],
+                ];
+                return response()->json(['errors' => $errors], 422);
+            }
+        } else {
+            $errors = [
+                'permisos' => ['No tienes el rol necesario para realizar esta accion'],
             ];
+            return response()->json(['errors' => $errors], 422);
         }
     }
 }

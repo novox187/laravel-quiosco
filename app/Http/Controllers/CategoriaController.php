@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\ContenedorOpcione;
 use App\Http\Requests\ProductoRequest;
 use App\Http\Requests\CategoriaRequest;
+use App\Http\Resources\RegistroResource;
 use App\Http\Resources\CategoriaCollection;
 use App\Http\Resources\CategoriaProductoCollection;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
@@ -85,9 +86,15 @@ class CategoriaController extends Controller
                 $registro->detalle = json_encode($categorias);
                 $registro->save();
 
+                $registros = Registro::where('id', $registro->id)
+                    ->with('user', 'pedido', 'categoria', 'producto')
+                    ->first();
+
+
                 return response()->json([
                     'data' => $categorias,
                     'success' => 'Categoria creada correctamente',
+                    'registro' => new RegistroResource($registros)
                 ]);
             }
         } else {
@@ -140,11 +147,16 @@ class CategoriaController extends Controller
             $categoriaEditada = Categoria::where('id', $categoria->id)
                 ->first();
 
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto')
+                ->first();
+
             return [
                 'id' => $categoriaEditada->id,
                 'nombre' => $categoriaEditada->nombre,
                 'icono' => $categoriaEditada->icono,
                 'menssage' => 'categoria Actualizada',
+                'registro' => new RegistroResource($registros)
             ];
         } else {
             $errors = [
@@ -172,9 +184,14 @@ class CategoriaController extends Controller
             $registro->detalle = json_encode($categoria);
             $registro->save();
 
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto')
+                ->first();
+
             return [
                 'id' => $categoria->id,
                 'menssage' => 'categoria' . ' ' . $categoria->nombre . ' ' . 'eliminada',
+                'registro' => new RegistroResource($registros)
             ];
         } else {
             $errors = [

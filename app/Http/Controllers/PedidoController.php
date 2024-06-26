@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\PedidoResource;
 use App\Models\DetallesProductoPedido;
 use App\Http\Resources\PedidoCollection;
+use App\Http\Resources\RegistroResource;
 
 class PedidoController extends Controller
 {
@@ -59,41 +60,9 @@ class PedidoController extends Controller
     {
         $ultimoCaja = Caja::latest()->first(); //Se trae el ultimo registro de la tabla cajas
 
-
         if ($ultimoCaja->estado == 1) {
-            //Traemos el ultimo codigo de la base de datos
-            $ultimoCodigo = Pedido::latest()->first();
 
-            if ($ultimoCodigo) {
-                // Extraer la letra y los números del último código
-                $letra = substr($ultimoCodigo->numero_pedido, 0, 1);
-                $numeros = (int)substr($ultimoCodigo->numero_pedido, 1);
-
-                if ($numeros < 999) {
-                    // Incrementar los números
-                    $numeros++;
-                } else {
-                    // Reiniciar los números y cambiar la letra si es Z
-                    $numeros = 0;
-                    $letra = $letra === 'Z' ? 'A' : ++$letra;
-                }
-            } else {
-                // Establecer el primer código como A000 si no hay códigos en la base de datos
-                $letra = 'A';
-                $numeros = 0;
-            }
-
-            // Formatear el nuevo código
-            $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
-
-            // Verificar que el nuevo código no exista en la base de datos
-            while (Pedido::where('numero_pedido', $nuevoCodigo)->exists()) {
-                // Incrementar los números y actualizar el nuevo código
-                $numeros = $numeros < 999 ? ++$numeros : 0;
-                $letra = $numeros === 0 ? ($letra === 'Z' ? 'A' : ++$letra) : $letra;
-                $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
-            }
-
+            $nuevoCodigo = $this->generarCodigo();
 
             // Almacenar orden
             $pedido = new Pedido;
@@ -139,7 +108,7 @@ class PedidoController extends Controller
 
             return [
                 'data' => new PedidoResource($pedidos),
-                'message' => 'Pedido realizado Correctamente, estara listo en unos minutos'
+                'message' => 'Pedido realizado Correctamente, estara listo en unos minutos',
             ];
         } else {
             $errors = [
@@ -147,6 +116,44 @@ class PedidoController extends Controller
             ];
             return response()->json(['errors' => $errors], 422);
         }
+    }
+
+    private function generarCodigo()
+    {
+        // Traemos el último código de la base de datos
+        $ultimoCodigo = Pedido::latest()->first();
+
+        if ($ultimoCodigo) {
+            // Extraer la letra y los números del último código
+            $letra = substr($ultimoCodigo->numero_pedido, 0, 1);
+            $numeros = (int)substr($ultimoCodigo->numero_pedido, 2); // Cambio aquí para manejar el formato A-000
+
+            if ($numeros < 999) {
+                // Incrementar los números
+                $numeros++;
+            } else {
+                // Reiniciar los números y cambiar la letra si es Z
+                $numeros = 0;
+                $letra = $letra === 'Z' ? 'A' : ++$letra;
+            }
+        } else {
+            // Establecer el primer código como A-000 si no hay códigos en la base de datos
+            $letra = 'A';
+            $numeros = 0;
+        }
+
+        // Formatear el nuevo código
+        $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
+
+        // Verificar que el nuevo código no exista en la base de datos
+        while (Pedido::where('numero_pedido', $nuevoCodigo)->exists()) {
+            // Incrementar los números y actualizar el nuevo código
+            $numeros = $numeros < 999 ? ++$numeros : 0;
+            $letra = $numeros === 0 ? ($letra === 'Z' ? 'A' : ++$letra) : $letra;
+            $nuevoCodigo = $letra . '-' . str_pad($numeros, 3, '0', STR_PAD_LEFT);
+        }
+
+        return $nuevoCodigo;
     }
 
 
@@ -361,11 +368,14 @@ class PedidoController extends Controller
             }
 
             $pedido = Pedido::find($pedido);
-
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto')
+                ->first();
             return [
                 'id' => $pedido->id,
                 'estado' => $pedido->estado,
-                'response' =>  'Ha sido actualizado'
+                'response' =>  'Ha sido actualizado',
+                'registro' => new RegistroResource($registros)
             ];
         } else {
             $errors = [

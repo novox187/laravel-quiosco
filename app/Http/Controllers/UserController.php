@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Pedido;
+use App\Models\Registro;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
-use App\Models\Registro;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\RegistroResource;
 
 class UserController extends Controller
 {
@@ -119,8 +120,13 @@ class UserController extends Controller
         $registro->detalle = $data['observacion'];
         $registro->save();
 
+        $registros = Registro::where('id', $registro->id)
+        ->with('user', 'pedido', 'categoria', 'producto')
+        ->first();
+
         return [
-            'data' => $pedido->id
+            'data' => $pedido->id,
+            'registro' => new RegistroResource($registros)
         ];
     }
 
