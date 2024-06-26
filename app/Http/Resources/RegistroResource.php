@@ -42,6 +42,12 @@ class RegistroResource extends JsonResource
                     'nombre' =>  $this->producto->nombre,
                 ];
             }),
+            'promocion' =>  $this->whenLoaded('promocion', function () {
+                return [
+                    'id' =>  $this->promocion->id,
+                    'nombre' =>  $this->promocion->nombre,
+                ];
+            }),
             'detalle' => json_decode($this->detalle, true),
         ];
     }

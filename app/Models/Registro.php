@@ -29,4 +29,8 @@ class Registro extends Model
     {
         return $this->belongsTo(Producto::class);
     }
+    public function promocion()
+    {
+        return $this->belongsTo(Promocione::class);
+    }
 }

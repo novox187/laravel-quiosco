@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PromocionRequest;
-use App\Http\Resources\PromocionCollection;
+use App\Models\User;
+use App\Models\Registro;
 use App\Models\Promocione;
 use Illuminate\Http\Request;
+use App\Http\Requests\PromocionRequest;
+use App\Http\Resources\RegistroResource;
+use App\Http\Resources\PromocionCollection;
 
 class PromocioneController extends Controller
 {
@@ -24,15 +27,37 @@ class PromocioneController extends Controller
     {
         $datos = $request->validated();
 
-        $promocion = new Promocione;
-        $promocion->nombre = $datos['nombre_promo'];
-        $promocion->descuento = $datos['porciento_promo'];
-        $promocion->save();
+        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $user = User::find($userId); // Obtener el usuario
+        $rol = $user->roles->first(); // Obtener los roles del usuario
 
-        return [
-            'nueva_promocion' => $promocion
-        ];
+        if ($rol->rol === 'admin') { //valida que tenga los permisoso necesarios
+            $promocion = new Promocione;
+            $promocion->nombre = $datos['nombre_promo'];
+            $promocion->descuento = $datos['porciento_promo'];
+            $promocion->save();
 
+            $registro = new Registro;
+            $registro->accion = 'crear';
+            $registro->user_id = $userId;
+            $registro->promocion_id = $promocion->id;
+            $registro->detalle = json_encode($promocion);
+            $registro->save();
+
+            $registros = Registro::where('id', $registro->id)
+                ->with('user', 'pedido', 'categoria', 'producto', 'promocion')
+                ->first();
+
+            return [
+                'nueva_promocion' => $promocion,
+                'registro' => new RegistroResource($registros)
+            ];
+        } else {
+            $errors = [
+                'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+            ];
+            return response()->json(['errors' => $errors], 422);
+        }
     }
 
     /**
