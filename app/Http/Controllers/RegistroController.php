@@ -13,6 +13,7 @@ class RegistroController extends Controller
     {
         $registros = Registro::orderBy('id','desc')
         ->whereDate('created_at', Carbon::today())
+        ->where('contenedor_id',null)
         ->with('user', 'pedido', 'categoria', 'producto','promocion')
         ->limit(50)
         ->get();

@@ -102,6 +102,13 @@ class ProductoController extends Controller
                                 $contenedor->tipo = $opcion['tipo'];
                                 $contenedor->save();
 
+                                $registroContenedor = new Registro;
+                                $registroContenedor->accion = 'crear';
+                                $registroContenedor->user_id = $userId;
+                                $registroContenedor->contenedor_id = $contenedor->id;
+                                $registroContenedor->detalle = json_encode($contenedor);
+                                $registroContenedor->save();
+
                                 // Almacenar los IDs de los contenedores creados
                                 $contenedoresIds[] = $contenedor->id;
 
@@ -179,6 +186,13 @@ class ProductoController extends Controller
                             $contenedor->tipo = $opcion['tipo'];
                             $contenedor->save();
 
+                            $registroContenedor = new Registro;
+                            $registroContenedor->accion = 'crear';
+                            $registroContenedor->user_id = $userId;
+                            $registroContenedor->contenedor_id = $contenedor->id;
+                            $registroContenedor->detalle = json_encode($contenedor);
+                            $registroContenedor->save();
+
                             // Almacenar los IDs de los contenedores creados
                             $contenedoresIds[] = $contenedor->id;
 
@@ -201,7 +215,7 @@ class ProductoController extends Controller
                     ->first();
 
                 $registros = Registro::where('id', $registro->id)
-                    ->with('user', 'pedido', 'categoria', 'producto')
+                    ->with('user', 'pedido', 'categoria', 'producto', 'promocion')
                     ->first();
 
                 return response()->json([

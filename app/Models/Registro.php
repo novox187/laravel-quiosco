@@ -33,4 +33,8 @@ class Registro extends Model
     {
         return $this->belongsTo(Promocione::class);
     }
+    public function contenedor()
+    {
+        return $this->belongsTo(ContenedorOpcione::class);
+    }
 }
