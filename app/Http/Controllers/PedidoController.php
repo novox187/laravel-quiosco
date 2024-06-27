@@ -16,26 +16,28 @@ use App\Http\Resources\PedidoResource;
 use App\Models\DetallesProductoPedido;
 use App\Http\Resources\PedidoCollection;
 use App\Http\Resources\RegistroResource;
+use App\Http\Resources\ResivosPedidoResource;
 
 class PedidoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index($correo)
+    public function index(Request $request)
     {
 
-        $usuario = User::Where('email', $correo)->first();
-        $rol = $usuario->roles;
+        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $user = User::find($userId); // Obtener el usuario
+        $rol = $user->roles->first(); // Obtener los roles del usuario
 
-        if ($rol->isEmpty()) {
+        if ($rol->rol == 'admin' || $rol->rol == 'mesero' || $rol->rol == 'cocinero') {
             $pedidos = Pedido::with('user')
                 ->with('productos.promocion')
                 ->with('pedidoProductos.detallesProductoPedido')
                 ->where('eliminado', 0)
                 ->where('estado', '<=', 2)
-                ->where('user_id', $usuario->id)
                 ->get();
+
             return [
                 'pedidos' => new PedidoCollection($pedidos),
             ];
@@ -45,10 +47,49 @@ class PedidoController extends Controller
                 ->with('pedidoProductos.detallesProductoPedido')
                 ->where('eliminado', 0)
                 ->where('estado', '<=', 2)
+                ->where('user_id', $userId)
+                ->get();
+            return [
+                'pedidos' => new PedidoCollection($pedidos),
+            ];
+        }
+    }
+
+    public function pedidosCheques(Request $request)
+    {
+        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $user = User::find($userId); // Obtener el usuario
+        $rol = $user->roles->first(); // Obtener los roles del usuario
+
+        if ($rol->rol == 'admin' || $rol->rol == 'mesero') {
+
+            $pedidos = Pedido::with('user')
+                ->where('eliminado', 0)
+                ->where('estado', 3)
+                ->whereDate('created_at', '=', now()->format('Y-m-d'))
                 ->get();
 
             return [
-                'pedidos' => new PedidoCollection($pedidos),
+                'pedidos' => ResivosPedidoResource::collection($pedidos)
+            ];
+        }
+    }
+    public function busquedaPedidos(Request $request)
+    {
+        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $user = User::find($userId); // Obtener el usuario
+        $rol = $user->roles->first(); // Obtener los roles del usuario
+
+        if ($rol->rol == 'admin' || $rol->rol == 'mesero') {
+
+            $pedidos = Pedido::where($request->tipo, $request->pedido)
+                ->with('user')
+                ->where('eliminado', 0)
+                ->where('estado', 3)
+                ->first();
+
+            return [
+                'pedidos' => new ResivosPedidoResource($pedidos),
             ];
         }
     }
