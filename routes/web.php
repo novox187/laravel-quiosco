@@ -14,4 +14,6 @@ use App\Http\Controllers\CategoriaController;
 |
 */
 
-/* Route::get('/categorias',[CategoriaController::class, 'index']); */
+Route::get('/', function () {
+    return response()->json(['message' => 'Welcome to the API'], 200);
+});

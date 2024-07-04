@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     /* Registro */
     Route::get('/registros', [RegistroController::class, 'index']);
+    Route::get('/registros/{id}', [RegistroController::class, 'registroVer']);
     
     /* caja */
     Route::get('/caja', [CajaController::class, 'index']);

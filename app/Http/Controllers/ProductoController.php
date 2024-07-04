@@ -76,6 +76,7 @@ class ProductoController extends Controller
                     $producto->categoria_id = $datos['categoria'];
                     $producto->peso = $datos['peso'];
                     $producto->tipo_peso = $datos['tipo_peso'];
+                    $producto->promo_id = null;
                     $producto->save();
 
                     $registro = new Registro;
@@ -162,6 +163,7 @@ class ProductoController extends Controller
                 $productoNuevo->categoria_id = $datos['categoria'];
                 $productoNuevo->peso = $datos['peso'];
                 $productoNuevo->tipo_peso = $datos['tipo_peso'];
+                $productoNuevo->promo_id = null;
                 $productoNuevo->save();
 
                 $registro = new Registro;
@@ -255,7 +257,7 @@ class ProductoController extends Controller
                 $producto->promo_id = $request->promo_id;
                 $producto->save();
 
-                $registro->detalle = json_encode([
+                $registro->detalle = json_encode(
                     [
                         'nombre' => $datos['nombre'],
                         'precio' => $datos['precio'],
@@ -264,7 +266,7 @@ class ProductoController extends Controller
                         'tipo_peso' => $datos['tipo_peso'],
                         'promo_id' => $request->promo_id,
                     ]
-                ]);
+                );
             } else {
                 //Eliminamos la imagen anterior de la base de datos
                 if ($producto->public_id !== 'sldngq1rzkctsqpyz3tx') {
@@ -286,7 +288,7 @@ class ProductoController extends Controller
                 $producto->promo_id = $request->promo_id;
                 $producto->save();
 
-                $registro->detalle = json_encode([
+                $registro->detalle = json_encode(
                     [
                         'nombre' => $datos['nombre'],
                         'precio' => $datos['precio'],
@@ -297,7 +299,7 @@ class ProductoController extends Controller
                         'tipo_peso' => $datos['tipo_peso'],
                         'promo_id' => $request->promo_id,
                     ]
-                ]);
+                );
             }
 
             //registramos la accion realizada
@@ -345,11 +347,11 @@ class ProductoController extends Controller
                 $registro->accion = 'cambiar_estado';
                 $registro->user_id = $userId;
                 $registro->producto_id = $producto->id;
-                $registro->detalle = json_encode([
+                $registro->detalle = json_encode(
                     [
                         'disponible' => $producto->disponible,
                     ]
-                ]);
+                );
                 $registro->save();
             } else {
                 $producto->disponible = 1;
@@ -359,11 +361,11 @@ class ProductoController extends Controller
                 $registro->accion = 'cambiar_estado';
                 $registro->user_id = $userId;
                 $registro->producto_id = $producto->id;
-                $registro->detalle = json_encode([
+                $registro->detalle = json_encode(
                     [
                         'disponible' => $producto->disponible,
                     ]
-                ]);
+                );
                 $registro->save();
             }
 

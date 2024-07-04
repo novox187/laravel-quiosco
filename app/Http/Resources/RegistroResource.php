@@ -17,6 +17,7 @@ class RegistroResource extends JsonResource
         return [
             'id' => $this->id,
             'accion' => $this->accion,
+            'created_at' => $this->created_at,
             'user' =>  $this->whenLoaded('user', function () {
                 return [
                     'id' => $this->user->id,
