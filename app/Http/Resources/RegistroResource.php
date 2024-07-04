@@ -29,6 +29,11 @@ class RegistroResource extends JsonResource
                 return [
                     'id' => $this->pedido->id,
                     'numero_pedido' => $this->pedido->numero_pedido,
+                    'efectivo' => $this->pedido->efectivo,
+                    'total' => $this->pedido->total,
+                    'lugar' => $this->pedido->lugar,
+                    'created_at' => $this->pedido->created_at,
+                    'mesa' => $this->pedido->mesa
                 ];
             }),
             'categoria' =>  $this->whenLoaded('categoria', function () {

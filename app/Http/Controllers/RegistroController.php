@@ -15,7 +15,7 @@ class RegistroController extends Controller
             /*  ->whereDate('created_at', Carbon::today()) */
             ->where('contenedor_id', null)
             ->with('user', 'pedido', 'categoria', 'producto', 'promocion')
-            ->limit(50)
+            /* ->limit(50) */
             ->get();
         return RegistroResource::collection($registros);
     }
@@ -48,6 +48,18 @@ class RegistroController extends Controller
             return [
                 'datos' => new RegistroResource($registros),
                 'estado' => json_decode($registros->detalle)
+            ];
+        }else if ($registros->accion === 'cobro') {
+            return [
+                'datos' => new RegistroResource($registros),
+            ];
+        }else if ($registros->accion === 'entrega') {
+            return [
+                'datos' => new RegistroResource($registros),
+            ];
+        }else if ($registros->accion === 'preparacion') {
+            return [
+                'datos' => new RegistroResource($registros),
             ];
         }else{
             return [
