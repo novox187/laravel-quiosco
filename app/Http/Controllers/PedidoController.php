@@ -48,7 +48,7 @@ class PedidoController extends Controller
                 ->with('productos.promocion')
                 ->with('pedidoProductos.detallesProductoPedido')
                 ->where('eliminado', 0)
-                ->where('estado', '<=', 2)
+                ->where('estado', '>', 2)
                 ->where('user_id', $userId)
                 ->get();
             return [
