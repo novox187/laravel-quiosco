@@ -31,9 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     //Almacenar Ordenes
+    Route::get('/pedidos/pendientes', [PedidoController::class, 'pedidosPendientes']);
+    Route::get('/pedidos/{correo}', [PedidoController::class, 'index']);
     Route::get('/pedidos/pedidosCheques', [PedidoController::class, 'pedidosCheques']);
     Route::post('/pedidos/pedidosCheques/busqueda', [PedidoController::class, 'busquedaPedidos']);
-    Route::get('/pedidos/{correo}', [PedidoController::class, 'index']);
     Route::post('/pedidos/nuevo', [PedidoController::class, 'store']);
     Route::put('/pedidos/actualizar/{id}', [PedidoController::class, 'update']);
 

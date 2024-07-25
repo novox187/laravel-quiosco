@@ -30,17 +30,19 @@ class PedidoController extends Controller
         $user = User::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
-        if ($rol->rol == 'admin' || $rol->rol == 'mesero' || $rol->rol == 'cocinero') {
-            $pedidos = Pedido::with('user')
-                ->with('productos.promocion')
-                ->with('pedidoProductos.detallesProductoPedido')
-                ->where('eliminado', 0)
-                ->where('estado', '<=', 2)
-                ->get();
+        if ($rol) {
+            if ($rol->rol == 'admin' || $rol->rol == 'mesero' || $rol->rol == 'cocinero') {
+                $pedidos = Pedido::with('user')
+                    ->with('productos.promocion')
+                    ->with('pedidoProductos.detallesProductoPedido')
+                    ->where('eliminado', 0)
+                    ->where('estado', '<=', 2)
+                    ->get();
 
-            return [
-                'pedidos' => new PedidoCollection($pedidos),
-            ];
+                return [
+                    'pedidos' => new PedidoCollection($pedidos),
+                ];
+            }
         } else {
             $pedidos = Pedido::with('user')
                 ->with('productos.promocion')
@@ -53,6 +55,20 @@ class PedidoController extends Controller
                 'pedidos' => new PedidoCollection($pedidos),
             ];
         }
+    }
+
+    public function pedidosPendientes(Request $request)
+    {
+        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+
+        $pedidos = Pedido::where('eliminado', 0)
+        ->where('estado', '<=', 2)
+        ->where('user_id', $userId)
+        ->get();
+
+        $numerosPedido = $pedidos->pluck('numero_pedido')->all();
+
+        return response()->json($numerosPedido);
     }
 
     public function pedidosCheques(Request $request)
