@@ -220,6 +220,7 @@ class PedidoController extends Controller
      */
     public function datosPanel(Pedido $pedido)
     {
+        // Top productos
         $topProductos = DB::table('pedido_productos')
             ->select('pedido_productos.producto_id', 'productos.nombre', DB::raw('COUNT(*) as repeticiones'))
             ->join('productos', 'pedido_productos.producto_id', '=', 'productos.id')
@@ -227,54 +228,55 @@ class PedidoController extends Controller
             ->orderBy('repeticiones', 'desc')
             ->limit(5)
             ->get();
-
+    
         $topProductosArray = $topProductos->toArray();
-
         $productoIds = array_column($topProductosArray, 'producto_id');
         $nombres = array_column($topProductosArray, 'nombre');
         $repeticiones = array_column($topProductosArray, 'repeticiones');
-
+    
+        // Usuarios del mes y mes pasado
         $usuariosMes = User::whereDoesntHave('roles')
             ->whereMonth('created_at', '=', date('m'))
             ->count();
-
+    
         $usuariosMesPasado = User::whereDoesntHave('roles')
             ->whereRaw('MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)')
             ->count();
-
-
+    
+        // Pedidos hoy y día anterior
         $pedidosHoy = DB::table('pedidos')
             ->whereDate('created_at', '=', now()->format('Y-m-d'))
             ->where('estado', 3)
-            ->select('total')
-            ->get();
-
-        $totalHoy = $pedidosHoy->sum('total');
-
+            ->select(DB::raw('SUM(total) as total'))
+            ->first();
+    
+        $totalHoy = $pedidosHoy->total ?? 0;
+    
         $pedidosDiaAnterior = DB::table('pedidos')
             ->whereDate('created_at', '=', now()->subDay()->format('Y-m-d'))
             ->where('estado', 3)
-            ->select('total')
-            ->get();
-
-        $totalDiaAnterior = $pedidosDiaAnterior->sum('total');
-
+            ->select(DB::raw('SUM(total) as total'))
+            ->first();
+    
+        $totalDiaAnterior = $pedidosDiaAnterior->total ?? 0;
+    
+        // Pedidos mes actual y mes pasado
         $pedidosMesActual = DB::table('pedidos')
             ->whereMonth('created_at', '=', date('m'))
             ->where('estado', 3)
-            ->select('total')
-            ->get();
-        $total = $pedidosMesActual->sum('total');
-
+            ->select(DB::raw('SUM(total) as total'))
+            ->first();
+    
+        $total = $pedidosMesActual->total ?? 0;
+    
         $pedidosMesPasado = DB::table('pedidos')
             ->whereRaw('MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))')
             ->where('estado', 3)
-            ->select('total')
-            ->get();
-
-        $totalMesPasado = $pedidosMesPasado->sum('total');
-
-
+            ->select(DB::raw('SUM(total) as total'))
+            ->first();
+    
+        $totalMesPasado = $pedidosMesPasado->total ?? 0;
+    
         return [
             'ingresoMes' => [
                 'nombre' => 'Dinero',
@@ -310,20 +312,20 @@ class PedidoController extends Controller
             ],
         ];
     }
-
+    
     private function sacarPorcentaje($total, $total2)
     {
         if ($total2 && $total) {
             $diferencia = $total - $total2;
             $porcentaje = ($diferencia / $total2) * 100;
-
+    
             return round($porcentaje);
         }
-
+    
         if (!$total2 && !$total) {
             return round(0);
         }
-
+    
         if (!$total2 && $total > 0) {
             return round(100);
         }
