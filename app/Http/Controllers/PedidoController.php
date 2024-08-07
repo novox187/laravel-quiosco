@@ -62,9 +62,9 @@ class PedidoController extends Controller
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
 
         $pedidos = Pedido::where('eliminado', 0)
-        ->where('estado', '<=', 2)
-        ->where('user_id', $userId)
-        ->get();
+            ->where('estado', '<=', 2)
+            ->where('user_id', $userId)
+            ->get();
 
         $numerosPedido = $pedidos->pluck('numero_pedido')->all();
 
@@ -120,7 +120,6 @@ class PedidoController extends Controller
         if ($ultimoCaja->estado == 1) {
 
             $nuevoCodigo = $this->generarCodigo();
-
             // Almacenar orden
             $pedido = new Pedido;
             $pedido->user_id = Auth::user()->id;
@@ -128,8 +127,14 @@ class PedidoController extends Controller
             $pedido->total_neto = $request->totalNeto;
             $pedido->numero_pedido = $nuevoCodigo;
             $pedido->lugar = $request->lugar;
-            $pedido->mesa = $request->mesa;
+            $pedido->comentario = $request->ubicacionEntrega['datos']['comentario'];
+            $pedido->direccion = json_encode([
+                "telefono" => $request->ubicacionEntrega['datos']['telefono'],
+                "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
+            ]);
             $pedido->save();
+
+
 
             // Obtener el ID del pedido
             $id_pedido = $pedido->id;
@@ -228,55 +233,55 @@ class PedidoController extends Controller
             ->orderBy('repeticiones', 'desc')
             ->limit(5)
             ->get();
-    
+
         $topProductosArray = $topProductos->toArray();
         $productoIds = array_column($topProductosArray, 'producto_id');
         $nombres = array_column($topProductosArray, 'nombre');
         $repeticiones = array_column($topProductosArray, 'repeticiones');
-    
+
         // Usuarios del mes y mes pasado
         $usuariosMes = User::whereDoesntHave('roles')
             ->whereMonth('created_at', '=', date('m'))
             ->count();
-    
+
         $usuariosMesPasado = User::whereDoesntHave('roles')
             ->whereRaw('MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)')
             ->count();
-    
+
         // Pedidos hoy y día anterior
         $pedidosHoy = DB::table('pedidos')
             ->whereDate('created_at', '=', now()->format('Y-m-d'))
             ->where('estado', 3)
             ->select(DB::raw('SUM(total) as total'))
             ->first();
-    
+
         $totalHoy = $pedidosHoy->total ?? 0;
-    
+
         $pedidosDiaAnterior = DB::table('pedidos')
             ->whereDate('created_at', '=', now()->subDay()->format('Y-m-d'))
             ->where('estado', 3)
             ->select(DB::raw('SUM(total) as total'))
             ->first();
-    
+
         $totalDiaAnterior = $pedidosDiaAnterior->total ?? 0;
-    
+
         // Pedidos mes actual y mes pasado
         $pedidosMesActual = DB::table('pedidos')
             ->whereMonth('created_at', '=', date('m'))
             ->where('estado', 3)
             ->select(DB::raw('SUM(total) as total'))
             ->first();
-    
+
         $total = $pedidosMesActual->total ?? 0;
-    
+
         $pedidosMesPasado = DB::table('pedidos')
             ->whereRaw('MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))')
             ->where('estado', 3)
             ->select(DB::raw('SUM(total) as total'))
             ->first();
-    
+
         $totalMesPasado = $pedidosMesPasado->total ?? 0;
-    
+
         return [
             'ingresoMes' => [
                 'nombre' => 'Dinero',
@@ -312,20 +317,20 @@ class PedidoController extends Controller
             ],
         ];
     }
-    
+
     private function sacarPorcentaje($total, $total2)
     {
         if ($total2 && $total) {
             $diferencia = $total - $total2;
             $porcentaje = ($diferencia / $total2) * 100;
-    
+
             return round($porcentaje);
         }
-    
+
         if (!$total2 && !$total) {
             return round(0);
         }
-    
+
         if (!$total2 && $total > 0) {
             return round(100);
         }
