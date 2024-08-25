@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Auth;
@@ -27,12 +28,14 @@ use App\Http\Controllers\ContenedorOpcionesController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'usuarioEnSession']);
+    Route::get('/employees/session', [EmployeeController::class, 'trabajadorEnSession']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
     //Almacenar Ordenes
     Route::get('/pedidos/pendientes', [PedidoController::class, 'pedidosPendientes']);
-    Route::get('/pedidos/{correo}', [PedidoController::class, 'index']);
+    Route::get('/pedidos', [PedidoController::class, 'index']);
+    Route::get('/pedidos/admin', [PedidoController::class, 'indexadmin']);
     Route::get('/pedidos/pedidosCheques', [PedidoController::class, 'pedidosCheques']);
     Route::post('/pedidos/pedidosCheques/busqueda', [PedidoController::class, 'busquedaPedidos']);
     Route::post('/pedidos/nuevo', [PedidoController::class, 'store']);
@@ -87,3 +90,5 @@ Route::get('/categorias', [CategoriaController::class, 'index']);
 //Autenticacion
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+route::post('/employee/login',[EmployeeController::class, 'login']);
+Route::post('/employee/register', [EmployeeController::class, 'register']);

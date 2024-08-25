@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
+use App\Models\Employee;
 use App\Models\User;
 use App\Models\Pedido;
 use App\Models\Registro;
@@ -52,7 +53,7 @@ class CajaController extends Controller
     public function store(Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
         $caja = Caja::latest()->first(); //Obtener ultimo registro de caja
         /* historias de caja */
@@ -132,7 +133,7 @@ class CajaController extends Controller
     public function destroy(Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
         $caja = Caja::latest()->first(); //Obtener ultimo registro de caja
 

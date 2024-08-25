@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
 use App\Models\User;
 use App\Models\Pedido;
 use App\Models\Registro;
@@ -17,7 +18,7 @@ class UserController extends Controller
      */
     public  function index(Request $request)
     {
-        $usuariosSinRol = User::whereDoesntHave('roles')->get(['id', 'name', 'email','estado', 'calificacion']);
+        $usuariosSinRol = User::all();
 
         $usuarios = [];
         foreach ($usuariosSinRol as $usuario) {
@@ -61,15 +62,15 @@ class UserController extends Controller
     }
     public  function equipoTrabajo()
     {
-        $usuarios = User::whereHas('roles')->get();
+        $usuarios = Employee::all();
 
         $usuariosConRol = [];
         foreach ($usuarios as $usuario) {
             $rol = $usuario->roles()->first();
             $usuarioConRol = [
                 'id' => $usuario->id,
-                'name' => $usuario->name,
-                'role' => $rol->rol,
+                'name' => $usuario->first_name,
+                'role' => 'proceso ',
                 'email' => $usuario->email,
                 'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
                 'status' => $usuario->estado

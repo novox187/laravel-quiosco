@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Opcione;
+use App\Models\Employee;
 use App\Models\Producto;
 use App\Models\Registro;
 use App\Models\Categoria;
@@ -38,7 +39,7 @@ class CategoriaController extends Controller
     public function store(CategoriaRequest $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         $datos = $request->validated();
@@ -108,7 +109,7 @@ class CategoriaController extends Controller
     public function update(Request $request, Categoria $categoria)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin') {
@@ -168,7 +169,7 @@ class CategoriaController extends Controller
     public function destroy(Categoria $categoria, Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin') {

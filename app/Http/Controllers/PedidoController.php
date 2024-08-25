@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Caja;
-use App\Models\Registro;
 use Carbon\Carbon;
+use App\Models\Caja;
 use App\Models\User;
 use App\Models\Pedido;
+use App\Models\Employee;
 use App\Models\Producto;
+use App\Models\Registro;
 use Illuminate\Http\Request;
 use App\Models\PedidoProducto;
 use Illuminate\Support\Facades\DB;
@@ -27,9 +28,25 @@ class PedidoController extends Controller
     {
 
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
-        $rol = $user->roles->first(); // Obtener los roles del usuario
+        $user = $user = User::find($userId); // Obtener el usuario
+        
+            $pedidos = Pedido::with('user')
+                ->with('productos.promocion')
+                ->with('pedidoProductos.detallesProductoPedido')
+                ->where('eliminado', 0)
+                ->where('estado', '>', 2)
+                ->where('user_id', $userId)
+                ->get();
+            return [
+                'pedidos' => new PedidoCollection($pedidos),
+            ];
+        
+    }
 
+    public function indexadmin(Request $request){
+        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $user = $user = Employee::find($userId); // Obtener el usuario
+        $rol = $user->roles->first(); // Obtener los roles del usuario
         if ($rol) {
             if ($rol->rol == 'admin' || $rol->rol == 'mesero' || $rol->rol == 'cocinero') {
                 $pedidos = Pedido::with('user')
@@ -42,19 +59,7 @@ class PedidoController extends Controller
                 return [
                     'pedidos' => new PedidoCollection($pedidos),
                 ];
-            }
-        } else {
-            $pedidos = Pedido::with('user')
-                ->with('productos.promocion')
-                ->with('pedidoProductos.detallesProductoPedido')
-                ->where('eliminado', 0)
-                ->where('estado', '>', 2)
-                ->where('user_id', $userId)
-                ->get();
-            return [
-                'pedidos' => new PedidoCollection($pedidos),
-            ];
-        }
+            }}
     }
 
     public function pedidosPendientes(Request $request)
@@ -74,7 +79,7 @@ class PedidoController extends Controller
     public function pedidosCheques(Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol == 'admin' || $rol->rol == 'mesero') {
@@ -93,7 +98,7 @@ class PedidoController extends Controller
     public function busquedaPedidos(Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol == 'admin' || $rol->rol == 'mesero') {
@@ -240,13 +245,10 @@ class PedidoController extends Controller
         $repeticiones = array_column($topProductosArray, 'repeticiones');
 
         // Usuarios del mes y mes pasado
-        $usuariosMes = User::whereDoesntHave('roles')
-            ->whereMonth('created_at', '=', date('m'))
-            ->count();
+        $usuariosMes = User::whereMonth('created_at', '=', date('m'))->count();
 
-        $usuariosMesPasado = User::whereDoesntHave('roles')
-            ->whereRaw('MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)')
-            ->count();
+        // Usuarios del mes pasado
+        $usuariosMesPasado = User::whereRaw('MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)')->count();
 
         // Pedidos hoy y día anterior
         $pedidosHoy = DB::table('pedidos')
@@ -349,7 +351,7 @@ class PedidoController extends Controller
 
         $datosPedido = Pedido::where('id', $pedido)->first(); //Obtener los datos del pedido 
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
         $ultimoCaja = Caja::latest()
             ->first(); //Se trae el ultimo registro de la tabla cajas

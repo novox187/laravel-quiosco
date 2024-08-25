@@ -18,11 +18,11 @@ class RegistroResource extends JsonResource
             'id' => $this->id,
             'accion' => $this->accion,
             'created_at' => $this->created_at,
-            'user' =>  $this->whenLoaded('user', function () {
+            'user' =>  $this->whenLoaded('employee', function () {
                 return [
-                    'id' => $this->user->id,
-                    'name' => $this->user->name,
-                    'rol' => $this->user->roles->pluck('rol'),
+                    'id' => $this->employee->id,
+                    'name' => $this->employee->first_name,
+                    'rol' => $this->employee->roles ? $this->employee->roles->pluck('rol') : [],
                 ];
             }),
             'pedido' =>  $this->whenLoaded('pedido', function () {

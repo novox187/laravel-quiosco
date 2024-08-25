@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Opcione;
+use App\Models\Employee;
 use App\Models\Producto;
 use App\Models\Registro;
 use Illuminate\Http\Request;
@@ -39,7 +40,7 @@ class ProductoController extends Controller
     public function store(ProductoRequest $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin') { //valida que tenga los permisoso necesarios
@@ -240,7 +241,7 @@ class ProductoController extends Controller
     public function productoActualizar(ProductoActualizarRequest $request, Producto $producto)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin' || $rol->editar === 1) { //valida que tenga los permisoso necesarios
@@ -334,7 +335,7 @@ class ProductoController extends Controller
     public function updateDisponible(Producto $producto, Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin') {
@@ -392,7 +393,7 @@ class ProductoController extends Controller
     public function productoEliminar(Producto $producto, Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin' || $rol->eliminar === 1) {
@@ -434,7 +435,7 @@ class ProductoController extends Controller
     public function cambiarCategoria(Request $request, Producto $producto)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin' || $rol->eliminar === 1) {

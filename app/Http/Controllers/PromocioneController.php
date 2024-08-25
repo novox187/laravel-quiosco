@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Employee;
 use App\Models\Registro;
 use App\Models\Promocione;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ class PromocioneController extends Controller
         $datos = $request->validated();
 
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = User::find($userId); // Obtener el usuario
+        $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
         if ($rol->rol === 'admin') { //valida que tenga los permisoso necesarios
