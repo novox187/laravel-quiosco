@@ -21,6 +21,7 @@ class EmployeeController extends Controller
 
         // Buscar al empleado por el correo electrónico y contraseña
         $employee = Employee::where('email', $data['email'])->first();
+        $rol = $employee->roles()->first();
 
         if (!$employee || !password_verify($data['password'], $employee->password)) {
             return response([
@@ -34,14 +35,12 @@ class EmployeeController extends Controller
         // Devolver el token y la información del empleado
         return [
             'token' => $token,
-            'employee' => [
-                'id' => $employee->id,
-                'name' => $employee->first_name . ' ' . $employee->last_name,
-                'rol' => $employee->roles[0]->rol ?? 'empleado',
-                'email' => $employee->email,
-                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
-                'status' => $employee->active ? 'activo' : 'inactivo'
-            ],
+            'id' => $employee->id,
+            'name' => $employee->first_name,
+            'rol' => $rol->rol,
+            'email' => $employee->email,
+            'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+            'status' => 'activo'
         ];
     }
 
@@ -83,7 +82,7 @@ class EmployeeController extends Controller
 
         if (!$rol) {
             $usuarioConRol = [
-                'name' => $usuario->first_name,
+                'name' => $usuario->name,
                 'email' => $usuario->email
             ];
 
