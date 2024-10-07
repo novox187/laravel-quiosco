@@ -40,7 +40,7 @@ class PromocioneController extends Controller
 
             $registro = new Registro;
             $registro->accion = 'crear';
-            $registro->user_id = $userId;
+            $registro->employee_id = $userId;
             $registro->promocion_id = $promocion->id;
             $registro->detalle = json_encode($promocion);
             $registro->save();

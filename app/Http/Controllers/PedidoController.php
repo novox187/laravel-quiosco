@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PedidosEnvioCollection;
 use Carbon\Carbon;
 use App\Models\Caja;
 use App\Models\User;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\PedidoResource;
 use App\Models\DetallesProductoPedido;
 use App\Http\Resources\PedidoCollection;
+use App\Http\Resources\PedidoEnCursoResource;
+use App\Http\Resources\PedidosEnvioResource;
 use App\Http\Resources\RegistroResource;
 use App\Http\Resources\ResivosPedidoResource;
 
@@ -29,21 +32,21 @@ class PedidoController extends Controller
 
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
         $user = $user = User::find($userId); // Obtener el usuario
-        
-            $pedidos = Pedido::with('user')
-                ->with('productos.promocion')
-                ->with('pedidoProductos.detallesProductoPedido')
-                ->where('eliminado', 0)
-                ->where('estado', '>', 2)
-                ->where('user_id', $userId)
-                ->get();
-            return [
-                'pedidos' => new PedidoCollection($pedidos),
-            ];
-        
+
+        $pedidos = Pedido::with('user')
+            ->with('productos.promocion')
+            ->with('pedidoProductos.detallesProductoPedido')
+            ->where('eliminado', 0)
+            ->where('estado', '>', 2)
+            ->where('user_id', $userId)
+            ->get();
+        return [
+            'pedidos' => new PedidoCollection($pedidos),
+        ];
     }
 
-    public function indexadmin(Request $request){
+    public function indexadmin(Request $request)
+    {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
         $user = $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
@@ -59,7 +62,24 @@ class PedidoController extends Controller
                 return [
                     'pedidos' => new PedidoCollection($pedidos),
                 ];
-            }}
+            }
+        }
+    }
+
+    public function indexrepartidor(Request $request)
+    {
+        $userId = $request->user()->id;
+        $user = $user = Employee::find($userId); // Obtener el usuario
+        $rol = $user->roles->first(); // Obtener los roles del usuario
+
+        $pedidos = Pedido::where('employee_id', null)
+            ->where('lugar', 'envio')
+            ->where('estado', 2)
+            ->with('user')
+            ->with('pedidoProductos')
+            ->get();
+
+        return new PedidosEnvioCollection($pedidos);
     }
 
     public function pedidosPendientes(Request $request)
@@ -138,8 +158,6 @@ class PedidoController extends Controller
                 "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
             ]);
             $pedido->save();
-
-
 
             // Obtener el ID del pedido
             $id_pedido = $pedido->id;
@@ -223,8 +241,54 @@ class PedidoController extends Controller
         return $nuevoCodigo;
     }
 
+    public function asignarrepartidor(Request $request, Pedido $pedido)
+    {
+        $userId = $request->user()->id;
+    
+        // Verificar si el pedido ya tiene un repartidor asignado
+        if ($pedido->employee_id) {
+            return response()->json([
+                'errors' => ['pedido' => ['Este pedido ya está asignado a un repartidor']]
+            ], 422);
+        }
+    
+        // Buscar un repartidor disponible
+        $repartidor = Employee::where('id', $userId)
+            ->whereHas('roles', fn($query) => $query->where('rol', 'repartidor'))
+            ->doesntHave('pedidos', 'and', fn($query) => $query->where('estado', '<', 3))
+            ->firstOrFail();
+    
+        // Asignar el repartidor al pedido y guardar
+        $pedido->employee()->associate($repartidor)->save();
+    
+        // Obtener los datos del pedido con relaciones
+        $pedidoDatos = $pedido->load(['user', 'pedidoProductos']);
+    
+        return response()->json([
+            'message' => 'Pedido asignado correctamente',
+            'data' => new PedidosEnvioResource($pedidoDatos)
+        ], 200);
+    }
 
+    public function cancelarentrega(Pedido $pedido)
+    {
+        $pedido->employee_id = null;
+        $pedido->save();
 
+        return [
+            'mensaje' => 'Pedido cancelado correctamente'
+        ];
+    }
+
+    public function finalizarentega(Pedido $pedido)
+    {
+        $pedido->estado = 3;
+        $pedido->save();
+
+        return [
+            'mensaje' => 'Pedido finalizado correctamente'
+        ];
+    }
     /**
      * Display the specified resource.
      */
@@ -370,7 +434,7 @@ class PedidoController extends Controller
 
                     $registro = new Registro;
                     $registro->accion = 'cobro';
-                    $registro->user_id = $userId;
+                    $registro->employee_id = $userId;
                     $registro->pedido_id = $datosPedido->id;
                     $registro->save();
 
@@ -401,7 +465,7 @@ class PedidoController extends Controller
 
                     $registro = new Registro;
                     $registro->accion = 'preparacion';
-                    $registro->user_id = $userId;
+                    $registro->employee_id = $userId;
                     $registro->pedido_id = $datosPedido->id;
                     $registro->save();
                 } else {
@@ -422,7 +486,7 @@ class PedidoController extends Controller
 
                     $registro = new Registro;
                     $registro->accion = 'entrega';
-                    $registro->user_id = $userId;
+                    $registro->employee_id = $userId;
                     $registro->pedido_id = $datosPedido->id;
                     $registro->save();
                 } else {

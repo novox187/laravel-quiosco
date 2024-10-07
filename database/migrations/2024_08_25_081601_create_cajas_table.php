@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->double('dinero');
             $table->boolean('estado')->default(1);
+            $table->integer('identificador');
             $table->foreignId('registro_id')->constrained();
             $table->timestamps();
         });

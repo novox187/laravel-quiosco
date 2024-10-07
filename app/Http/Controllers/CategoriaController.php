@@ -59,7 +59,7 @@ class CategoriaController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'crear';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->categoria_id = $categoriaDB->id;
                 $registro->detalle = json_encode($categoriaDB);
                 $registro->save();
@@ -82,13 +82,13 @@ class CategoriaController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'crear';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->categoria_id = $categorias->id;
                 $registro->detalle = json_encode($categorias);
                 $registro->save();
 
                 $registros = Registro::where('id', $registro->id)
-                    ->with('user', 'pedido', 'categoria', 'producto')
+                    ->with('employee', 'pedido', 'categoria', 'producto')
                     ->first();
 
 
@@ -120,7 +120,7 @@ class CategoriaController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'editar';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->categoria_id = $categoria->id;
                 $registro->detalle = json_encode($categoria);
                 $registro->save();
@@ -140,7 +140,7 @@ class CategoriaController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'editar';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->categoria_id = $categoria->id;
                 $registro->detalle = json_encode($categoria);
                 $registro->save();
@@ -149,7 +149,7 @@ class CategoriaController extends Controller
                 ->first();
 
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto')
+                ->with('employee', 'pedido', 'categoria', 'producto')
                 ->first();
 
             return [
@@ -180,13 +180,13 @@ class CategoriaController extends Controller
 
             $registro = new Registro;
             $registro->accion = 'eliminar';
-            $registro->user_id = $userId;
+            $registro->employee_id = $userId;
             $registro->categoria_id = $categoria->id;
             $registro->detalle = json_encode($categoria);
             $registro->save();
 
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto')
+                ->with('employee', 'pedido', 'categoria', 'producto')
                 ->first();
 
             return [

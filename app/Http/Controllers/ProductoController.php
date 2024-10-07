@@ -82,7 +82,7 @@ class ProductoController extends Controller
 
                     $registro = new Registro;
                     $registro->accion = 'crear';
-                    $registro->user_id = $userId;
+                    $registro->employee_id = $userId;
                     $registro->producto_id = $producto->id;
                     $registro->detalle = json_encode($producto);
                     $registro->save();
@@ -169,7 +169,7 @@ class ProductoController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'crear';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->producto_id = $productoNuevo->id;
                 $registro->detalle = json_encode($productoNuevo);
                 $registro->save();
@@ -306,7 +306,7 @@ class ProductoController extends Controller
             //registramos la accion realizada
 
             $registro->accion = 'editar';
-            $registro->user_id = $userId;
+            $registro->employee_id = $userId;
             $registro->producto_id = $producto->id;
             $registro->save();
 
@@ -346,7 +346,7 @@ class ProductoController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'cambiar_estado';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->producto_id = $producto->id;
                 $registro->detalle = json_encode(
                     [
@@ -360,7 +360,7 @@ class ProductoController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'cambiar_estado';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->producto_id = $producto->id;
                 $registro->detalle = json_encode(
                     [
@@ -409,7 +409,7 @@ class ProductoController extends Controller
 
             $registro = new Registro;
             $registro->accion = 'eliminar';
-            $registro->user_id = $userId;
+            $registro->employee_id = $userId;
             $registro->producto_id = $producto->id;
             $registro->detalle = json_encode($productoEliminado);
             $registro->save();
@@ -444,7 +444,7 @@ class ProductoController extends Controller
 
             $registro = new Registro;
             $registro->accion = 'cambiar_categoria';
-            $registro->user_id = $userId;
+            $registro->employee_id = $userId;
             $registro->producto_id = $producto->id;
             $registro->detalle = json_encode(['categoria_id' => $request->id_categoria]);
             $registro->save();

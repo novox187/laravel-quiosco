@@ -18,7 +18,7 @@ class RegistroResource extends JsonResource
             'id' => $this->id,
             'accion' => $this->accion,
             'created_at' => $this->created_at,
-            'user' =>  $this->whenLoaded('employee', function () {
+            'employee' =>  $this->whenLoaded('employee', function () {
                 return [
                     'id' => $this->employee->id,
                     'name' => $this->employee->first_name,

@@ -58,15 +58,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/promocion/create', [PromocioneController::class, 'store']);
     Route::get('/promociones', [PromocioneController::class, 'index']);
 
+    /* REPARTIDOR */
+    Route::get('/pedidos/repartidor', [PedidoController::class, 'indexrepartidor']);
+    Route::post('/pedidos/repartidor/asignar/{pedido}', [PedidoController::class, 'asignarrepartidor']);
+    Route::patch('/pedidos/repartidor/cancelar/{pedido}', [PedidoController::class, 'cancelarentrega']);
+    Route::patch('/pedidos/repartidor/finalizar/{pedido}', [PedidoController::class, 'finalizarentega']);
+
     /* Panel */
     Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
     Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
     Route::get('/users', [UserController::class, 'index']);
-    
+
     /* Registro */
     Route::get('/registros', [RegistroController::class, 'index']);
     Route::get('/registros/{id}', [RegistroController::class, 'registroVer']);
-    
+
     /* caja */
     Route::get('/caja', [CajaController::class, 'index']);
     Route::post('/caja/abrir', [CajaController::class, 'store']);
@@ -90,5 +96,5 @@ Route::get('/categorias', [CategoriaController::class, 'index']);
 //Autenticacion
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-route::post('/employee/login',[EmployeeController::class, 'login']);
+route::post('/employee/login', [EmployeeController::class, 'login']);
 Route::post('/employee/register', [EmployeeController::class, 'register']);

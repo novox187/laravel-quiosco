@@ -14,7 +14,7 @@ class RegistroController extends Controller
         $registros = Registro::orderBy('id', 'desc')
             /*  ->whereDate('created_at', Carbon::today()) */
             ->where('contenedor_id', null)
-            ->with('user', 'pedido', 'categoria', 'producto', 'promocion')
+            ->with('employee', 'pedido', 'categoria', 'producto', 'promocion')
             /* ->limit(50) */
             ->get();
         return RegistroResource::collection($registros);
@@ -22,7 +22,7 @@ class RegistroController extends Controller
     public function registroVer($id)
     {
         $registros = Registro::where('id', $id)
-            ->with('user', 'pedido', 'categoria', 'producto', 'promocion')
+            ->with('employee', 'pedido', 'categoria', 'producto', 'promocion')
             ->first();
 
         if ($registros->accion === 'editar') {

@@ -67,7 +67,7 @@ class CajaController extends Controller
             if (empty($caja)) {
                 $registro = new Registro;
                 $registro->accion = 'abrir_caja';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->detalle = json_encode([
                     [
                         'dinero_abrir' => $request->dinero_abrir,
@@ -93,7 +93,7 @@ class CajaController extends Controller
             } else if ($caja->estado == 0) {
                 $registro = new Registro;
                 $registro->accion = 'abrir_caja';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->detalle = json_encode([
                     [
                         'dinero_abrir' => $request->dinero_abrir,
@@ -153,7 +153,7 @@ class CajaController extends Controller
 
                 $registro = new Registro;
                 $registro->accion = 'cerrar_caja';
-                $registro->user_id = $userId;
+                $registro->employee_id = $userId;
                 $registro->detalle = json_encode([
                     [
                         'id_caja' => $caja->id,

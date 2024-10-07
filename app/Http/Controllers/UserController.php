@@ -116,7 +116,7 @@ class UserController extends Controller
 
         $registro = new Registro;
         $registro->accion = 'eliminar';
-        $registro->user_id = $request->id_user;
+        $registro->employee_id = $request->id_user;
         $registro->pedido_id = $request->id_pedido;
         $registro->detalle = $data['observacion'];
         $registro->save();
