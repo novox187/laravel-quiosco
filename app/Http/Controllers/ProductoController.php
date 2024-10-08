@@ -55,7 +55,7 @@ class ProductoController extends Controller
                 if ($producto->eliminado === 1) {
 
                     //Eliminamos la imagen anterior de la base de datos
-                    if ($producto->public_id !== 'sldngq1rzkctsqpyz3tx') {
+                    if ($producto->public_id !== 'logo') {
                         Cloudinary::destroy($producto->public_id);
                     }
 
@@ -65,8 +65,8 @@ class ProductoController extends Controller
                         $url = $uploadedFileUrl->getSecurePath();
                         $public_id = $uploadedFileUrl->getPublicId();
                     } else {
-                        $url = 'https://res.cloudinary.com/dfrsffngq/image/upload/v1718787004/sldngq1rzkctsqpyz3tx.png';
-                        $public_id = 'sldngq1rzkctsqpyz3tx';
+                        $url = 'https://res.cloudinary.com/dfrsffngq/image/upload/v1723837093/logo.png';
+                        $public_id = 'logo';
                     }
 
                     $producto->eliminado = 0;
@@ -151,8 +151,8 @@ class ProductoController extends Controller
                     $url = $uploadedFileUrl->getSecurePath();
                     $public_id = $uploadedFileUrl->getPublicId();
                 } else {
-                    $url = 'https://res.cloudinary.com/dfrsffngq/image/upload/v1718787004/sldngq1rzkctsqpyz3tx.png';
-                    $public_id = 'sldngq1rzkctsqpyz3tx';
+                    $url = 'https://res.cloudinary.com/dfrsffngq/image/upload/v1723837093/logo.png';
+                    $public_id = 'logo';
                 }
 
                 $productoNuevo = new Producto;
@@ -218,7 +218,7 @@ class ProductoController extends Controller
                     ->first();
 
                 $registros = Registro::where('id', $registro->id)
-                    ->with('user', 'pedido', 'categoria', 'producto', 'promocion')
+                    ->with('employee', 'pedido', 'categoria', 'producto', 'promocion')
                     ->first();
 
                 return response()->json([
@@ -270,7 +270,7 @@ class ProductoController extends Controller
                 );
             } else {
                 //Eliminamos la imagen anterior de la base de datos
-                if ($producto->public_id !== 'sldngq1rzkctsqpyz3tx') {
+                if ($producto->public_id !== 'logo') {
                     Cloudinary::destroy($producto->public_id);
                 }
 
@@ -311,7 +311,7 @@ class ProductoController extends Controller
             $registro->save();
 
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto')
+                ->with('employee', 'pedido', 'categoria', 'producto')
                 ->first();
 
 
@@ -371,7 +371,7 @@ class ProductoController extends Controller
             }
 
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto')
+                ->with('employee', 'pedido', 'categoria', 'producto')
                 ->first();
 
             return [
@@ -398,7 +398,7 @@ class ProductoController extends Controller
 
         if ($rol->rol === 'admin' || $rol->eliminar === 1) {
 
-            if ($producto->public_id !== 'sldngq1rzkctsqpyz3tx') {
+            if ($producto->public_id !== 'logo') {
                 Cloudinary::destroy($producto->public_id);
             }
 
@@ -415,7 +415,7 @@ class ProductoController extends Controller
             $registro->save();
 
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto')
+                ->with('employee', 'pedido', 'categoria', 'producto')
                 ->first();
 
             return [
@@ -450,7 +450,7 @@ class ProductoController extends Controller
             $registro->save();
 
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto')
+                ->with('employee', 'pedido', 'categoria', 'producto')
                 ->first();
 
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\NegocioController;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Auth;
@@ -77,6 +78,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/caja', [CajaController::class, 'index']);
     Route::post('/caja/abrir', [CajaController::class, 'store']);
     Route::post('/caja/cerrar', [CajaController::class, 'destroy']);
+
+    /* CONFIGURACIONES */
+    Route::get('/informacion/view',[NegocioController::class, 'index']);
+    Route::post('/informacion/create',[NegocioController::class, 'store']);
+    Route::post('/informacion/update/{negocio}',[NegocioController::class, 'update']);
 });
 
 Route::put('/validate-token', function (Request $request) {
