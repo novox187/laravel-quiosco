@@ -10,21 +10,25 @@ class Producto extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['nombre', 'precio', 'descripcion', 'peso', 'tipo_peso', 'promo_id'];
+
     public function promocion()
     {
         return $this->belongsTo(Promocione::class, 'promo_id');
     }
 
-    public function contenedorOpciones() {
-        return $this->belongsToMany(ContenedorOpcione::class)->withTimestamps();;
+    public function contenedorOpciones()
+    {
+        return $this->belongsToMany(ContenedorOpcione::class, 'contenedor_opcione_producto', 'producto_id', 'contenedor_opcione_id')->withTimestamps();
     }
 
     public function detallesProductoPedido()
     {
         return $this->hasMany(DetallesProductoPedido::class, 'pedido_producto_id');
     }
+
     public function categoria()
-{
-    return $this->belongsTo(Categoria::class);
-}
+    {
+        return $this->belongsTo(Categoria::class);
+    }
 }

@@ -14,6 +14,7 @@ use App\Http\Resources\ProductoResource;
 use App\Http\Resources\RegistroResource;
 use App\Http\Requests\ProductoActualizarRequest;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\DB;
 
 class ProductoController extends Controller
 {
@@ -39,199 +40,132 @@ class ProductoController extends Controller
      */
     public function store(ProductoRequest $request)
     {
-        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = Employee::find($userId); // Obtener el usuario
-        $rol = $user->roles->first(); // Obtener los roles del usuario
+        $userId = $request->user()->id;
+        $user = Employee::findOrFail($userId);
+        $rol = $user->roles->first();
 
-        if ($rol->rol === 'admin') { //valida que tenga los permisoso necesarios
+        if ($rol->rol !== 'admin') {
+            return response()->json(['errors' => ['permisos' => ['No tienes el rol necesario para realizar esta acción']]], 422);
+        }
 
-            $datos = $request->validated();
+        $datos = $request->validated();
+        $producto = Producto::where('nombre', $request->nombre)->first();
 
-            //obtenemos el producto eliminado
-            $producto = Producto::where('nombre', $request->nombre)->first();
-
-            // Validamos si el producto ya existe o esta eliminado
+        // Usar transacciones para asegurar la integridad de los datos
+        DB::transaction(function () use ($request, $producto, $datos, $userId) {
             if ($producto) {
-                if ($producto->eliminado === 1) {
+                $this->updateExistingProduct($producto, $request, $datos, $userId);
+            } else {
+                $this->createNewProduct($request, $datos, $userId);
+            }
+        });
 
-                    //Eliminamos la imagen anterior de la base de datos
-                    if ($producto->public_id !== 'logo') {
-                        Cloudinary::destroy($producto->public_id);
-                    }
+        return response()->json(['success' => 'Producto agregado correctamente.']);
+    }
 
-                    //Subimos la nueva imagen
-                    if ($request->imagen) {
-                        $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
-                        $url = $uploadedFileUrl->getSecurePath();
-                        $public_id = $uploadedFileUrl->getPublicId();
-                    } else {
-                        $url = 'https://res.cloudinary.com/dfrsffngq/image/upload/v1723837093/logo.png';
-                        $public_id = 'logo';
-                    }
+    private function updateExistingProduct($producto, $request, $datos, $userId)
+    {
+        if ($producto->eliminado === 1) {
+            $this->handleImageUpdate($producto, $request);
+            $producto->eliminado = 0;
+        } else {
+            return response()->json(['errors' => ['campo1' => ['El producto ya existe.']]], 422);
+        }
 
-                    $producto->eliminado = 0;
-                    $producto->precio = $datos['precio'];
-                    $producto->public_id = $public_id;
-                    $producto->imagen = $url;
-                    $producto->descripcion = $datos['descripcion'];
-                    $producto->categoria_id = $datos['categoria'];
-                    $producto->peso = $datos['peso'];
-                    $producto->tipo_peso = $datos['tipo_peso'];
-                    $producto->promo_id = null;
-                    $producto->save();
+        $this->fillProductData($producto, $datos, $request);
+        $producto->save();
+        $this->logAction('crear', $userId, $producto);
 
-                    $registro = new Registro;
-                    $registro->accion = 'crear';
-                    $registro->employee_id = $userId;
-                    $registro->producto_id = $producto->id;
-                    $registro->detalle = json_encode($producto);
-                    $registro->save();
+        $this->handleOpcionesProducto($request->opciones_producto, $producto, $userId);
+    }
 
+    private function createNewProduct($request, $datos, $userId)
+    {
+        $productoNuevo = new Producto;
+        $this->fillProductData($productoNuevo, $datos, $request);
+        $productoNuevo->save();
+        $this->logAction('crear', $userId, $productoNuevo);
 
-                    $opcionesProducto = $request->opciones_producto;
-                    $contenedoresIds = [];
+        $this->handleOpcionesProducto($request->opciones_producto, $productoNuevo, $userId);
+    }
 
-                    if ($opcionesProducto) {
-                        foreach ($opcionesProducto as $opcion) {
+    private function fillProductData($producto, $datos, $request)
+    {
+        $uploadedFileUrl = $request->imagen ? Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']) : null;
+        $producto->nombre = $datos['nombre'];
+        $producto->precio = $datos['precio'];
+        $producto->public_id = $uploadedFileUrl ? $uploadedFileUrl->getPublicId() : 'logo';
+        $producto->imagen = $uploadedFileUrl ? $uploadedFileUrl->getSecurePath() : 'https://res.cloudinary.com/dfrsffngq/image/upload/v1723837093/logo.png';
+        $producto->descripcion = $datos['descripcion'];
+        $producto->categoria_id = $datos['categoria'];
+        $producto->peso = $datos['peso'];
+        $producto->tipo_peso = $datos['tipo_peso'];
+        $producto->promo_id = null;
+    }
 
-                            $Confirmarcontenedor = ContenedorOpcione::where('nombre', $opcion['name'])->first();
+    private function handleImageUpdate($producto, $request)
+    {
+        if ($producto->public_id !== 'logo') {
+            Cloudinary::destroy($producto->public_id);
+        }
+    }
 
-                            if ($Confirmarcontenedor) {
-                                $contenedoresIds[] = $Confirmarcontenedor->id;
-                            } else {
-                                $contenedor = new ContenedorOpcione;
-                                $contenedor->nombre = $opcion['name'];
-                                $contenedor->tipo = $opcion['tipo'];
-                                $contenedor->save();
+    private function logAction($accion, $userId, $producto)
+    {
+        $registro = new Registro;
+        $registro->accion = $accion;
+        $registro->employee_id = $userId;
+        $registro->producto_id = $producto->id;
+        $registro->detalle = json_encode($producto);
+        $registro->save();
+    }
 
-                                $registroContenedor = new Registro;
-                                $registroContenedor->accion = 'crear';
-                                $registroContenedor->user_id = $userId;
-                                $registroContenedor->contenedor_id = $contenedor->id;
-                                $registroContenedor->detalle = json_encode($contenedor);
-                                $registroContenedor->save();
+    private function handleOpcionesProducto($opcionesProducto, $producto, $userId)
+    {
+        $contenedoresIds = [];
 
-                                // Almacenar los IDs de los contenedores creados
-                                $contenedoresIds[] = $contenedor->id;
+        if ($opcionesProducto) {
+            foreach ($opcionesProducto as $opcion) {
+                // Verificar si el contenedor ya existe
+                $contenedor = ContenedorOpcione::firstOrCreate(
+                    ['nombre' => $opcion['name']], // Condición para buscar
+                    ['tipo' => $opcion['tipo']] // Datos a crear si no existe
+                );
 
-                                // Agregar las opciones para el contenedor
-                                foreach ($opcion['opciones'] as $opcionContenedor) {
-                                    $opcionNueva = new Opcione;
-                                    $opcionNueva->nombre = $opcionContenedor['nombre'];
-                                    $opcionNueva->precio = $opcionContenedor['precio'];
-                                    $opcionNueva->contenedor_id = $contenedor->id;
-                                    $opcionNueva->save();
-                                }
-                            }
-                        }
-                        // Relacionar los contenedores con el producto utilizando el método sync()
-                        $producto->contenedorOpciones()->sync($contenedoresIds);
-                    }
+                // Agregar el ID del contenedor a la lista
+                $contenedoresIds[] = $contenedor->id;
 
-                    $productoCreado = Producto::with('promocion', 'contenedorOpciones.opciones')
-                        ->where('id', $producto->id)
+                // Registrar la acción solo si se creó un nuevo contenedor
+                if ($contenedor->wasRecentlyCreated) {
+                    $this->logAction('crear', $userId, $contenedor);
+                }
+
+                // Manejar las opciones dentro del contenedor
+                foreach ($opcion['opciones'] as $opcionContenedor) {
+                    // Verificar si la opción ya existe
+                    $opcionExistente = Opcione::where('nombre', $opcionContenedor['nombre'])
+                        ->where('contenedor_id', $contenedor->id)
                         ->first();
 
-                    return response()->json([
-                        'data' => $productoCreado,
-                        'success' => 'Producto agregado correctamente.'
-                    ]);
-                } else {
-                    $errors = [
-                        'campo1' => ['El producto ya existe.'],
-                    ];
-                    return response()->json(['errors' => $errors], 422);
-                }
-            } else {
-                $url = '';
-                $public_id = '';
-
-                if ($request->imagen) {
-                    $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
-                    $url = $uploadedFileUrl->getSecurePath();
-                    $public_id = $uploadedFileUrl->getPublicId();
-                } else {
-                    $url = 'https://res.cloudinary.com/dfrsffngq/image/upload/v1723837093/logo.png';
-                    $public_id = 'logo';
-                }
-
-                $productoNuevo = new Producto;
-                $productoNuevo->nombre = $datos['nombre'];
-                $productoNuevo->precio = $datos['precio'];
-                $productoNuevo->public_id = $public_id;
-                $productoNuevo->imagen = $url;
-                $productoNuevo->descripcion = $datos['descripcion'];
-                $productoNuevo->categoria_id = $datos['categoria'];
-                $productoNuevo->peso = $datos['peso'];
-                $productoNuevo->tipo_peso = $datos['tipo_peso'];
-                $productoNuevo->promo_id = null;
-                $productoNuevo->save();
-
-                $registro = new Registro;
-                $registro->accion = 'crear';
-                $registro->employee_id = $userId;
-                $registro->producto_id = $productoNuevo->id;
-                $registro->detalle = json_encode($productoNuevo);
-                $registro->save();
-
-                $opcionesProducto = $request->opciones_producto;
-                $contenedoresIds = [];
-                if ($opcionesProducto) {
-                    foreach ($opcionesProducto as $opcion) {
-
-                        $Confirmarcontenedor = ContenedorOpcione::where('nombre', $opcion['name'])->first();
-
-                        if ($Confirmarcontenedor) {
-                            $contenedoresIds[] = $Confirmarcontenedor->id;
-                        } else {
-                            $contenedor = new ContenedorOpcione;
-                            $contenedor->nombre = $opcion['name'];
-                            $contenedor->tipo = $opcion['tipo'];
-                            $contenedor->save();
-
-                            $registroContenedor = new Registro;
-                            $registroContenedor->accion = 'crear';
-                            $registroContenedor->user_id = $userId;
-                            $registroContenedor->contenedor_id = $contenedor->id;
-                            $registroContenedor->detalle = json_encode($contenedor);
-                            $registroContenedor->save();
-
-                            // Almacenar los IDs de los contenedores creados
-                            $contenedoresIds[] = $contenedor->id;
-
-                            // Agregar las opciones para el contenedor
-                            foreach ($opcion['opciones'] as $opcionContenedor) {
-                                $opcionNueva = new Opcione;
-                                $opcionNueva->nombre = $opcionContenedor['nombre'];
-                                $opcionNueva->precio = $opcionContenedor['precio'];
-                                $opcionNueva->contenedor_id = $contenedor->id;
-                                $opcionNueva->save();
-                            }
-                        }
+                    if (!$opcionExistente) {
+                        // Crear nueva opción si no existe
+                        Opcione::create([
+                            'nombre' => $opcionContenedor['nombre'],
+                            'precio' => $opcionContenedor['precio'],
+                            'contenedor_id' => $contenedor->id,
+                        ]);
                     }
-                    // Relacionar los contenedores con el producto
-                    $productoNuevo->contenedorOpciones()->sync($contenedoresIds);
                 }
-
-                $productoCreado = Producto::with('promocion', 'contenedorOpciones.opciones')
-                    ->where('id', $productoNuevo->id)
-                    ->first();
-
-                $registros = Registro::where('id', $registro->id)
-                    ->with('employee', 'pedido', 'categoria', 'producto', 'promocion')
-                    ->first();
-
-                return response()->json([
-                    'data' => $productoCreado,
-                    'success' => 'Producto agregado correctamente.',
-                    'registro' => new RegistroResource($registros)
-                ]);
             }
-        } else {
-            $errors = [
-                'permisos' => ['No tienes el rol necesario para realizar esta accion'],
-            ];
-            return response()->json(['errors' => $errors], 422);
+
+            // Obtener los IDs de los contenedores existentes relacionados con el producto
+            $contenedoresExistentes = $producto->contenedorOpciones()->pluck('contenedor_opciones.id')->toArray();
+
+            // Combinar los IDs existentes con los nuevos
+            $todosLosContenedoresIds = array_unique(array_merge($contenedoresExistentes, $contenedoresIds));
+
+            // Relacionar los contenedores con el producto sin desvincular los existentes
+            $producto->contenedorOpciones()->syncWithoutDetaching($todosLosContenedoresIds);
         }
     }
 
@@ -240,98 +174,93 @@ class ProductoController extends Controller
      */
     public function productoActualizar(ProductoActualizarRequest $request, Producto $producto)
     {
-        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = Employee::find($userId); // Obtener el usuario
-        $rol = $user->roles->first(); // Obtener los roles del usuario
+        $userId = $request->user()->id;
+        $user = Employee::findOrFail($userId);
+        $rol = $user->roles->first();
 
-        if ($rol->rol === 'admin' || $rol->editar === 1) { //valida que tenga los permisoso necesarios
+        if ($rol->rol !== 'admin' && $rol->editar !== 1) {
+            return response()->json(['errors' => ['permisos' => ['No tienes el rol necesario para realizar esta acción']]], 422);
+        }
 
-            $datos = $request->validated();
-            $registro = new Registro;
+        $datos = $request->validated();
+        $registro = new Registro;
 
-            if (empty($request->imagen)) {
-                $producto->nombre = $datos['nombre'];
-                $producto->precio = $datos['precio'];
-                $producto->descripcion = $datos['descripcion'];
-                $producto->peso = $datos['peso'];
-                $producto->tipo_peso = $datos['tipo_peso'];
-                $producto->promo_id = $request->promo_id;
-                $producto->save();
+        // Usar transacciones para asegurar la integridad de los datos
+        DB::transaction(function () use ($request, $producto, $datos, $userId) {
+            $this->updateProductData($producto, $datos, $request);
+            $this->logAction('editar', $userId, $producto);
 
-                $registro->detalle = json_encode(
-                    [
-                        'nombre' => $datos['nombre'],
-                        'precio' => $datos['precio'],
-                        'descripcion' => $datos['descripcion'],
-                        'peso' => $datos['peso'],
-                        'tipo_peso' => $datos['tipo_peso'],
-                        'promo_id' => $request->promo_id,
-                    ]
-                );
-            } else {
-                //Eliminamos la imagen anterior de la base de datos
-                if ($producto->public_id !== 'logo') {
-                    Cloudinary::destroy($producto->public_id);
-                }
+            // Manejar contenedores de opciones
+            $this->handleOpcionesProducto($request->opciones_producto, $producto, $userId);
+        });
 
-                //Subimos la nueva imagen
-                $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
-                $url = $uploadedFileUrl->getSecurePath();
-                $public_id = $uploadedFileUrl->getPublicId();
+        // Traer los datos completos del producto actualizado
+        $productoActualizado = Producto::with('promocion', 'contenedorOpciones.opciones')
+            ->where('id', $producto->id)
+            ->first();
 
-                $producto->nombre = $datos['nombre'];
-                $producto->precio = $datos['precio'];
-                $producto->public_id = $public_id;
-                $producto->imagen = $url;
-                $producto->descripcion = $datos['descripcion'];
-                $producto->peso = $datos['peso'];
-                $producto->tipo_peso = $datos['tipo_peso'];
-                $producto->promo_id = $request->promo_id;
-                $producto->save();
+        return [
+            'producto' => new ProductoResource($productoActualizado),
+            'registro' => new RegistroResource($registro)
+        ];
+    }
 
-                $registro->detalle = json_encode(
-                    [
-                        'nombre' => $datos['nombre'],
-                        'precio' => $datos['precio'],
-                        'public_id' => $public_id,
-                        'url' => $url,
-                        'descripcion' => $datos['descripcion'],
-                        'peso' => $datos['peso'],
-                        'tipo_peso' => $datos['tipo_peso'],
-                        'promo_id' => $request->promo_id,
-                    ]
-                );
+    private function updateProductData($producto, $datos, $request)
+    {
+        if ($request->hasFile('imagen')) {
+            // Eliminar la imagen anterior si no es la imagen por defecto
+            if ($producto->public_id !== 'logo') {
+                Cloudinary::destroy($producto->public_id);
             }
 
-            //registramos la accion realizada
-
-            $registro->accion = 'editar';
-            $registro->employee_id = $userId;
-            $registro->producto_id = $producto->id;
-            $registro->save();
-
-            $registros = Registro::where('id', $registro->id)
-                ->with('employee', 'pedido', 'categoria', 'producto')
-                ->first();
-
-
-            //traemos los datos completos del producto creado
-            $productoActualizado = Producto::with('promocion', 'contenedorOpciones.opciones')
-                ->where('id', $producto->id)
-                ->first();
-
-            //devolvemos el producto formateado con los datos necesarios
-            return [
-                'producto' => new ProductoResource($productoActualizado),
-                'registro' => new RegistroResource($registros)
-            ];
+            // Subir la nueva imagen
+            $uploadedFileUrl = Cloudinary::upload($request->imagen->getRealPath(), ['folder' => 'productos', 'format' => 'avif']);
+            $producto->public_id = $uploadedFileUrl->getPublicId();
+            $producto->imagen = $uploadedFileUrl->getSecurePath();
         } else {
-            $errors = [
-                'permisos' => ['No tienes el rol necesario para realizar esta accion'],
-            ];
-            return response()->json(['errors' => $errors], 422);
+            // Mantener la imagen anterior
+            $producto->public_id = $producto->public_id; // No cambia
+            $producto->imagen = $producto->imagen; // No cambia
         }
+
+        // Actualizar otros datos del producto
+        $producto->nombre = $datos['nombre'];
+        $producto->precio = $datos['precio'];
+        $producto->descripcion = $datos['descripcion'];
+        $producto->peso = $datos['peso'];
+        $producto->tipo_peso = $datos['tipo_peso'];
+        $producto->promo_id = $request->promo_id;
+        $producto->save();
     }
+
+    public function desvincular(Request $request, $productoId)
+    {
+        $request->validate([
+            'contenedores_ids' => 'required|array',
+            'contenedores_ids.*' => 'exists:contenedor_opciones,id', // Asegúrate de que los IDs existan
+        ]);
+    
+        return $this->desvincularContenedoresProducto($productoId, $request->contenedores_ids);
+    }
+    
+    private function desvincularContenedoresProducto($productoId, $contenedoresIds)
+    {
+        // Obtener el producto por su ID
+        $producto = Producto::find($productoId);
+    
+        // Verificar si el producto existe
+        if (!$producto) {
+            return response()->json(['error' => 'Producto no encontrado.'], 404);
+        }
+    
+        // Desvincular los contenedores de opciones del producto
+        $producto->contenedorOpciones()->detach($contenedoresIds);
+    
+        return response()->json(['success' => 'Contenedores desvinculados correctamente.']);
+    }
+
+
+    /* ACTUALIZACION DE ESTADO */
     public function updateDisponible(Producto $producto, Request $request)
     {
         $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion

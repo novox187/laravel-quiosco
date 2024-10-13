@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/productos/actualizar/{producto}', [ProductoController::class, 'productoActualizar']);
     Route::put('/productos/eliminar/{producto}', [ProductoController::class, 'productoEliminar']);
     Route::put('/productos/mover/{producto}', [ProductoController::class, 'cambiarCategoria']);
+    Route::delete('/productos/{producto}/contenedores', [ProductoController::class, 'desvincular']);
 
     Route::post('/promocion/create', [PromocioneController::class, 'store']);
     Route::get('/promociones', [PromocioneController::class, 'index']);
