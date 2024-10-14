@@ -18,11 +18,14 @@ class ContenedorOpcioneResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'tipo' => $this->tipo,
+            'estado' => $this->estado,
             'opciones' => $this->opciones->map(function($opcion) {
                 return [
+                    'id' => $opcion->id,
                     'nombre' => $opcion->nombre,
                     'icono' => $opcion->icono,
-                    'precio' => $opcion->precio
+                    'precio' => $opcion->precio,
+                    'estado' => $opcion->estado
                 ];
             })
         ];

@@ -84,6 +84,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/informacion/view',[NegocioController::class, 'index']);
     Route::post('/informacion/create',[NegocioController::class, 'store']);
     Route::post('/informacion/update/{negocio}',[NegocioController::class, 'update']);
+
+    /* Contenedores Opciones */
+    Route::post('/contenedores/estado', [ContenedorOpcionesController::class, 'cambiarEstadoContenedor']);
+    Route::post('/contenedores/opciones/estado', [ContenedorOpcionesController::class, 'cambiarEstadoOpcion']);
 });
 
 Route::put('/validate-token', function (Request $request) {
