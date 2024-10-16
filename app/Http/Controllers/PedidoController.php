@@ -21,6 +21,7 @@ use App\Http\Resources\PedidoEnCursoResource;
 use App\Http\Resources\PedidosEnvioResource;
 use App\Http\Resources\RegistroResource;
 use App\Http\Resources\ResivosPedidoResource;
+use App\Models\ContenedorOpcione;
 
 class PedidoController extends Controller
 {
@@ -89,11 +90,9 @@ class PedidoController extends Controller
         $pedidos = Pedido::where('eliminado', 0)
             ->where('estado', '<=', 2)
             ->where('user_id', $userId)
-            ->get();
+            ->get(['id', 'numero_pedido']);
 
-        $numerosPedido = $pedidos->pluck('numero_pedido')->all();
-
-        return response()->json($numerosPedido);
+        return response()->json($pedidos);
     }
 
     public function pedidosCheques(Request $request)
@@ -138,63 +137,85 @@ class PedidoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
-        $ultimoCaja = Caja::latest()->first(); //Se trae el ultimo registro de la tabla cajas
+        $ultimoCaja = Caja::latest()->first();
 
         if ($ultimoCaja->estado == 1) {
-
-            $nuevoCodigo = $this->generarCodigo();
-            // Almacenar orden
-            $pedido = new Pedido;
-            $pedido->user_id = Auth::user()->id;
-            $pedido->total = $request->total;
-            $pedido->total_neto = $request->totalNeto;
-            $pedido->numero_pedido = $nuevoCodigo;
-            $pedido->lugar = $request->lugar;
-            $pedido->comentario = $request->ubicacionEntrega['datos']['comentario'];
-            $pedido->direccion = json_encode([
-                "telefono" => $request->ubicacionEntrega['datos']['telefono'],
-                "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
-            ]);
-            $pedido->save();
-
-            // Obtener el ID del pedido
-            $id_pedido = $pedido->id;
-
-            // Obtener los productos
-            $productos = $request->productos;
-
-            // Almacenar los PedidoProducto asociados al pedido
-            foreach ($productos as $producto) {
-                $pedidoProducto = new PedidoProducto;
-                $pedidoProducto->pedido_id = $id_pedido;
-                $pedidoProducto->producto_id = $producto['id'];
-                $pedidoProducto->total_opciones = $producto['total_opciones'];
-                $pedidoProducto->save();
-
+            foreach ($request->productos as $producto) {
                 foreach ($producto['detalle_Producto'] as $detalle) {
-                    $NuevoDetalle = new DetallesProductoPedido;
-                    $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
-                    $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
-                    $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
-                    $NuevoDetalle->opcion = $detalle['opcion'];
-                    $NuevoDetalle->precio_opcion = $detalle['precio'];
-                    $NuevoDetalle->cantidad = $detalle['cantidad'];
-                    $NuevoDetalle->save();
+                    $contenedor = ContenedorOpcione::find($detalle['idContenedor']);
+                    if (!$contenedor || !$contenedor->estado) {
+                        return response()->json(['errors' => ['contenedor' => ['El contenedor de opciones ' . $detalle['nombreContenedor'] . ' no está activo']]], 422);
+                    }
+                    $opcion = $contenedor->opciones->firstWhere('id', $detalle['idOpcion']);
+                    if (!$opcion || !$opcion->estado) {
+                        return response()->json(['errors' => ['opcion' => ['La opción ' . $detalle['opcion'] . ' no está activa']]], 422);
+                    }
                 }
             }
 
-            $pedidos = Pedido::with('user')
-                ->with('productos.promocion')
-                ->with('pedidoProductos.detallesProductoPedido')
-                ->where('id', $pedido->id)
-                ->first();
+            DB::beginTransaction();
+            try {
+                $nuevoCodigo = $this->generarCodigo();
+                $pedido = new Pedido;
+                $pedido->user_id = Auth::user()->id;
+                $pedido->total = $request->total;
+                $pedido->total_neto = $request->totalNeto;
+                $pedido->numero_pedido = $nuevoCodigo;
+                $pedido->lugar = $request->lugar;
+                $pedido->comentario = $request->ubicacionEntrega == null ? '' : $request->ubicacionEntrega['datos']['comentario'];
+                $pedido->direccion = $request->ubicacionEntrega == null ?
+                    json_encode([
+                        "telefono" => '',
+                        "coordenadas" => ''
+                    ])
+                    :
+                    json_encode([
+                        "telefono" => $request->ubicacionEntrega['datos']['telefono'],
+                        "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
+                    ]);
+                $pedido->save();
 
-            return [
-                'data' => new PedidoResource($pedidos),
-                'message' => 'Pedido realizado Correctamente, estara listo en unos minutos',
-            ];
+                $id_pedido = $pedido->id;
+                $productos = $request->productos;
+
+                foreach ($productos as $producto) {
+                    $pedidoProducto = new PedidoProducto;
+                    $pedidoProducto->pedido_id = $id_pedido;
+                    $pedidoProducto->producto_id = $producto['id'];
+                    $pedidoProducto->total_opciones = $producto['total_opciones'];
+                    $pedidoProducto->save();
+
+                    foreach ($producto['detalle_Producto'] as $detalle) {
+                        $NuevoDetalle = new DetallesProductoPedido;
+                        $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
+                        $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
+                        $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
+                        $NuevoDetalle->opcion = $detalle['opcion'];
+                        $NuevoDetalle->precio_opcion = $detalle['precio'];
+                        $NuevoDetalle->cantidad = $detalle['cantidad'];
+                        $NuevoDetalle->save();
+                    }
+                }
+
+                DB::commit();
+
+                $pedidos = Pedido::with('user')
+                    ->with('productos.promocion')
+                    ->with('pedidoProductos.detallesProductoPedido')
+                    ->where('id', $pedido->id)
+                    ->first();
+
+                return [
+                    'data' => new PedidoResource($pedidos),
+                    'message' => 'Pedido realizado Correctamente, estará listo en unos minutos',
+                ];
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['errors' => ['pedido' => ['Ha ocurrido un error al realizar el pedido. Inténtelo nuevamente.']]], 500);
+            }
         } else {
             $errors = [
                 'caja' => ['Lo sentimos, el establecimiento está cerrado, vuelve en horario de atención'],
@@ -244,26 +265,26 @@ class PedidoController extends Controller
     public function asignarrepartidor(Request $request, Pedido $pedido)
     {
         $userId = $request->user()->id;
-    
+
         // Verificar si el pedido ya tiene un repartidor asignado
         if ($pedido->employee_id) {
             return response()->json([
                 'errors' => ['pedido' => ['Este pedido ya está asignado a un repartidor']]
             ], 422);
         }
-    
+
         // Buscar un repartidor disponible
         $repartidor = Employee::where('id', $userId)
             ->whereHas('roles', fn($query) => $query->where('rol', 'repartidor'))
             ->doesntHave('pedidos', 'and', fn($query) => $query->where('estado', '<', 3))
             ->firstOrFail();
-    
+
         // Asignar el repartidor al pedido y guardar
         $pedido->employee()->associate($repartidor)->save();
-    
+
         // Obtener los datos del pedido con relaciones
         $pedidoDatos = $pedido->load(['user', 'pedidoProductos']);
-    
+
         return response()->json([
             'message' => 'Pedido asignado correctamente',
             'data' => new PedidosEnvioResource($pedidoDatos)

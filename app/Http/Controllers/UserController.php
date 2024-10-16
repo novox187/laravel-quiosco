@@ -32,30 +32,16 @@ class UserController extends Controller
             ];
             $usuarios[] = $usuarioFormateado;
         }
-    
+
         return $usuarios;
     }
     public  function usuarioEnSession(Request $request)
     {
         $usuario = $request->user();
-        $rol = $usuario->roles()->first();
-
-        if (!$rol) {
-            $usuarioConRol = [
-                'name' => $usuario->name,
-                'email' => $usuario->email
-            ];
-
-            return $usuarioConRol;
-        }
 
         $usuarioConRol = [
-            'id' => $usuario->id,
             'name' => $usuario->name,
-            'rol' => $rol->rol,
-            'email' => $usuario->email,
-            'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
-            'status' => 'activo'
+            'email' => $usuario->email
         ];
 
         return $usuarioConRol;
@@ -122,8 +108,8 @@ class UserController extends Controller
         $registro->save();
 
         $registros = Registro::where('id', $registro->id)
-        ->with('user', 'pedido', 'categoria', 'producto')
-        ->first();
+            ->with('user', 'pedido', 'categoria', 'producto')
+            ->first();
 
         return [
             'data' => $pedido->id,

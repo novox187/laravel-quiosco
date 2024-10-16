@@ -99,6 +99,16 @@ Route::put('/validate-token', function (Request $request) {
     }
 })->middleware('auth:sanctum');
 
+Route::post('/validate-token/webSocket', function (Request $request) {
+    $user = $request->user(); // Laravel ya autentica el token con el middleware 'auth:sanctum'
+    
+    if ($user) {
+        return response()->json(['user' => $user], 200);
+    } else {
+        return response()->json(['error' => 'Invalid token'], 401);
+    }
+})->middleware('auth:sanctum');
+
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
 
 Route::get('/productos', [ProductoController::class, 'index']);

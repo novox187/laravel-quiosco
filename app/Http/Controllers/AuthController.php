@@ -48,7 +48,6 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'rol' => $user->roles[0]->rol ?? 'usuario',
                 'email' => $user->email,
                 'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
                 'status' => 'activo'

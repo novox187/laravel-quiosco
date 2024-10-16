@@ -31,10 +31,10 @@ class ProductoController extends Controller
             ->orderBy('disponible', 'DESC')
             ->orderBy('id', 'DESC')
             ->get();
-
+    
         return ProductoResource::collection($productos);
     }
-
+    
     /**
      * Store a newly created resource in storage.
      */
