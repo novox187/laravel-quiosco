@@ -31,10 +31,10 @@ class ProductoController extends Controller
             ->orderBy('disponible', 'DESC')
             ->orderBy('id', 'DESC')
             ->get();
-    
+
         return ProductoResource::collection($productos);
     }
-    
+
     /**
      * Store a newly created resource in storage.
      */
@@ -50,17 +50,21 @@ class ProductoController extends Controller
 
         $datos = $request->validated();
         $producto = Producto::where('nombre', $request->nombre)->first();
+        $registro = null;
 
         // Usar transacciones para asegurar la integridad de los datos
-        DB::transaction(function () use ($request, $producto, $datos, $userId) {
+        DB::transaction(function () use ($request, $producto, $datos, $userId, &$registro) {
             if ($producto) {
-                $this->updateExistingProduct($producto, $request, $datos, $userId);
+                $registro = $this->updateExistingProduct($producto, $request, $datos, $userId);
             } else {
-                $this->createNewProduct($request, $datos, $userId);
+                $registro = $this->createNewProduct($request, $datos, $userId);
             }
         });
 
-        return response()->json(['success' => 'Producto agregado correctamente.']);
+        return response()->json([
+            'success' => 'Producto agregado correctamente.',
+            'registro' => $registro
+        ]);
     }
 
     private function updateExistingProduct($producto, $request, $datos, $userId)
@@ -74,9 +78,11 @@ class ProductoController extends Controller
 
         $this->fillProductData($producto, $datos, $request);
         $producto->save();
-        $this->logAction('crear', $userId, $producto);
+        $registro = $this->logAction('crear', $userId, $producto);
 
         $this->handleOpcionesProducto($request->opciones_producto, $producto, $userId);
+
+        return $registro;
     }
 
     private function createNewProduct($request, $datos, $userId)
@@ -84,9 +90,11 @@ class ProductoController extends Controller
         $productoNuevo = new Producto;
         $this->fillProductData($productoNuevo, $datos, $request);
         $productoNuevo->save();
-        $this->logAction('crear', $userId, $productoNuevo);
+        $registro = $this->logAction('crear', $userId, $productoNuevo);
 
         $this->handleOpcionesProducto($request->opciones_producto, $productoNuevo, $userId);
+
+        return $registro;
     }
 
     private function fillProductData($producto, $datos, $request)
@@ -112,13 +120,22 @@ class ProductoController extends Controller
 
     private function logAction($accion, $userId, $producto)
     {
+        // Crear un nuevo registro de la acción
         $registro = new Registro;
-        $registro->accion = $accion;
-        $registro->employee_id = $userId;
-        $registro->producto_id = $producto->id;
-        $registro->detalle = json_encode($producto);
-        $registro->save();
+        $registro->accion = $accion; // Especificar la acción realizada (e.g., 'editar')
+        $registro->employee_id = $userId; // Asociar el registro con el ID del empleado
+        $registro->producto_id = $producto->id; // Asociar el registro con el ID del producto
+        $registro->detalle = json_encode($producto); // Guardar los detalles del producto en formato JSON
+        $registro->save(); // Guardar el registro en la base de datos
+
+        // Obtener el registro recién creado con sus relaciones completas
+        $registroConsulta = Registro::with('employee', 'pedido', 'categoria', 'producto', 'promocion')
+            ->where('id', $registro->id)
+            ->first();
+
+        return $registroConsulta; // Retornar el registro creado
     }
+
 
     private function handleOpcionesProducto($opcionesProducto, $producto, $userId)
     {
@@ -174,31 +191,39 @@ class ProductoController extends Controller
      */
     public function productoActualizar(ProductoActualizarRequest $request, Producto $producto)
     {
+        // Obtener el ID del usuario que realiza la petición
         $userId = $request->user()->id;
+        // Buscar al empleado que realiza la petición
         $user = Employee::findOrFail($userId);
+        // Obtener el primer rol del usuario
         $rol = $user->roles->first();
 
+        // Verificar si el usuario tiene permisos para actualizar el producto
         if ($rol->rol !== 'admin' && $rol->editar !== 1) {
             return response()->json(['errors' => ['permisos' => ['No tienes el rol necesario para realizar esta acción']]], 422);
         }
 
+        // Validar los datos del request
         $datos = $request->validated();
-        $registro = new Registro;
+        $registro = null; // Inicializar como null para evitar problemas con la referencia
 
         // Usar transacciones para asegurar la integridad de los datos
-        DB::transaction(function () use ($request, $producto, $datos, $userId) {
+        DB::transaction(function () use ($request, $producto, $datos, $userId, &$registro) {
+            // Actualizar los datos del producto con la información validada
             $this->updateProductData($producto, $datos, $request);
-            $this->logAction('editar', $userId, $producto);
+            // Registrar la acción de edición del producto
+            $registro = $this->logAction('editar', $userId, $producto);
 
-            // Manejar contenedores de opciones
+            // Manejar las opciones del producto (ej. contenedores de opciones)
             $this->handleOpcionesProducto($request->opciones_producto, $producto, $userId);
         });
 
-        // Traer los datos completos del producto actualizado
+        // Traer los datos completos del producto actualizado junto con sus relaciones
         $productoActualizado = Producto::with('promocion', 'contenedorOpciones.opciones')
             ->where('id', $producto->id)
             ->first();
 
+        // Retornar el producto actualizado y el registro de la acción
         return [
             'producto' => new ProductoResource($productoActualizado),
             'registro' => new RegistroResource($registro)
@@ -239,23 +264,23 @@ class ProductoController extends Controller
             'contenedores_ids' => 'required|array',
             'contenedores_ids.*' => 'exists:contenedor_opciones,id', // Asegúrate de que los IDs existan
         ]);
-    
+
         return $this->desvincularContenedoresProducto($productoId, $request->contenedores_ids);
     }
-    
+
     private function desvincularContenedoresProducto($productoId, $contenedoresIds)
     {
         // Obtener el producto por su ID
         $producto = Producto::find($productoId);
-    
+
         // Verificar si el producto existe
         if (!$producto) {
             return response()->json(['error' => 'Producto no encontrado.'], 404);
         }
-    
+
         // Desvincular los contenedores de opciones del producto
         $producto->contenedorOpciones()->detach($contenedoresIds);
-    
+
         return response()->json(['success' => 'Contenedores desvinculados correctamente.']);
     }
 
