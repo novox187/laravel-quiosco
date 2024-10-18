@@ -46,26 +46,6 @@ class UserController extends Controller
 
         return $usuarioConRol;
     }
-    public  function equipoTrabajo()
-    {
-        $usuarios = Employee::all();
-
-        $usuariosConRol = [];
-        foreach ($usuarios as $usuario) {
-            $rol = $usuario->roles()->first();
-            $usuarioConRol = [
-                'id' => $usuario->id,
-                'name' => $usuario->first_name,
-                'role' => 'proceso ',
-                'email' => $usuario->email,
-                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
-                'status' => $usuario->estado
-            ];
-            $usuariosConRol[] = $usuarioConRol;
-        }
-
-        return $usuariosConRol;
-    }
 
     /**
      * Store a newly created resource in storage.

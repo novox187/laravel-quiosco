@@ -68,7 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Panel */
     Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);
-    Route::get('/users/equipoTrabajo', [UserController::class, 'equipoTrabajo']);
+    Route::get('/users/equipoTrabajo', [EmployeeController::class, 'index']);
     Route::get('/users', [UserController::class, 'index']);
 
     /* Registro */

@@ -22,7 +22,6 @@ class ResivosPedidoResource extends JsonResource
                 return [
                     'id' => $this->user->id,
                     'name' => $this->user->name,
-                    'rol' => $this->user->roles->pluck('rol'),
                 ];
             }),
         ];

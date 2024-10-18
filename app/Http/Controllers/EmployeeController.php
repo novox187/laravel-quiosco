@@ -15,6 +15,27 @@ class EmployeeController extends Controller
      * Display a listing of the resource.
      */
 
+     public function index()
+     {
+         $employes = Employee::all();
+         $usuariosConRol = [];
+
+         foreach ($employes as $employee) {
+            $rol = $employee->roles()->first();
+             $usuarioConRol = [
+                 'id' => $employee->id,
+                 'name' => $employee->first_name,
+                 'role' => $rol->rol,
+                 'email' => $employee->email,
+                 'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                 'status' => $employee->active
+             ];
+             $usuariosConRol[] = $usuarioConRol;
+         }
+ 
+         return $usuariosConRol;
+     }
+
     public function login(LoginEmployeeRequest $request)
     {
         $data = $request->validated();
@@ -99,11 +120,6 @@ class EmployeeController extends Controller
         ];
 
         return $usuarioConRol;
-    }
-
-    public function index()
-    {
-        //
     }
 
     /**

@@ -116,16 +116,16 @@ class PedidoController extends Controller
     }
     public function busquedaPedidos(Request $request)
     {
-        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
-        $user = $user = Employee::find($userId); // Obtener el usuario
-        $rol = $user->roles->first(); // Obtener los roles del usuario
+        $userId = $request->user()->id;
+        $user = Employee::findOrFail($userId);
+        $rol = $user->roles->first();
 
         if ($rol->rol == 'admin' || $rol->rol == 'mesero') {
 
             $pedidos = Pedido::where($request->tipo, $request->pedido)
                 ->with('user')
                 ->where('eliminado', 0)
-                ->where('estado', 3)
+                ->where('estado', 0)
                 ->first();
 
             return [
