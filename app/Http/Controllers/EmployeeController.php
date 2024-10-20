@@ -7,6 +7,7 @@ use App\Http\Requests\RegisterEmployeeRequest;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
@@ -15,26 +16,26 @@ class EmployeeController extends Controller
      * Display a listing of the resource.
      */
 
-     public function index()
-     {
-         $employes = Employee::all();
-         $usuariosConRol = [];
+    public function index()
+    {
+        $employes = Employee::all();
+        $usuariosConRol = [];
 
-         foreach ($employes as $employee) {
-            $rol = $employee->roles()->first();
-             $usuarioConRol = [
-                 'id' => $employee->id,
-                 'name' => $employee->first_name,
-                 'role' => $rol->rol,
-                 'email' => $employee->email,
-                 'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
-                 'status' => $employee->active
-             ];
-             $usuariosConRol[] = $usuarioConRol;
-         }
- 
-         return $usuariosConRol;
-     }
+        foreach ($employes as $employee) {
+            $rol = $employee->roles()->select('roles.id as role_id', 'roles.rol')->first();
+            $usuarioConRol = [
+                'id' => $employee->id,
+                'name' => $employee->first_name,
+                'role' => $rol->rol ? $rol->rol : "sin asignar",
+                'email' => $employee->email,
+                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                'status' => $employee->active
+            ];
+            $usuariosConRol[] = $usuarioConRol;
+        }
+
+        return $usuariosConRol;
+    }
 
     public function login(LoginEmployeeRequest $request)
     {
@@ -86,13 +87,26 @@ class EmployeeController extends Controller
         ]);
 
         // Asignar roles si es necesario
-        if (isset($data['roles'])) {
-            $employee->roles()->attach($data['roles']);
+        if (isset($data['rol_id'])) {
+            $employee->roles()->attach($data['rol_id'], ['created_at' => now(), 'updated_at' => now()]);
         }
+
+        // Obtener el primer rol asignado al empleado con solo id y rol
+        $rol = $employee->roles()->select('roles.id as role_id', 'roles.rol')->first();
+
+        // Añadir el rol al empleado para la respuesta
+        $employee->setAttribute('rol', $rol);
 
         return response()->json([
             'message' => 'Empleado registrado exitosamente',
-            'employee' => $employee,
+            'employee' => [
+                'id' => $employee->id,
+                'name' => $employee->first_name,
+                'role' => $rol->rol ? $rol->rol : "sin asignar",
+                'email' => $employee->email,
+                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                'status' => $employee->active
+            ],
         ], 201);
     }
 
@@ -122,51 +136,10 @@ class EmployeeController extends Controller
         return $usuarioConRol;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function indexroles()
     {
-        //
-    }
+        $roles = Role::all('id', 'rol');
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Employee $employee)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Employee $employee)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Employee $employee)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Employee $employee)
-    {
-        //
+        return $roles;
     }
 }

@@ -81,13 +81,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/caja/cerrar', [CajaController::class, 'destroy']);
 
     /* CONFIGURACIONES */
-    Route::get('/informacion/view',[NegocioController::class, 'index']);
-    Route::post('/informacion/create',[NegocioController::class, 'store']);
-    Route::post('/informacion/update/{negocio}',[NegocioController::class, 'update']);
+    Route::get('/informacion/view', [NegocioController::class, 'index']);
+    Route::post('/informacion/create', [NegocioController::class, 'store']);
+    Route::post('/informacion/update/{negocio}', [NegocioController::class, 'update']);
 
     /* Contenedores Opciones */
     Route::post('/contenedores/estado', [ContenedorOpcionesController::class, 'cambiarEstadoContenedor']);
     Route::post('/contenedores/opciones/estado', [ContenedorOpcionesController::class, 'cambiarEstadoOpcion']);
+
+    /* Roles */
+    Route::get('/roles', [EmployeeController::class, 'indexroles']);
 });
 
 Route::put('/validate-token', function (Request $request) {
@@ -101,7 +104,26 @@ Route::put('/validate-token', function (Request $request) {
 
 Route::post('/validate-token/webSocket', function (Request $request) {
     $user = $request->user(); // Laravel ya autentica el token con el middleware 'auth:sanctum'
-    
+
+    if ($user->first_name) {
+        // Obtener el primer rol asignado al empleado con solo id y rol
+        $rol = $user->roles()->select('roles.id as role_id', 'roles.rol')->first();
+
+        // Añadir el rol al empleado para la respuesta
+        $user->setAttribute('rol', $rol);
+
+        return response()->json([
+            'employee' => [
+                'id' => $user->id,
+                'name' => $user->first_name,
+                'role' => $rol->rol ? $rol->rol : "sin asignar",
+                'email' => $user->email,
+                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                'status' => $user->active
+            ],
+        ], 201);
+    }
+
     if ($user) {
         return response()->json(['user' => $user], 200);
     } else {

@@ -62,4 +62,27 @@ class AuthController extends Controller
             'user' => null
         ];
     }
+
+    public function validarTokenwebsocket(Request $request)
+    {
+        $user = $request->user(); // Laravel ya autentica el token con el middleware 'auth:sanctum'
+
+        if ($user && $user->first_name) {
+            // Obtener el primer rol asignado al empleado con solo id y rol
+            $rol = $user->roles()->select('id', 'rol')->first();
+
+            return response()->json([
+                'employee' => [
+                    'id' => $user->id,
+                    'name' => $user->first_name,
+                    'role' => $rol ? $rol->rol : "sin asignar",
+                    'email' => $user->email,
+                    'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                    'status' => $user->active,
+                ],
+            ], 201);
+        }
+
+        return response()->json(['error' => 'Invalid token'], 401);
+    }
 }
