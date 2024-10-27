@@ -36,6 +36,19 @@ class EmployeeController extends Controller
 
         return $usuariosConRol;
     }
+    public function Employeeforid(Employee $employee)
+    {
+        // Obtener el primer rol asignado al empleado con solo id y rol
+        $rol = $employee->roles()->first();
+
+        // Añadir el rol al empleado para la respuesta, si tiene alguno asignado
+        if ($rol) {
+            $employee->setAttribute('rol', $rol);
+        }
+
+        return response()->json($employee);
+    }
+
 
     public function login(LoginEmployeeRequest $request)
     {
@@ -141,5 +154,47 @@ class EmployeeController extends Controller
         $roles = Role::all('id', 'rol');
 
         return $roles;
+    }
+
+    public function editaremployee(Employee $employee, Request $request)
+    {
+        // Validación de los datos recibidos
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'salary' => 'required|numeric',
+            'position' => 'required|string|max:255',
+            'department' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'hire_date' => 'required|date',
+            'active' => 'required|boolean',
+            'username' => 'required|string|max:255',
+        ]);
+
+        // Actualización de los datos del empleado
+        $employee->update($request->except('password'));
+
+        // Ocultar la contraseña antes de devolver la respuesta
+        $employee->makeHidden('password');
+
+        // Obtener el primer rol asignado al empleado con solo id y rol
+        $rol = $employee->roles()->select('roles.id as role_id', 'roles.rol')->first();
+
+        // Añadir el rol al empleado para la respuesta
+        $employee->setAttribute('rol', $rol);
+
+        return response()->json([
+            "message" => "Empleado actualizado con éxito",
+            'employee' => [
+                'id' => $employee->id,
+                'name' => $employee->first_name,
+                'role' => $rol->rol ? $rol->rol : "sin asignar",
+                'email' => $employee->email,
+                'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                'status' => $employee->active
+            ],
+        ], 200);
     }
 }
