@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\Pedido;
 use App\Models\Registro;
 use Illuminate\Http\Request;
-use PhpParser\Node\Expr\Empty_;
 use App\Http\Resources\RegistroResource;
 
 class CajaController extends Controller
@@ -25,22 +24,22 @@ class CajaController extends Controller
             ];
         }
 
-        if ($caja->estado === 1) {
+        if ($caja->estado === 'abierta') {
             $haceDiezSemanas = now()->subWeeks(10);
             $datosCajas = Caja::where('created_at', '>=', $haceDiezSemanas)
-                ->where('estado', 0)
-                ->pluck('dinero');
+                ->where('estado', 'cerrada')
+                ->pluck('nombre_caja');
 
             return [
-                'caja' => $caja->dinero,
+                'caja' => $caja->nombre_caja,
                 'estado' => $caja->estado,
                 'historia' => $datosCajas
             ];
         } else {
             $haceDiezSemanas = now()->subWeeks(10);
             $datosCajas = Caja::where('created_at', '>=', $haceDiezSemanas)
-                ->where('estado', 0)
-                ->pluck('dinero');
+                ->where('estado', 'cerrada')
+                ->pluck('nombre_caja');
 
             return [
                 'caja' => 0,
@@ -52,79 +51,38 @@ class CajaController extends Controller
 
     public function store(Request $request)
     {
-        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $userId = $request->user()->id; // Obtener el id del usuario del token de autenticación
         $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
-        $caja = Caja::latest()->first(); //Obtener ultimo registro de caja
-        /* historias de caja */
-        $haceDiezSemanas = now()->subWeeks(10);
-        $datosCajas = Caja::where('created_at', '>=', $haceDiezSemanas)
-            ->where('estado', 0)
-            ->pluck('dinero');
-
 
         if ($rol->rol == 'admin') {
-            if (empty($caja)) {
-                $registro = new Registro;
-                $registro->accion = 'abrir_caja';
-                $registro->employee_id = $userId;
-                $registro->detalle = json_encode([
-                    [
-                        'dinero_abrir' => $request->dinero_abrir,
-                    ]
-                ]);
-                $registro->save();
 
-                $newCaja = new Caja;
-                $newCaja->dinero = $request->dinero_abrir;
-                $newCaja->estado = 1;
-                $newCaja->registro_id = $registro->id;
-                $newCaja->identificador = 1;
-                $newCaja->save();
+            $newCaja = new Caja;
+            $newCaja->nombre_caja = $request->nombre_caja;
+            $newCaja->estado = 0;
+            $newCaja->save();
 
-                return [
-                    'registro' => $registro,
-                    'nuevaCaja' => [
-                        'caja' => $newCaja->dinero,
-                        'estado' => $newCaja->estado,
-                        'historia' => $datosCajas,
-                    ]
-                ];
-            } else if ($caja->estado == 0) {
-                $registro = new Registro;
-                $registro->accion = 'abrir_caja';
-                $registro->employee_id = $userId;
-                $registro->detalle = json_encode([
-                    [
-                        'dinero_abrir' => $request->dinero_abrir,
-                    ]
-                ]);
-                $registro->save();
+            $registro = new Registro;
+            $registro->accion = 'crear';
+            $registro->employee_id = $userId;
+            $registro->detalle = json_encode([
+                [
+                    'nombre_caja' => $request->nombre_caja,
+                    'id_usuario' => $userId
+                ]
+            ]);
+            $registro->save();
 
-                $newCaja = new Caja;
-                $newCaja->dinero = $request->dinero_abrir;
-                $newCaja->estado = 1;
-                $newCaja->registro_id = $registro->id;
-                $newCaja->identificador = $caja->identificador + 1;
-                $newCaja->save();
-
-
-                $registros = Registro::where('id', $registro->id)
-                    ->with('user', 'pedido', 'categoria', 'producto')
-                    ->first();
-
-                return [
-                    'nuevaCaja' => [
-                        'caja' => $newCaja->dinero,
-                        'estado' => $newCaja->estado,
-                        'historia' => $datosCajas,
-                    ],
-                    'registro' => new RegistroResource($registros)
-                ];
-            }
+            return [
+                'registro' => $registro,
+                'nuevaCaja' => [
+                    'caja' => $newCaja->nombre_caja,
+                    'estado' => $newCaja->estado,
+                ]
+            ];
         } else {
             $errors = [
-                'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                'permisos' => ['No tienes el rol necesario para realizar esta acción'],
             ];
             return response()->json(['errors' => $errors], 422);
         }
@@ -132,23 +90,23 @@ class CajaController extends Controller
 
     public function destroy(Request $request)
     {
-        $userId = $request->user()->id; //obtener el id del usuario del token de autenticacion
+        $userId = $request->user()->id; // Obtener el id del usuario del token de autenticación
         $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
-        $caja = Caja::latest()->first(); //Obtener ultimo registro de caja
+        $caja = Caja::latest()->first(); // Obtener último registro de caja
 
-        /* historias de caja */
+        /* Historias de caja */
         $haceDiezSemanas = now()->subWeeks(10);
         $datosCajas = Caja::where('created_at', '>=', $haceDiezSemanas)
-            ->where('estado', 0)
-            ->pluck('dinero');
+            ->where('estado', 'cerrada')
+            ->pluck('nombre_caja');
 
         $pedidosPendientes = Pedido::where('estado', '<', 3)->get();
 
         if ($rol->rol == 'admin') {
 
             if ($pedidosPendientes->count() == 0) {
-                $caja->estado = 0;
+                $caja->estado = 'cerrada';
                 $caja->save();
 
                 $registro = new Registro;
@@ -157,7 +115,7 @@ class CajaController extends Controller
                 $registro->detalle = json_encode([
                     [
                         'id_caja' => $caja->id,
-                        'dinero_cerrar' => $caja->dinero,
+                        'nombre_caja' => $caja->nombre_caja,
                     ]
                 ]);
                 $registro->save();
@@ -176,13 +134,13 @@ class CajaController extends Controller
                 ];
             } else {
                 $errors = [
-                    'pedidos' => ['Tienes pedidos pendientes, completalos antes de cerrar caja'],
+                    'pedidos' => ['Tienes pedidos pendientes, complétalos antes de cerrar la caja'],
                 ];
                 return response()->json(['errors' => $errors], 422);
             }
         } else {
             $errors = [
-                'permisos' => ['No tienes el rol necesario para realizar esta accion'],
+                'permisos' => ['No tienes el rol necesario para realizar esta acción'],
             ];
             return response()->json(['errors' => $errors], 422);
         }
