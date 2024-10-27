@@ -17,12 +17,14 @@ return new class extends Migration
             $table->foreign('id_caja')->references('id')->on('cajas');
             $table->decimal('monto_inicial', 10, 2);
             $table->unsignedBigInteger('usuario_apertura');
+            $table->foreign('usuario_apertura')->references('id')->on('employees');
             $table->unsignedBigInteger('usuario_modificacion')->nullable();
+            $table->foreign('usuario_modificacion')->references('id')->on('employees');
             $table->timestamps();
         });
     }
 
-    public function down():void
+    public function down(): void
     {
         Schema::dropIfExists('aperturas_caja');
     }

@@ -9,14 +9,28 @@ class Caja extends Model
 {
     use HasFactory;
 
+    protected $table = 'cajas';
 
-    public function user()
+    protected $fillable = [
+        'nombre_caja',
+        'estado',
+    ];
+
+    // Relación con AperturasCaja
+    public function aperturas()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Aperturas_caja::class, 'id_caja');
     }
 
-    public function registro()
+    // Relación con CierresCaja
+    public function cierres()
     {
-        return $this->belongsTo(Registro::class);
+        return $this->hasMany(Cierres_caja::class, 'id_caja');
+    }
+
+    // Relación con Transacciones
+    public function transacciones()
+    {
+        return $this->hasMany(Transacciones::class, 'id_caja');
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_pedido');
             $table->foreign('id_pedido')->references('id')->on('pedidos');
             $table->unsignedBigInteger('usuario_modificacion')->nullable();
+            $table->foreign('usuario_modificacion')->references('id')->on('employees');
             $table->timestamps();
         });
     }

@@ -18,7 +18,9 @@ return new class extends Migration
             $table->decimal('total_ventas', 10, 2);
             $table->decimal('discrepancia', 10, 2)->nullable();
             $table->unsignedBigInteger('usuario_cierre');
+            $table->foreign('usuario_cierre')->references('id')->on('employees');
             $table->unsignedBigInteger('usuario_modificacion')->nullable();
+            $table->foreign('usuario_modificacion')->references('id')->on('employees');
             $table->timestamps();
         });
     }

@@ -12,7 +12,7 @@ use App\Http\Resources\RegistroResource;
 
 class CajaController extends Controller
 {
-    public function index()
+/*     public function index()
     {
         $caja = Caja::latest()->first();
 
@@ -47,8 +47,35 @@ class CajaController extends Controller
                 'historia' => $datosCajas
             ];
         }
-    }
+    } */
 
+    public function index()
+    {
+        $cajas = Caja::with(['aperturas', 'cierres', 'transacciones'])->get();
+
+        $resultado = $cajas->map(function ($caja) {
+            $totalVentas = $caja->cierres->sum('total_ventas');
+            $montoActual = $caja->aperturas->last() ? $caja->aperturas->last()->monto_inicial : 0;
+
+            // Obtener el total de las transacciones relacionadas a los pedidos
+            $totalPedidos = $caja->transacciones->sum(function ($transaccion) {
+                $pedido = Pedido::find($transaccion->id_pedido);
+                return $pedido ? $pedido->total : 0;
+            });
+
+            $montoActual += $totalPedidos;
+
+            return [
+                'nombre_caja' => $caja->nombre_caja,
+                'estado' => $caja->estado,
+                'monto_actual' => $montoActual,
+                'total_ventas' => $totalVentas,
+            ];
+        });
+
+        return response()->json($resultado);
+    }
+    
     public function store(Request $request)
     {
         $userId = $request->user()->id; // Obtener el id del usuario del token de autenticación
