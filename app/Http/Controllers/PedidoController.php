@@ -273,17 +273,11 @@ class PedidoController extends Controller
             ], 422);
         }
 
-        // Buscar un repartidor disponible
-        $repartidor = Employee::where('id', $userId)
-            ->whereHas('roles', fn($query) => $query->where('rol', 'repartidor'))
-            ->doesntHave('pedidos', 'and', fn($query) => $query->where('estado', '<', 3))
-            ->firstOrFail();
-
         // Asignar el repartidor al pedido y guardar
-        $pedido->employee()->associate($repartidor)->save();
+        $pedido->employee()->associate($userId)->save();
 
         // Obtener los datos del pedido con relaciones
-        $pedidoDatos = $pedido->load(['user', 'pedidoProductos']);
+        $pedidoDatos = $pedido->load(['employee', 'pedidoProductos']);
 
         return response()->json([
             'message' => 'Pedido asignado correctamente',
@@ -459,7 +453,7 @@ class PedidoController extends Controller
                     $registro->pedido_id = $datosPedido->id;
                     $registro->save();
 
-                    $caja = new Caja;
+/*                     $caja = new Caja;
                     if (!$ultimoCaja) {
                         $caja->dinero = $datosPedido->total;
                     } else {
@@ -467,7 +461,7 @@ class PedidoController extends Controller
                     }
                     $caja->identificador = $ultimoCaja->identificador;
                     $caja->registro_id = $registro->id;
-                    $caja->save();
+                    $caja->save(); */
                 } else {
                     $errors = [
                         'permisos' => ['No tienes el rol necesario para realizar esta accion'],
@@ -520,7 +514,7 @@ class PedidoController extends Controller
 
             $pedido = Pedido::find($pedido);
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto')
+                ->with('employee', 'pedido', 'categoria', 'producto')
                 ->first();
             return [
                 'id' => $pedido->id,

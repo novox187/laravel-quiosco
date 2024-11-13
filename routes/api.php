@@ -79,8 +79,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* caja */
     Route::get('/caja', [CajaController::class, 'index']);
-    Route::post('/caja/abrir', [CajaController::class, 'store']);
-    Route::post('/caja/cerrar', [CajaController::class, 'destroy']);
+    Route::get('/caja/datos', [CajaController::class, 'datoscajas']);
+    Route::post('/caja/abrir', [CajaController::class, 'abrirCaja']);
+    Route::post('/caja/cerrar', [CajaController::class, 'cerrarCaja']);
 
     /* CONFIGURACIONES */
     Route::get('/informacion/view', [NegocioController::class, 'index']);
