@@ -176,6 +176,10 @@ class PedidoController extends Controller
                         "telefono" => $request->ubicacionEntrega['datos']['telefono'],
                         "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
                     ]);
+
+                if ($request->lugar == 'envio') {
+                    $pedido->estado = 1;
+                }
                 $pedido->save();
 
                 $id_pedido = $pedido->id;
@@ -277,7 +281,7 @@ class PedidoController extends Controller
         $pedido->employee()->associate($userId)->save();
 
         // Obtener los datos del pedido con relaciones
-        $pedidoDatos = $pedido->load(['employee', 'pedidoProductos']);
+        $pedidoDatos = $pedido->load(['user', 'pedidoProductos']);
 
         return response()->json([
             'message' => 'Pedido asignado correctamente',
@@ -453,7 +457,7 @@ class PedidoController extends Controller
                     $registro->pedido_id = $datosPedido->id;
                     $registro->save();
 
-/*                     $caja = new Caja;
+                    /*                     $caja = new Caja;
                     if (!$ultimoCaja) {
                         $caja->dinero = $datosPedido->total;
                     } else {
