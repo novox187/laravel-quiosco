@@ -217,6 +217,8 @@ class CajaController extends Controller
             $caja->estado = 1; // 1 para "abierta"
             $caja->save();
 
+            $aperturaCaja->estadoCaja = $caja->estado;
+
             return $aperturaCaja;
         });
     }
@@ -296,5 +298,4 @@ class CajaController extends Controller
             return $cierreCaja;
         });
     }
-
 }
