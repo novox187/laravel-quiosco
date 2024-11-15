@@ -295,6 +295,8 @@ class CajaController extends Controller
             $caja->estado = 0; // 0 para "cerrada"
             $caja->save();
 
+            $cierreCaja->estadoCaja = $caja->estado;
+
             return $cierreCaja;
         });
     }
