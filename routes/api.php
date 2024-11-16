@@ -134,6 +134,8 @@ Route::post('/validate-token/webSocket', function (Request $request) {
     }
 })->middleware('auth:sanctum');
 
+Route::get('/nohayempleados', [EmployeeController::class, 'noHayEmployees']);
+
 Route::get('/contenedores', [ContenedorOpcionesController::class, 'index']);
 
 Route::get('/productos', [ProductoController::class, 'index']);
@@ -144,3 +146,4 @@ Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 route::post('/employee/login', [EmployeeController::class, 'login']);
 Route::post('/employee/register', [EmployeeController::class, 'register']);
+Route::post('/register/primero', [EmployeeController::class, 'registerPrimerEmployee']);

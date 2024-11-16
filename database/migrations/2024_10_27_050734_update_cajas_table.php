@@ -33,8 +33,8 @@ return new class extends Migration
             $table->double('dinero')->nullable();
 
             // Renombrar la columna "nombre_caja" a "identificador" y cambiar su tipo a integer
-            $table->renameColumn('nombre_caja', 'identificador');
             $table->integer('identificador')->change();
+            $table->renameColumn('nombre_caja', 'identificador');
 
             // Agregar de vuelta la columna "registro_id"
             $table->foreignId('registro_id')->nullable()->constrained();

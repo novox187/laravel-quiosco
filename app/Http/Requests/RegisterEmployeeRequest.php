@@ -33,8 +33,6 @@ class RegisterEmployeeRequest extends FormRequest
             'hire_date' => 'required|date',
             'username' => 'required|string|max:255|unique:employees',
             'password' => 'required|string|min:6|confirmed',
-            'rol_id' => 'nullable',
-            'rol_id.*' => 'exists:roles,id',
         ];
     }
 }

@@ -123,6 +123,74 @@ class EmployeeController extends Controller
         ], 201);
     }
 
+    public function noHayEmployees()
+    {
+        // Verificar si no hay empleados registrados
+        $sinEmpleados = Employee::count() === 0;
+
+        // Retornar true si no hay empleados, false en caso contrario
+        return response()->json([
+            'sin_empleados' => $sinEmpleados
+        ]);
+    }
+
+
+    public function registerPrimerEmployee(RegisterEmployeeRequest $request)
+    {
+        // Verificar si no hay empleados registrados
+        if (Employee::count() === 0) {
+            $data = $request->validated();
+
+            // Crear el rol de administrador si no existe
+            $adminRole = Role::firstOrCreate(
+                ['rol' => 'admin'], // Condición para buscar
+                ['eliminar' => 1, 'editar' => 1, 'ver' => 1, 'preparar_pedidos' => 1, 'entregar_pedidos' => 1] // Valores predeterminados
+            );
+
+            // Crear el empleado
+            $employee = Employee::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'salary' => $data['salary'],
+                'position' => $data['position'],
+                'department' => $data['department'],
+                'address' => $data['address'] ?? null,
+                'hire_date' => $data['hire_date'],
+                'active' => true,
+                'username' => $data['username'],
+                'password' => bcrypt($data['password']),
+            ]);
+
+            // Asignar el rol de administrador al primer empleado
+            $employee->roles()->attach($adminRole->id, ['created_at' => now(), 'updated_at' => now()]);
+
+            // Obtener el primer rol asignado al empleado
+            $rol = $employee->roles()->select('roles.id as role_id', 'roles.rol')->first();
+
+            // Añadir el rol al empleado para la respuesta
+            $employee->setAttribute('rol', $rol);
+
+            return response()->json([
+                'message' => 'Primer empleado registrado exitosamente como administrador',
+                'employee' => [
+                    'id' => $employee->id,
+                    'name' => $employee->first_name,
+                    'role' => $rol->rol ?? "sin asignar",
+                    'email' => $employee->email,
+                    'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
+                    'status' => $employee->active,
+                ],
+            ], 201);
+        }
+
+        return response()->json([
+            'message' => 'No es posible registrar otro primer empleado, ya existen empleados en el sistema.',
+        ], 403);
+    }
+
+
     public  function trabajadorEnSession(Request $request)
     {
         $usuario = $request->user();
