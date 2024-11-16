@@ -53,16 +53,26 @@ class ProductoController extends Controller
         $registro = null;
 
         // Usar transacciones para asegurar la integridad de los datos
-        DB::transaction(function () use ($request, $producto, $datos, $userId, &$registro) {
+        DB::transaction(function () use ($request, &$producto, $datos, $userId, &$registro) {
             if ($producto) {
                 $registro = $this->updateExistingProduct($producto, $request, $datos, $userId);
             } else {
-                $registro = $this->createNewProduct($request, $datos, $userId);
+                $producto = $this->createNewProduct($request, $datos, $userId);
+                $registro = $this->logAction('crear', $userId, $producto);
             }
         });
 
+        $productoNuevo = Producto::where('id', $producto->id)
+            ->with('promocion', 'contenedorOpciones.opciones')
+            ->whereHas('categoria', function ($query) {
+                $query->where('eliminado', 0);
+            })
+            ->where('eliminado', 0)
+            ->first();
+
         return response()->json([
             'success' => 'Producto agregado correctamente.',
+            'producto' => new ProductoResource($productoNuevo), // Producto actualizado o recién creado '
             'registro' => $registro
         ]);
     }
@@ -78,11 +88,10 @@ class ProductoController extends Controller
 
         $this->fillProductData($producto, $datos, $request);
         $producto->save();
-        $registro = $this->logAction('crear', $userId, $producto);
 
         $this->handleOpcionesProducto($request->opciones_producto, $producto, $userId);
 
-        return $registro;
+        return $this->logAction('actualizar', $userId, $producto);
     }
 
     private function createNewProduct($request, $datos, $userId)
@@ -90,12 +99,12 @@ class ProductoController extends Controller
         $productoNuevo = new Producto;
         $this->fillProductData($productoNuevo, $datos, $request);
         $productoNuevo->save();
-        $registro = $this->logAction('crear', $userId, $productoNuevo);
 
         $this->handleOpcionesProducto($request->opciones_producto, $productoNuevo, $userId);
 
-        return $registro;
+        return $productoNuevo; // Retorna el producto recién creado
     }
+
 
     private function fillProductData($producto, $datos, $request)
     {
