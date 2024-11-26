@@ -20,12 +20,21 @@ class CajaController extends Controller
         $cajas = Caja::where('estado', 1)
             ->get('id');
 
-        return $cajas ? $cajas : "no hay cajas activas";
+        return $cajas ? $cajas : "no hay cajas";
     }
 
     public function datoscajas()
     {
         $cajas = Caja::with(['aperturas', 'cierres', 'transacciones'])->get();
+
+        if ($cajas->isEmpty()) {
+            $newCaja = new Caja;
+            $newCaja->nombre_caja = "virtual";
+            $newCaja->estado = 0;
+            $newCaja->save();
+    
+            $cajas = Caja::with(['aperturas', 'cierres', 'transacciones'])->get();
+        }
 
         $resultado = $cajas->map(function ($caja) {
             $totalVentas = $caja->cierres->sum('total_ventas');
