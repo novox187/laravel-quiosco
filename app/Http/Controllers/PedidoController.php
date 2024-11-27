@@ -141,112 +141,112 @@ class PedidoController extends Controller
      * Store a newly created resource in storage.
      */
 
-     public function store(Request $request)
-     {
-         // Verificar si la caja virtual está activa y sin cierre reciente
-         $cajaVirtual = Caja::where('nombre_caja', 'Virtual')->latest()->first();
-         if (!$cajaVirtual || $cajaVirtual->estado == 0) {
-             return response()->json(['errors' => ['caja' => ['Lo sentimos, Yya cerramos vuelve en horario de atencion,  de lunes a viernes de 8am a 10pm.']]], 422);
-         }
-     
-         // Verificar que no exista un cierre reciente para la caja virtual
-         $ultimoCierre = Cierres_caja::where('id_caja', $cajaVirtual->id)->latest()->first();
-         if ($ultimoCierre && $ultimoCierre->created_at->isToday()) {
-             return response()->json(['errors' => ['caja' => ['La caja virtual ha sido cerrada recientemente y no está disponible.']]], 422);
-         }
-     
-         // Código existente para verificar contenedores y opciones
-         foreach ($request->productos as $producto) {
-             foreach ($producto['detalle_Producto'] as $detalle) {
-                 $contenedor = ContenedorOpcione::find($detalle['idContenedor']);
-                 if (!$contenedor || !$contenedor->estado) {
-                     return response()->json(['errors' => ['contenedor' => ['El contenedor de opciones ' . $detalle['nombreContenedor'] . ' no está activo']]], 422);
-                 }
-                 $opcion = $contenedor->opciones->firstWhere('id', $detalle['idOpcion']);
-                 if (!$opcion || !$opcion->estado) {
-                     return response()->json(['errors' => ['opcion' => ['La opción ' . $detalle['opcion'] . ' no está activa']]], 422);
-                 }
-             }
-         }
-     
-         // Iniciar transacción y continuar con el código original
-         DB::beginTransaction();
-         try {
-             // Lógica para crear el pedido y guardar detalles
-             $nuevoCodigo = $this->generarCodigo();
-             $pedido = new Pedido;
-             $pedido->user_id = Auth::user()->id;
-             $pedido->total = $request->total;
-             $pedido->total_neto = $request->totalNeto;
-             $pedido->numero_pedido = $nuevoCodigo;
-             $pedido->lugar = $request->lugar;
-             $pedido->comentario = $request->ubicacionEntrega == null ? '' : $request->ubicacionEntrega['datos']['comentario'];
-             $pedido->direccion = $request->ubicacionEntrega == null ?
-                 json_encode([
-                     "telefono" => '',
-                     "coordenadas" => ''
-                 ])
-                 :
-                 json_encode([
-                     "telefono" => $request->ubicacionEntrega['datos']['telefono'],
-                     "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
-                 ]);
-     
-             if ($request->lugar == 'envio') {
-                 $pedido->estado = 1;
-             }
-             $pedido->save();
-     
-             // Registrar la transacción en la caja virtual con su apertura actual
-             $aperturaActual = Aperturas_caja::where('id_caja', $cajaVirtual->id)->latest()->first();
-             if ($aperturaActual) {
-                 $registro_transaccion = new Transacciones;
-                 $registro_transaccion->id_caja = $cajaVirtual->id;
-                 $registro_transaccion->id_apertura = $aperturaActual->id;
-                 $registro_transaccion->id_pedido = $pedido->id;
-                 $registro_transaccion->save();
-             }
-     
-             $id_pedido = $pedido->id;
-             $productos = $request->productos;
-     
-             foreach ($productos as $producto) {
-                 $pedidoProducto = new PedidoProducto;
-                 $pedidoProducto->pedido_id = $id_pedido;
-                 $pedidoProducto->producto_id = $producto['id'];
-                 $pedidoProducto->total_opciones = $producto['total_opciones'];
-                 $pedidoProducto->save();
-     
-                 foreach ($producto['detalle_Producto'] as $detalle) {
-                     $NuevoDetalle = new DetallesProductoPedido;
-                     $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
-                     $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
-                     $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
-                     $NuevoDetalle->opcion = $detalle['opcion'];
-                     $NuevoDetalle->precio_opcion = $detalle['precio'];
-                     $NuevoDetalle->cantidad = $detalle['cantidad'];
-                     $NuevoDetalle->save();
-                 }
-             }
-     
-             DB::commit();
-     
-             $pedidos = Pedido::with('user')
-                 ->with('productos.promocion')
-                 ->with('pedidoProductos.detallesProductoPedido')
-                 ->where('id', $pedido->id)
-                 ->first();
-     
-             return [
-                 'data' => new PedidoResource($pedidos),
-                 'message' => 'Pedido realizado Correctamente, estará listo en unos minutos',
-             ];
-         } catch (\Exception $e) {
-             DB::rollBack();
-             return response()->json(['errors' => ['pedido' => ['Ha ocurrido un error al realizar el pedido. Inténtelo nuevamente.']]], 500);
-         }
-     }
-     
+    public function store(Request $request)
+    {
+        // Verificar si la caja virtual está activa y sin cierre reciente
+        $cajaVirtual = Caja::where('nombre_caja', 'Virtual')->latest()->first();
+        if (!$cajaVirtual || $cajaVirtual->estado == 0) {
+            return response()->json(['errors' => ['caja' => ['Lo sentimos, Yya cerramos vuelve en horario de atencion,  de lunes a viernes de 8am a 10pm.']]], 422);
+        }
+
+        // Verificar que no exista un cierre reciente para la caja virtual
+        $ultimoCierre = Cierres_caja::where('id_caja', $cajaVirtual->id)->latest()->first();
+        if ($ultimoCierre && $ultimoCierre->created_at->isToday()) {
+            return response()->json(['errors' => ['caja' => ['La caja virtual ha sido cerrada recientemente y no está disponible.']]], 422);
+        }
+
+        // Código existente para verificar contenedores y opciones
+        foreach ($request->productos as $producto) {
+            foreach ($producto['detalle_Producto'] as $detalle) {
+                $contenedor = ContenedorOpcione::find($detalle['idContenedor']);
+                if (!$contenedor || !$contenedor->estado) {
+                    return response()->json(['errors' => ['contenedor' => ['El contenedor de opciones ' . $detalle['nombreContenedor'] . ' no está activo']]], 422);
+                }
+                $opcion = $contenedor->opciones->firstWhere('id', $detalle['idOpcion']);
+                if (!$opcion || !$opcion->estado) {
+                    return response()->json(['errors' => ['opcion' => ['La opción ' . $detalle['opcion'] . ' no está activa']]], 422);
+                }
+            }
+        }
+
+        // Iniciar transacción y continuar con el código original
+        DB::beginTransaction();
+        try {
+            // Lógica para crear el pedido y guardar detalles
+            $nuevoCodigo = $this->generarCodigo();
+            $pedido = new Pedido;
+            $pedido->user_id = Auth::user()->id;
+            $pedido->total = $request->total;
+            $pedido->total_neto = $request->totalNeto;
+            $pedido->numero_pedido = $nuevoCodigo;
+            $pedido->lugar = $request->lugar;
+            $pedido->comentario = $request->ubicacionEntrega == null ? '' : $request->ubicacionEntrega['datos']['comentario'];
+            $pedido->direccion = $request->ubicacionEntrega == null ?
+                json_encode([
+                    "telefono" => '',
+                    "coordenadas" => ''
+                ])
+                :
+                json_encode([
+                    "telefono" => $request->ubicacionEntrega['datos']['telefono'],
+                    "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
+                ]);
+
+            if ($request->lugar == 'envio') {
+                $pedido->estado = 1;
+            }
+            $pedido->save();
+
+            // Registrar la transacción en la caja virtual con su apertura actual
+            $aperturaActual = Aperturas_caja::where('id_caja', $cajaVirtual->id)->latest()->first();
+            if ($aperturaActual) {
+                $registro_transaccion = new Transacciones;
+                $registro_transaccion->id_caja = $cajaVirtual->id;
+                $registro_transaccion->id_apertura = $aperturaActual->id;
+                $registro_transaccion->id_pedido = $pedido->id;
+                $registro_transaccion->save();
+            }
+
+            $id_pedido = $pedido->id;
+            $productos = $request->productos;
+
+            foreach ($productos as $producto) {
+                $pedidoProducto = new PedidoProducto;
+                $pedidoProducto->pedido_id = $id_pedido;
+                $pedidoProducto->producto_id = $producto['id'];
+                $pedidoProducto->total_opciones = $producto['total_opciones'];
+                $pedidoProducto->save();
+
+                foreach ($producto['detalle_Producto'] as $detalle) {
+                    $NuevoDetalle = new DetallesProductoPedido;
+                    $NuevoDetalle->pedido_producto_id = $pedidoProducto->id;
+                    $NuevoDetalle->nombre_contenedor = $detalle['nombreContenedor'];
+                    $NuevoDetalle->tipo_contenedor = $detalle['tipoContenedor'];
+                    $NuevoDetalle->opcion = $detalle['opcion'];
+                    $NuevoDetalle->precio_opcion = $detalle['precio'];
+                    $NuevoDetalle->cantidad = $detalle['cantidad'];
+                    $NuevoDetalle->save();
+                }
+            }
+
+            DB::commit();
+
+            $pedidos = Pedido::with('user')
+                ->with('productos.promocion')
+                ->with('pedidoProductos.detallesProductoPedido')
+                ->where('id', $pedido->id)
+                ->first();
+
+            return [
+                'data' => new PedidoResource($pedidos),
+                'message' => 'Pedido realizado Correctamente, estará listo en unos minutos',
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['errors' => ['pedido' => ['Ha ocurrido un error al realizar el pedido. Inténtelo nuevamente.']]], 500);
+        }
+    }
+
 
     private function generarCodigo()
     {
@@ -324,8 +324,18 @@ class PedidoController extends Controller
         $pedido->estado = 3;
         $pedido->save();
 
+        $informacionPedido = Pedido::where('id', $pedido->id)->with('employee')
+            ->with('user')
+            ->first();
+
         return [
-            'mensaje' => 'Pedido finalizado correctamente'
+            'email' => $informacionPedido->user->email,
+            'payload' => [
+                'mensaje' => 'Pedido finalizado correctamente',
+                'numeroPedido ' => $informacionPedido->numero_pedido,
+                'id_pedido ' => $informacionPedido->id,
+                'nombreTrabajador ' => $informacionPedido->employee->first_name,
+            ]
         ];
     }
     /**
