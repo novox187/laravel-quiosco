@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PedidosDetalleCollection;
 use App\Http\Resources\PedidosEnvioCollection;
 use App\Models\Aperturas_caja;
 use App\Models\Cierres_caja;
@@ -93,9 +94,10 @@ class PedidoController extends Controller
         $pedidos = Pedido::where('eliminado', 0)
             ->where('estado', '<=', 2)
             ->where('user_id', $userId)
-            ->get(['id', 'numero_pedido']);
-
-        return response()->json($pedidos);
+            ->with('employee')
+            ->with('pedidoProductos')
+            ->get();
+        return response()->json(new PedidosDetalleCollection($pedidos));
     }
 
     public function pedidosCheques(Request $request)
@@ -564,12 +566,4 @@ class PedidoController extends Controller
         }
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Pedido $pedido)
-    {
-        //
-    }
 }
