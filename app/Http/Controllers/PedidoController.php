@@ -182,6 +182,7 @@ class PedidoController extends Controller
             $pedido->total_neto = $request->totalNeto;
             $pedido->numero_pedido = $nuevoCodigo;
             $pedido->lugar = $request->lugar;
+            $pedido->pago = $request->metodoPago;
             $pedido->comentario = $request->ubicacionEntrega == null ? '' : $request->ubicacionEntrega['datos']['comentario'];
             $pedido->direccion = $request->ubicacionEntrega == null ?
                 json_encode([
@@ -194,7 +195,7 @@ class PedidoController extends Controller
                     "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
                 ]);
 
-            if ($request->lugar == 'envio') {
+            if ($request->lugar == 'envio' && $request->metodoPago == 'efectivo') {
                 $pedido->estado = 1;
             }
             $pedido->save();
