@@ -22,6 +22,7 @@ use App\Http\Resources\PedidoResource;
 use App\Models\DetallesProductoPedido;
 use App\Http\Resources\PedidoCollection;
 use App\Http\Resources\PedidoEnCursoResource;
+use App\Http\Resources\PedidosDetalleResource;
 use App\Http\Resources\PedidosEnvioResource;
 use App\Http\Resources\RegistroResource;
 use App\Http\Resources\ResivosPedidoResource;
@@ -235,14 +236,13 @@ class PedidoController extends Controller
 
             DB::commit();
 
-            $pedidos = Pedido::with('user')
-                ->with('productos.promocion')
-                ->with('pedidoProductos.detallesProductoPedido')
+            $pedidos = Pedido::with('employee')
+                ->with('pedidoProductos')
                 ->where('id', $pedido->id)
                 ->first();
 
             return [
-                'data' => new PedidoResource($pedidos),
+                'data' => new PedidosDetalleResource($pedidos),
                 'message' => 'Pedido realizado Correctamente, estará listo en unos minutos',
             ];
         } catch (\Exception $e) {
@@ -567,5 +567,4 @@ class PedidoController extends Controller
             return response()->json(['errors' => $errors], 422);
         }
     }
-
 }
