@@ -183,6 +183,7 @@ class PedidoController extends Controller
             $pedido->numero_pedido = $nuevoCodigo;
             $pedido->lugar = $request->lugar;
             $pedido->pago = $request->metodoPago;
+            $pedido->contacto = $request->contacto;
             $pedido->comentario = $request->ubicacionEntrega == null ? '' : $request->ubicacionEntrega['datos']['comentario'];
             $pedido->direccion = $request->ubicacionEntrega == null ?
                 json_encode([

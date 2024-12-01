@@ -26,6 +26,7 @@ class PedidosDetalleResource extends JsonResource
             'comentario' => $this->comentario,
             'direccion' => json_decode($this->direccion),
             'pago' => $this->pago,
+            'contacto' => $this->contacto,
             'employee' =>  $this->whenLoaded('employee', function () {
                 return [
                     'id' => $this->employee->id,
