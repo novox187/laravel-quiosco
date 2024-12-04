@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    //Almacenar Ordenes
+    //Pedidos
     Route::get('/pedidos/pendientes', [PedidoController::class, 'pedidosPendientes']);
     Route::get('/pedidos', [PedidoController::class, 'index']);
     Route::get('/pedidos/admin', [PedidoController::class, 'indexadmin']);
@@ -41,6 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pedidos/pedidosCheques/busqueda', [PedidoController::class, 'busquedaPedidos']);
     Route::post('/pedidos/nuevo', [PedidoController::class, 'store']);
     Route::put('/pedidos/actualizar/{id}', [PedidoController::class, 'update']);
+    Route::post('/direcciones/crear', [PedidoController::class, 'CrearDetalleEntrega']);
+    Route::get('/direcciones/guardadas', [PedidoController::class, 'direccionesindex']);
+    Route::put('/direcciones/editar/{id}', [PedidoController::class, 'EditarDetalleEntrega']);
+    Route::delete('/direcciones/eliminar/{id}', [PedidoController::class, 'eliminarDireccion']);
+
 
     Route::apiResource('/usuarios', UserController::class);
 

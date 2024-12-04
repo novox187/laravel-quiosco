@@ -27,6 +27,7 @@ use App\Http\Resources\PedidosEnvioResource;
 use App\Http\Resources\RegistroResource;
 use App\Http\Resources\ResivosPedidoResource;
 use App\Models\ContenedorOpcione;
+use App\Models\DetallesEntrega;
 
 class PedidoController extends Controller
 {
@@ -567,4 +568,129 @@ class PedidoController extends Controller
             return response()->json(['errors' => $errors], 422);
         }
     }
+
+    public function CrearDetalleEntrega(Request $request)
+    {
+        // Verificar cuántos DetalleEntrega tiene el usuario
+        $userId = $request->user()->id; // Obtener el ID del usuario autenticado
+
+        // Crear un nuevo DetalleEntrega
+        $detalleEntrega = new DetallesEntrega();
+        $detalleEntrega->user_id = $userId; // Asociar el detalle con el usuario autenticado
+        $detalleEntrega->distancia_km = $request->ubicacionEntrega['datos']['distanciaKm'];
+        $detalleEntrega->distancia_fuera_radio = $request->ubicacionEntrega['datos']['distanciaFueraDelRadio'];
+        $detalleEntrega->precio_total = $request->ubicacionEntrega['datos']['precioTotal'];
+        $detalleEntrega->telefono = $request->ubicacionEntrega['datos']['telefono'];
+        $detalleEntrega->comentario = $request->ubicacionEntrega['datos']['comentario'];
+        $detalleEntrega->direccion_mapa = $request->ubicacionEntrega['direccion']['display_name'];
+        $detalleEntrega->latitud = $request->ubicacionEntrega['direccion']['coordenadas']['lat'];
+        $detalleEntrega->longitud = $request->ubicacionEntrega['direccion']['coordenadas']['lon'];
+        $detalleEntrega->save();
+
+        // Formatear la respuesta
+        $response = [
+            'datos' => [
+                'id' => $detalleEntrega->id,
+                'telefono' => $detalleEntrega->telefono,
+                'comentario' => $detalleEntrega->comentario,
+                'distanciaKm' => "{$detalleEntrega->distancia_km} km",
+                'distanciaFueraDelRadio' => "{$detalleEntrega->distancia_fuera_radio} m",
+                'precioTotal' => "{$detalleEntrega->precio_total}",
+            ],
+            'direccion' => [
+                'coordenadas' => [
+                    'lat' => $detalleEntrega->latitud,
+                    'lon' => $detalleEntrega->longitud,
+                ],
+                'display_name' => $detalleEntrega->direccion_mapa,
+            ],
+        ];
+
+        return response()->json($response, 201);
+    }
+
+    public function direccionesindex(Request $request)
+    {
+        $userId = $request->user()->id; // Obtener el ID del usuario autenticado
+
+        // Obtener todos los registros de DetallesEntrega del usuario
+        $pedidosUsuario = DetallesEntrega::where('user_id', $userId)
+        ->where('eliminado', 0)
+        ->get();
+
+        // Formatear cada detalle al formato requerido
+        $detallesFormateados = $pedidosUsuario->map(function ($detalle) {
+            return [
+                'datos' => [
+                    'id' => $detalle->id,
+                    'telefono' => $detalle->telefono,
+                    'comentario' => $detalle->comentario,
+                    'distanciaKm' => "{$detalle->distancia_km} km",
+                    'distanciaFueraDelRadio' => "{$detalle->distancia_fuera_radio} m",
+                    'precioTotal' => "{$detalle->precio_total}",
+                ],
+                'direccion' => [
+                    'coordenadas' => [
+                        'lat' => $detalle->latitud,
+                        'lon' => $detalle->longitud,
+                    ],
+                    'display_name' => $detalle->direccion_mapa,
+                ],
+            ];
+        });
+
+        return response()->json($detallesFormateados, 200);
+    }
+
+
+    public function EditarDetalleEntrega(Request $request, $id)
+    {
+        // Obtener el ID del usuario autenticado
+        $userId = $request->user()->id;
+
+        // Buscar el DetalleEntrega que se desea editar
+        $detalleEntrega = DetallesEntrega::where('id', $id)->where('user_id', $userId)->first();
+
+        // Validar si el recurso existe y pertenece al usuario
+        if (!$detalleEntrega) {
+            return response()->json(['error' => 'DetalleEntrega no encontrado o no autorizado.'], 404);
+        }
+
+        // Actualizar los campos con los nuevos valores
+        $detalleEntrega->telefono = $request->ubicacionEntrega['datos']['telefono'] ?? $detalleEntrega->telefono;
+        $detalleEntrega->comentario = $request->ubicacionEntrega['datos']['comentario'] ?? $detalleEntrega->comentario;
+
+        // Guardar los cambios
+        $detalleEntrega->save();
+
+        // Formatear la respuesta
+        $response = [
+            'datos' => [
+                'id' => $detalleEntrega->id,
+                'telefono' => $detalleEntrega->telefono,
+                'comentario' => $detalleEntrega->comentario,
+            ]
+        ];
+
+        return response()->json($response, 200);
+    }
+
+
+
+    public function eliminarDireccion($id)
+    {
+        // Buscar la dirección por su ID
+        $direccion = DetallesEntrega::find($id);
+    
+        if (!$direccion) {
+            return response()->json(['message' => 'Dirección no encontrada'], 404);
+        }
+    
+        // Marcar la dirección como eliminada
+        $direccion->eliminado = true;
+        $direccion->save();
+    
+        return response()->json(['message' => 'Dirección Eliminada correctamente'], 200);
+    }
+    
 }

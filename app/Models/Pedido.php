@@ -25,4 +25,8 @@ class Pedido extends Model
     {
         return $this->belongsTo(Employee::class);
     }
+    public function detalleEntrega()
+    {
+        return $this->belongsTo(DetallesEntrega::class, 'detalle_entrega_id');
+    }
 }
