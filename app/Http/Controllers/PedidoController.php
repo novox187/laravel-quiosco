@@ -573,17 +573,17 @@ class PedidoController extends Controller
     public function CrearDetalleEntrega(Request $request)
     {
         try {
-            // Validación de los datos de entrada
             $validated = $request->validate([
-                'ubicacionEntrega.datos.distanciaKm' => 'required|numeric',
-                'ubicacionEntrega.datos.distanciaFueraDelRadio' => 'required|numeric',
-                'ubicacionEntrega.datos.precioTotal' => 'required|numeric',
-                'ubicacionEntrega.datos.telefono' => 'required|digits_between:9,10',
-                'ubicacionEntrega.datos.comentario' => 'nullable|string',
-                'ubicacionEntrega.direccion.display_name' => 'required|string',
-                'ubicacionEntrega.direccion.coordenadas.lat' => 'required|numeric',
-                'ubicacionEntrega.direccion.coordenadas.lon' => 'required|numeric',
+                'ubicacionEntrega.datos.distanciaKm' => 'required|numeric', // Asegura que es un número
+                'ubicacionEntrega.datos.distanciaFueraDelRadio' => 'required|numeric', // Asegura que es un número
+                'ubicacionEntrega.datos.precioTotal' => 'required|numeric', // Asegura que es un número
+                'ubicacionEntrega.datos.telefono' => 'required|digits_between:9,10', // Asegura que es un número de entre 9 y 10 dígitos
+                'ubicacionEntrega.datos.comentario' => 'nullable|string', // Comentario es opcional
+                'ubicacionEntrega.direccion.display_name' => 'required|string', // Asegura que el nombre de la dirección sea una cadena
+                'ubicacionEntrega.direccion.coordenadas.lat' => 'required|numeric', // Asegura que la latitud sea un número
+                'ubicacionEntrega.direccion.coordenadas.lon' => 'required|numeric', // Asegura que la longitud sea un número
             ]);
+            
     
             // Verificar cuántos DetalleEntrega tiene el usuario
             $userId = $request->user()->id; // Obtener el ID del usuario autenticado
