@@ -201,6 +201,7 @@ class PedidoController extends Controller
             if ($request->lugar == 'envio' && $request->metodoPago == 'efectivo') {
                 $pedido->estado = 1;
             }
+            $pedido->detalle_entrega_id = $request->ubicacionEntrega['datos']['id'];
             $pedido->save();
 
             // Registrar la transacción en la caja virtual con su apertura actual
