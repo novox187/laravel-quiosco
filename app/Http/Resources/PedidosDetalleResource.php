@@ -35,6 +35,14 @@ class PedidosDetalleResource extends JsonResource
                     'telefono' => $this->employee->phone,
                 ];
             }),
+            'user' =>  $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                    'calificacion' => $this->user->calificacion
+                ];
+            }),
             'productos' =>  $this->whenLoaded('pedidoProductos', function () {
                 return $this->pedidoProductos->map(function ($pedidoProducto) {
                     $producto = $pedidoProducto->producto;

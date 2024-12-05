@@ -198,10 +198,12 @@ class PedidoController extends Controller
                     "coordenadas" => $request->ubicacionEntrega['direccion']['coordenadas']
                 ]);
 
-            if ($request->lugar == 'envio' && $request->metodoPago == 'efectivo') {
+            /*             if ($request->lugar == 'envio' && $request->metodoPago == 'efectivo') {
                 $pedido->estado = 1;
+            } */
+            if ($request->lugar == 'envio') {
+                $pedido->detalle_entrega_id = $request->ubicacionEntrega['datos']['id'];
             }
-            $pedido->detalle_entrega_id = $request->ubicacionEntrega['datos']['id'];
             $pedido->save();
 
             // Registrar la transacción en la caja virtual con su apertura actual
@@ -241,6 +243,7 @@ class PedidoController extends Controller
             $pedidos = Pedido::with('employee')
                 ->with('pedidoProductos')
                 ->where('id', $pedido->id)
+                ->with('user')
                 ->first();
 
             return [
@@ -571,83 +574,82 @@ class PedidoController extends Controller
     }
 
     public function CrearDetalleEntrega(Request $request)
-{
-    try {
-        // Validación de los datos de entrada
-        $validated = $request->validate([
-            'ubicacionEntrega.datos.distanciaKm' => 'required|string',
-            'ubicacionEntrega.datos.distanciaFueraDelRadio' => 'required|string',
-            'ubicacionEntrega.datos.precioTotal' => 'required|string',
-            'ubicacionEntrega.datos.telefono' => 'required|digits_between:9,10',
-            'ubicacionEntrega.datos.comentario' => 'nullable|string',
-            'ubicacionEntrega.direccion.display_name' => 'required|string',
-            'ubicacionEntrega.direccion.coordenadas.lat' => 'required|string',
-            'ubicacionEntrega.direccion.coordenadas.lon' => 'required|string',
-        ]);
+    {
+        try {
+            // Validación de los datos de entrada
+            $validated = $request->validate([
+                'ubicacionEntrega.datos.distanciaKm' => 'required|string',
+                'ubicacionEntrega.datos.distanciaFueraDelRadio' => 'required|string',
+                'ubicacionEntrega.datos.precioTotal' => 'required|string',
+                'ubicacionEntrega.datos.telefono' => 'required|digits_between:9,10',
+                'ubicacionEntrega.datos.comentario' => 'nullable|string',
+                'ubicacionEntrega.direccion.display_name' => 'required|string',
+                'ubicacionEntrega.direccion.coordenadas.lat' => 'required|string',
+                'ubicacionEntrega.direccion.coordenadas.lon' => 'required|string',
+            ]);
 
-        // Verificar cuántos DetalleEntrega tiene el usuario
-        $userId = $request->user()->id; // Obtener el ID del usuario autenticado
+            // Verificar cuántos DetalleEntrega tiene el usuario
+            $userId = $request->user()->id; // Obtener el ID del usuario autenticado
 
-        // Limpiar las unidades de los campos distanciaKm y distanciaFueraDelRadio
-        $distanciaKm = floatval(str_replace(" km", "", $validated['ubicacionEntrega']['datos']['distanciaKm'])); // Eliminar " km" y convertir a float
-        $distanciaFueraDelRadio = floatval(str_replace(" km", "", $validated['ubicacionEntrega']['datos']['distanciaFueraDelRadio'])); // Eliminar " km" y convertir a float
-        $precioTotal = floatval($validated['ubicacionEntrega']['datos']['precioTotal']); // Convertir a float
-        $latitud = floatval($validated['ubicacionEntrega']['direccion']['coordenadas']['lat']); // Convertir a float
-        $longitud = floatval($validated['ubicacionEntrega']['direccion']['coordenadas']['lon']); // Convertir a float
+            // Limpiar las unidades de los campos distanciaKm y distanciaFueraDelRadio
+            $distanciaKm = floatval(str_replace(" km", "", $validated['ubicacionEntrega']['datos']['distanciaKm'])); // Eliminar " km" y convertir a float
+            $distanciaFueraDelRadio = floatval(str_replace(" km", "", $validated['ubicacionEntrega']['datos']['distanciaFueraDelRadio'])); // Eliminar " km" y convertir a float
+            $precioTotal = floatval($validated['ubicacionEntrega']['datos']['precioTotal']); // Convertir a float
+            $latitud = floatval($validated['ubicacionEntrega']['direccion']['coordenadas']['lat']); // Convertir a float
+            $longitud = floatval($validated['ubicacionEntrega']['direccion']['coordenadas']['lon']); // Convertir a float
 
-        // Crear un nuevo DetalleEntrega
-        $detalleEntrega = new DetallesEntrega();
-        $detalleEntrega->user_id = $userId; // Asociar el detalle con el usuario autenticado
-        $detalleEntrega->distancia_km = $distanciaKm;
-        $detalleEntrega->distancia_fuera_radio = $distanciaFueraDelRadio;
-        $detalleEntrega->precio_total = $precioTotal;
-        $detalleEntrega->telefono = $validated['ubicacionEntrega']['datos']['telefono'];
-        $detalleEntrega->comentario = $validated['ubicacionEntrega']['datos']['comentario'] ?? ''; // Comentario es opcional
-        $detalleEntrega->direccion_mapa = $validated['ubicacionEntrega']['direccion']['display_name'];
-        $detalleEntrega->latitud = $latitud;
-        $detalleEntrega->longitud = $longitud;
+            // Crear un nuevo DetalleEntrega
+            $detalleEntrega = new DetallesEntrega();
+            $detalleEntrega->user_id = $userId; // Asociar el detalle con el usuario autenticado
+            $detalleEntrega->distancia_km = $distanciaKm;
+            $detalleEntrega->distancia_fuera_radio = $distanciaFueraDelRadio;
+            $detalleEntrega->precio_total = $precioTotal;
+            $detalleEntrega->telefono = $validated['ubicacionEntrega']['datos']['telefono'];
+            $detalleEntrega->comentario = $validated['ubicacionEntrega']['datos']['comentario'] ?? ''; // Comentario es opcional
+            $detalleEntrega->direccion_mapa = $validated['ubicacionEntrega']['direccion']['display_name'];
+            $detalleEntrega->latitud = $latitud;
+            $detalleEntrega->longitud = $longitud;
 
-        // Guardar el detalle de la entrega
-        $detalleEntrega->save();
+            // Guardar el detalle de la entrega
+            $detalleEntrega->save();
 
-        // Formatear la respuesta
-        $response = [
-            'datos' => [
-                'id' => $detalleEntrega->id,
-                'telefono' => $detalleEntrega->telefono,
-                'comentario' => $detalleEntrega->comentario,
-                'distanciaKm' => "{$detalleEntrega->distancia_km} km",
-                'distanciaFueraDelRadio' => "{$detalleEntrega->distancia_fuera_radio} m",
-                'precioTotal' => "{$detalleEntrega->precio_total}",
-            ],
-            'direccion' => [
-                'coordenadas' => [
-                    'lat' => $detalleEntrega->latitud,
-                    'lon' => $detalleEntrega->longitud,
+            // Formatear la respuesta
+            $response = [
+                'datos' => [
+                    'id' => $detalleEntrega->id,
+                    'telefono' => $detalleEntrega->telefono,
+                    'comentario' => $detalleEntrega->comentario,
+                    'distanciaKm' => "{$detalleEntrega->distancia_km} km",
+                    'distanciaFueraDelRadio' => "{$detalleEntrega->distancia_fuera_radio} m",
+                    'precioTotal' => "{$detalleEntrega->precio_total}",
                 ],
-                'display_name' => $detalleEntrega->direccion_mapa,
-            ],
-        ];
+                'direccion' => [
+                    'coordenadas' => [
+                        'lat' => $detalleEntrega->latitud,
+                        'lon' => $detalleEntrega->longitud,
+                    ],
+                    'display_name' => $detalleEntrega->direccion_mapa,
+                ],
+            ];
 
-        // Responder con éxito
-        return response()->json($response, 201);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // Manejo de errores de validación
-        return response()->json([
-            'error' => 'Datos de entrada inválidos.',
-            'message' => $e->errors(),
-        ], 400);
-    } catch (\Exception $e) {
-        // Captura de errores generales
-        return response()->json([
-            'error' => 'Hubo un error al procesar la solicitud.',
-            'message' => $e->getMessage(),
-        ], 500);
+            // Responder con éxito
+            return response()->json($response, 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo de errores de validación
+            return response()->json([
+                'error' => 'Datos de entrada inválidos.',
+                'message' => $e->errors(),
+            ], 400);
+        } catch (\Exception $e) {
+            // Captura de errores generales
+            return response()->json([
+                'error' => 'Hubo un error al procesar la solicitud.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
-}
 
-    
+
 
     public function direccionesindex(Request $request)
     {
@@ -655,8 +657,8 @@ class PedidoController extends Controller
 
         // Obtener todos los registros de DetallesEntrega del usuario
         $pedidosUsuario = DetallesEntrega::where('user_id', $userId)
-        ->where('eliminado', 0)
-        ->get();
+            ->where('eliminado', 0)
+            ->get();
 
         // Formatear cada detalle al formato requerido
         $detallesFormateados = $pedidosUsuario->map(function ($detalle) {
@@ -721,16 +723,15 @@ class PedidoController extends Controller
     {
         // Buscar la dirección por su ID
         $direccion = DetallesEntrega::find($id);
-    
+
         if (!$direccion) {
             return response()->json(['message' => 'Dirección no encontrada'], 404);
         }
-    
+
         // Marcar la dirección como eliminada
         $direccion->eliminado = true;
         $direccion->save();
-    
+
         return response()->json(['message' => 'Dirección Eliminada correctamente'], 200);
     }
-    
 }
