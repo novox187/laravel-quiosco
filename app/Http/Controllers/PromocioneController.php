@@ -46,7 +46,7 @@ class PromocioneController extends Controller
             $registro->save();
 
             $registros = Registro::where('id', $registro->id)
-                ->with('user', 'pedido', 'categoria', 'producto', 'promocion')
+                ->with('employee', 'pedido', 'categoria', 'producto', 'promocion')
                 ->first();
 
             return [
