@@ -100,9 +100,7 @@ class EmployeeController extends Controller
         ]);
 
         // Asignar roles si es necesario
-        if (isset($data['rol_id'])) {
-            $employee->roles()->attach($data['rol_id'], ['created_at' => now(), 'updated_at' => now()]);
-        }
+            $employee->roles()->attach(1, ['created_at' => now(), 'updated_at' => now()]);
 
         // Obtener el primer rol asignado al empleado con solo id y rol
         $rol = $employee->roles()->select('roles.id as role_id', 'roles.rol')->first();
@@ -115,7 +113,7 @@ class EmployeeController extends Controller
             'employee' => [
                 'id' => $employee->id,
                 'name' => $employee->first_name,
-                'role' => $rol->rol ? $rol->rol : "sin asignar",
+                'role' => $rol ? $rol->rol : "sin asignar",
                 'email' => $employee->email,
                 'avatar' => 'https://res.cloudinary.com/dfrsffngq/image/upload/v1717141893/rc7kawc9b2uhopdj8z5i.png',
                 'status' => $employee->active
