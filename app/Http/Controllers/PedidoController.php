@@ -151,9 +151,6 @@ class PedidoController extends Controller
         $user = Employee::find($userId); // Obtener el usuario
         $rol = $user->roles->first(); // Obtener los roles del usuario
 
-        if ($rol->rol === 'mesero' || $rol->rol === 'admin') {
-            return response()->json(['errors' => ['autenticacion' => ['No tienes los permisos para realizar esta accion.']]], 422);
-        }
 
         // Verificar si la caja virtual está activa y sin cierre reciente
         $cajaVirtual = Caja::where('nombre_caja', 'Virtual')->latest()->first();
