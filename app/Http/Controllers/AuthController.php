@@ -16,6 +16,11 @@ class AuthController extends Controller
         //Validar Registro
         $data = $request->validated();
 
+        //Verificamos que accepto los terminos y condiciones 
+        if ($data['tcConfirmacion'] == false) {
+            return response()->json(['errors' => ['tcConfirmacion' => [0 => 'Acepta los terminos y condiciones para poder registrarte']]], 401);
+        }
+
         //Crear el usuario
         $user = User::create([
             'name' => $data['name'],

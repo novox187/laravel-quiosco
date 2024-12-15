@@ -26,7 +26,7 @@ class RegistroRequest extends FormRequest
             'name' => ['required', 'string'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required','confirmed', 'min:5'],
-            'tcConfirmacion' => ['required']
+            'tcConfirmacion' => ['required','boolean']
         ];
     }
 
