@@ -25,7 +25,8 @@ class RegistroRequest extends FormRequest
         return [
             'name' => ['required', 'string'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required','confirmed', 'min:5']
+            'password' => ['required','confirmed', 'min:5'],
+            'tcConfirmacion' => ['required']
         ];
     }
 
@@ -36,8 +37,8 @@ class RegistroRequest extends FormRequest
             'email.email' => 'El email no es valido',
             'email.unique' => 'El email ya esta registrado',
             'password' => 'La contraseña debe tener almenos 5 caracteres',
-            'password.confirmed' => 'Verifica la contraseña'
-
+            'password.confirmed' => 'Verifica la contraseña',
+            'tcConfirmacion' => 'Acepta los terminos y condiciones para poder registrarte'
         ];
     }
 }
