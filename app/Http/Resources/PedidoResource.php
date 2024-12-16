@@ -24,6 +24,7 @@ class PedidoResource extends JsonResource
             'lugar' => $this->lugar,
             'mesa' => $this->mesa,
             'pago' => $this->pago,
+            'enPuntoEntrega' => $this->en_punto_entrega,
             'created_at' => $this->created_at,
             'user' =>  $this->whenLoaded('user', function () {
                 return [

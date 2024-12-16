@@ -352,6 +352,20 @@ class PedidoController extends Controller
             ]
         ];
     }
+
+    public function enElpuntoEntrega(Pedido $pedido)
+    {
+        $pedido->en_punto_entrega = 1;
+        $pedido->save();
+
+        // Obtener los datos del pedido con relaciones
+        $pedidoDatos = $pedido->load(['user', 'pedidoProductos']);
+
+        return response()->json([
+            'message' => 'Pedido asignado correctamente',
+            'data' => new PedidosEnvioResource($pedidoDatos)
+        ], 200);
+    }
     /**
      * Display the specified resource.
      */

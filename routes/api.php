@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pedidos/repartidor/asignar/{pedido}', [PedidoController::class, 'asignarrepartidor']);
     Route::patch('/pedidos/repartidor/cancelar/{pedido}', [PedidoController::class, 'cancelarentrega']);
     Route::patch('/pedidos/repartidor/finalizar/{pedido}', [PedidoController::class, 'finalizarentega']);
+    Route::patch('/pedidos/repartidor/enpuntoentrega/{pedido}', [PedidoController::class, 'enElpuntoEntrega']);
 
     /* Panel */
     Route::get('/datos/datosPanel', [PedidoController::class, 'datosPanel']);

@@ -26,6 +26,7 @@ class PedidosEnvioResource extends JsonResource
             'comentario' => $this->comentario,
             'direccion' => json_decode($this->direccion),
             'pago' => $this->pago,
+            'en_punto_entrega' => $this->en_punto_entrega,
             'user' =>  $this->whenLoaded('user', function () {
                 return [
                     'id' => $this->user->id,
