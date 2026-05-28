@@ -17,6 +17,7 @@ class ProductoSeeder extends Seeder
         $datos = [
             array(
                 'nombre' =>  "bife",
+                'public_id' => "bife",
                 'precio' => 15,
                 'imagen' => "bife.webp",
                 'descripcion' => "Guarnición: papas fritas/cocidas o patacones, ensalada, salsas.275 gramos",
@@ -29,6 +30,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "picaña",
+                'public_id' => "picaña",
                 'precio' => 15,
                 'imagen' => "picaña.jpg",
                 'descripcion' => "Guarnición: papas fritas/cocidas o patacones, ensalada, salsas.275 gramos",
@@ -41,6 +43,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "lomo",
+                'public_id' => "lomo",
                 'precio' => 15,
                 'imagen' => "lomo.jpg",
                 'descripcion' => "Guarnición: papas fritas/cocidas o patacones, ensalada, salsas.275 gramos",
@@ -53,6 +56,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "ribeye",
+                'public_id' => "ribeye",
                 'precio' => 15,
                 'imagen' => "ribeye.jpg",
                 'descripcion' => "Guarnición: papas fritas/cocidas o patacones, ensalada, salsas.275 gramos",
@@ -65,6 +69,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "costilla-de-cerdo",
+                'public_id' => "costilla-de-cerdo",
                 'precio' => 15,
                 'imagen' => "costilla-de-cerdo.jpg",
                 'descripcion' => "Guarnición: papas fritas/cocidas o patacones, ensalada, salsas.275 gramos.(baby back ribs)",
@@ -77,6 +82,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "tomhawak",
+                'public_id' => "tomhawak",
                 'precio' => 15,
                 'imagen' => "tomhawak.jpg",
                 'descripcion' => "Guarnición: papas fritas/cocidas o patacones, ensalada, salsas.275 gramos",
@@ -89,6 +95,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "moro-pollo",
+                'public_id' => "moro-pollo",
                 'precio' => 6.5,
                 'imagen' => "moro-pollo.jpg",
                 'descripcion' => "moro de fréjol, salsa de queso, suprema de pollo asado.              ",
@@ -101,6 +108,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "moro-carne",
+                'public_id' => "moro-carne",
                 'precio' => 6.5,
                 'imagen' => "moro-carne.jpg",
                 'descripcion' => "moro de fréjol, salsa de queso, filete de carne asada.              ",
@@ -113,6 +121,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "moro-chuleta",
+                'public_id' => "moro-chuleta",
                 'precio' => 6.5,
                 'imagen' => "moro-chuleta.jpg",
                 'descripcion' => "moro de fréjol, salsa de queso, chuleta asada.              ",
@@ -125,6 +134,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "moro-doble",
+                'public_id' => "moro-doble",
                 'precio' => 8,
                 'imagen' => "moro-doble.jpg",
                 'descripcion' => "moro de fréjol, salsa de queso, dos carnes de su eleccion.              ",
@@ -137,6 +147,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "parrillada",
+                'public_id' => "parrillada",
                 'precio' => 37,
                 'imagen' => "parrillada.jpg",
                 'descripcion' => "Carne, pollo, chorizo parrillero, chorizo artesanal, chuleta, camarón, chinchulines | Guarnición: papas fritas/ cocidas o patacones, ensalada, salsas (PARA 4 A 5 PERSONAS).",
@@ -149,6 +160,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "parrillada-personal",
+                'public_id' => "parrillada-personal",
                 'precio' => 15,
                 'imagen' => "parrillada-personal.jpg",
                 'descripcion' => "Carne, pollo, chorizo parrillero, chorizo artesanal, chuleta, camarón | Guarnición: papas fritas/ cocidas o patacones, ensalada, salsas (1 PERSONA).",
@@ -161,6 +173,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "carne-asada",
+                'public_id' => "carne-asada",
                 'precio' => 6,
                 'imagen' => "carne-asada.jpg",
                 'descripcion' => "Filete de lomo de xx gr. | Guarnición: papas fritas/cocidas o patacones, ensalada, salsa.",
@@ -173,6 +186,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "pollo-asada",
+                'public_id' => "pollo-asada",
                 'precio' => 6,
                 'imagen' => "pollo-asada.jpg",
                 'descripcion' => "Suprema de pollo de xx gr. | Guarnición: papas fritas/cocidas o patacones, ensalada, salsa.",
@@ -185,6 +199,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "chuleta-asada",
+                'public_id' => "chuleta-asada",
                 'precio' => 6,
                 'imagen' => "chuleta-asada.jpg",
                 'descripcion' => "Chuleta de cerdo de xx gr. | Guarnición: papas fritas/cocidas o patacones, ensalada, salsa.",
@@ -197,6 +212,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "picadas-monkey",
+                'public_id' => "picadas-monkey",
                 'precio' => 6.5,
                 'imagen' => "picadas-monkey.jpg",
                 'descripcion' => "Carne, pollo, chorizo parrillero, chorizo artesanal,cuerito, camarón  (xx gr. De proteina) | Guarnición: papas fritas/cocidas o patacones, ensalada, salsa.",
@@ -209,6 +225,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "hamburguesa-monkey",
+                'public_id' => "hamburguesa-monkey",
                 'precio' => 7.5,
                 'imagen' => "hamburguesa-monkey.jpg",
                 'descripcion' => "Doble porciòn de 130 gr. de carne,queso, cheddar,jamón, tocino, vegetales. | Guarnición: papas fritas, salsas.",
@@ -221,6 +238,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "alitas-bbq",
+                'public_id' => "alitas-bbq",
                 'precio' => 7.5,
                 'imagen' => "alitas-bbq.jpg",
                 'descripcion' => "6 unidades de alitas | Guarnición: papas fritas/cocidas o patacones, salsas.",
@@ -233,6 +251,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "combo-mixto",
+                'public_id' => "combo-mixto",
                 'precio' => 22,
                 'imagen' => "combo-mixto.jpg",
                 'descripcion' => "12 unidades de alitas, 4 unidades de muslo, 10 unidades decamarones. | Guarnición: papas fritas/cocidas o patacones, salsas. | Salsas : salsas BBQ, mostaza miel, bufalo.",
@@ -245,6 +264,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "combo-burguer",
+                'public_id' => "combo-burguer",
                 'precio' => 20,
                 'imagen' => "combo-burguer.jpg",
                 'descripcion' => "6 unidades de alitas, 3 hamburguesas. | Salsas : salsas BBQ, mostaza miel, bufalo. | Guarnición: papas fritas o patacones, salsas.",
@@ -257,6 +277,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "mix-de-chorizos",
+                'public_id' => "mix-de-chorizos",
                 'precio' => 8,
                 'imagen' => "mix-de-chorizos.jpg",
                 'descripcion' => "Chorizo parrillero, chorizo artesanal,papas fritas.",
@@ -269,6 +290,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "porcion-de-alitas",
+                'public_id' => "porcion-de-alitas",
                 'precio' => 5,
                 'imagen' => "porcion-de-alitas.jpg",
                 'descripcion' => "6 unidades de alitas.",
@@ -281,6 +303,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "porcion-de-ensalada",
+                'public_id' => "porcion-de-ensalada",
                 'precio' => 1.5,
                 'imagen' => "porcion-de-ensalada.jpg",
                 'descripcion' => "lechuga, tomate, cebolla, aderezo.",
@@ -293,6 +316,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "porcion-de-moro",
+                'public_id' => "porcion-de-moro",
                 'precio' => 2.5,
                 'imagen' => "porcion-de-moro.jpg",
                 'descripcion' => "Moro de frèjol, salsa de queso.",
@@ -305,6 +329,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "porcion-de-papas",
+                'public_id' => "porcion-de-papas",
                 'precio' => 2,
                 'imagen' => "porcion-de-papas.jpg",
                 'descripcion' => "Papa chola frita.",
@@ -317,6 +342,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "porcion-de-patacones",
+                'public_id' => "porcion-de-patacones",
                 'precio' => 2.5,
                 'imagen' => "porcion-de-patacones.jpg",
                 'descripcion' => "Porciòn de patacos.",
@@ -329,6 +355,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "mora",
+                'public_id' => "mora",
                 'precio' => 2,
                 'imagen' => "mora.jpg",
                 'descripcion' => "Copa de jugo.",
@@ -341,6 +368,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "fresa",
+                'public_id' => "fresa",
                 'precio' => 2,
                 'imagen' => "fresa.jpg",
                 'descripcion' => "Copa de jugo.",
@@ -353,6 +381,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "piña",
+                'public_id' => "piña",
                 'precio' => 2,
                 'imagen' => "piña.jpg",
                 'descripcion' => "Copa de jugo.",
@@ -365,6 +394,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "jamaica",
+                'public_id' => "jamaica",
                 'precio' => 2,
                 'imagen' => "jamaica.jpg",
                 'descripcion' => "Copa de jugo.",
@@ -377,6 +407,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "limon",
+                'public_id' => "limon",
                 'precio' => 2,
                 'imagen' => "limon.jpg",
                 'descripcion' => "Copa de jugo.",
@@ -389,6 +420,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "jarra-de-mora",
+                'public_id' => "jarra-de-mora",
                 'precio' => 4,
                 'imagen' => "jarra-de-mora.jpg",
                 'descripcion' => "Jarra de jugo(5 vasos).",
@@ -401,6 +433,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "jarra-de-fresa",
+                'public_id' => "jarra-de-fresa",
                 'precio' => 4,
                 'imagen' => "jarra-de-fresa.jpg",
                 'descripcion' => "Jarra de jugo(5 vasos).",
@@ -413,6 +446,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "jarra-de-piña",
+                'public_id' => "jarra-de-piña",
                 'precio' => 4,
                 'imagen' => "jarra-de-piña.jpg",
                 'descripcion' => "Jarra de jugo(5 vasos).",
@@ -425,6 +459,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "jarra-de-jamaica",
+                'public_id' => "jarra-de-jamaica",
                 'precio' => 4,
                 'imagen' => "jarra-de-jamaica.jpg",
                 'descripcion' => "Jarra de jugo(5 vasos).",
@@ -437,6 +472,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "jarra-de-limon",
+                'public_id' => "jarra-de-limon",
                 'precio' => 4,
                 'imagen' => "jarra-de-limon.jpg",
                 'descripcion' => "Jarra de jugo(5 vasos).",
@@ -449,6 +485,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "gaseosa-personal",
+                'public_id' => "gaseosa-personal",
                 'precio' => 0.75,
                 'imagen' => "gaseosa-personal.jpg",
                 'descripcion' => "Bebida con gas.",
@@ -461,6 +498,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "gaseosa-1-litro",
+                'public_id' => "gaseosa-1-litro",
                 'precio' => 2,
                 'imagen' => "gaseosa-1-litro.jpg",
                 'descripcion' => "Bebida con gas.",
@@ -473,6 +511,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "gaseosa-3-litros",
+                'public_id' => "gaseosa-3-litros",
                 'precio' => 4,
                 'imagen' => "gaseosa-3-litros.jpg",
                 'descripcion' => "Bebida con gas.",
@@ -485,6 +524,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "botella-de-agua-personal",
+                'public_id' => "botella-de-agua-personal",
                 'precio' => 0.75,
                 'imagen' => "botella-de-agua-personal.jpg",
                 'descripcion' => "Bebida con gas.",
@@ -497,6 +537,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "club-verde",
+                'public_id' => "club-verde",
                 'precio' => 2.5,
                 'imagen' => "club-verde.jpg",
                 'descripcion' => "750 ml.",
@@ -509,6 +550,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "pilsener-light",
+                'public_id' => "pilsener-light",
                 'precio' => 2,
                 'imagen' => "pilsener-light.jpg",
                 'descripcion' => "750 ml.",
@@ -521,6 +563,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "pilsener-negra",
+                'public_id' => "pilsener-negra",
                 'precio' => 2,
                 'imagen' => "pilsener-negra.jpg",
                 'descripcion' => "750 ml.",
@@ -533,6 +576,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "corona",
+                'public_id' => "corona",
                 'precio' => 3,
                 'imagen' => "corona.jpg",
                 'descripcion' => "355 ml.",
@@ -545,6 +589,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "dalquiri-fresa-o-mora",
+                'public_id' => "dalquiri-fresa-o-mora",
                 'precio' => 4,
                 'imagen' => "dalquiri-fresa-o-mora.jpg",
                 'descripcion' => "Ron blanco, fresa o mora, hielo, azucar.",
@@ -557,6 +602,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "cuba-libre",
+                'public_id' => "cuba-libre",
                 'precio' => 4,
                 'imagen' => "cuba-libre.jpg",
                 'descripcion' => "Jugo de limon, ron blanco 6 de soda.",
@@ -569,6 +615,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "piña-colada",
+                'public_id' => "piña-colada",
                 'precio' => 5,
                 'imagen' => "piña-colada.jpg",
                 'descripcion' => "piña, ron blanco, crema de coco sin azúcar, cubitos de hielo, azúcar blanco, granaduna.",
@@ -581,6 +628,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "mojito",
+                'public_id' => "mojito",
                 'precio' => 4,
                 'imagen' => "mojito.jpg",
                 'descripcion' => "Azúcar blanco, hierbabuena,  menta,  zumo de limon ron blanco,Soda con gas.",
@@ -593,6 +641,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "caipiriña",
+                'public_id' => "caipiriña",
                 'precio' => 4,
                 'imagen' => "caipiriña.jpg",
                 'descripcion' => "Limòn,azúcar,Hielo, ron blanco.",
@@ -605,6 +654,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "michelada",
+                'public_id' => "michelada",
                 'precio' => 4,
                 'imagen' => "michelada.jpg",
                 'descripcion' => "Cerveza, limon, sal, maracuya.",
@@ -617,6 +667,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "sangria",
+                'public_id' => "sangria",
                 'precio' => 4,
                 'imagen' => "sangria.jpg",
                 'descripcion' => "Vino tinto, Refresco de limón (soda),ron blanc, naranja, limón, manzana, fresa, Azúcar.",
@@ -629,6 +680,7 @@ class ProductoSeeder extends Seeder
             ),
             array(
                 'nombre' =>  "copa-de-vino",
+                'public_id' => "copa-de-vino",
                 'precio' => 3,
                 'imagen' => "copa-de-vino.jpg",
                 'descripcion' => "Vino tinto.",

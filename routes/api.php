@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ContenedorOpcionesController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'usuarioEnSession']);
+    Route::get('/employees/session', [EmployeeController::class, 'session']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -62,3 +64,7 @@ Route::get('/categorias', [CategoriaController::class, 'index']);
 //Autenticacion
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+//Empleados
+Route::post('/employee/register', [EmployeeController::class, 'register']);
+Route::post('/employee/login', [EmployeeController::class, 'login']);
